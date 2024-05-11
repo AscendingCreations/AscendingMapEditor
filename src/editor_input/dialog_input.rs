@@ -8,7 +8,7 @@ fn dialog_release_input(
     database: &mut EditorData,
     config: &ConfigData,
     mapview: &mut MapView,
-    elwt: &winit::event_loop::EventLoopWindowTarget<()>,
+    elwt: &ActiveEventLoop,
 ) {
     if !gameinput.dialog_button_press || gui.dialog.is_none() {
         return;
@@ -70,7 +70,7 @@ pub fn dialog_input(
     database: &mut EditorData,
     config: &ConfigData,
     mapview: &mut MapView,
-    elwt: &winit::event_loop::EventLoopWindowTarget<()>,
+    elwt: &ActiveEventLoop,
 ) {
     if let Some(dialog) = &mut gui.dialog {
         match inputtype {

@@ -143,13 +143,14 @@ impl EditorData {
         config: &ConfigData,
     ) {
         // Check if the map should be save as file or temporary data
-        let (should_save, find_key);
+        let should_save;
+        let mut find_key = String::new();
         if old_map_key.is_some() {
             should_save = false;
             find_key = old_map_key.unwrap();
         } else {
             should_save = true;
-            find_key = self.current_index.clone();
+            find_key.clone_from(&self.current_index);
         }
         // This handles the copying of data from map tiles to map data
         if let Some(mapdata) = self.maps.get_mut(&find_key) {
@@ -177,7 +178,7 @@ impl EditorData {
                 }
             }
             mapdata.weather = Weather::None; //ToDo mapview.fixed_weather;
-            mapdata.music = mapview.music.clone();
+            mapdata.music.clone_from(&mapview.music);
             if should_save {
                 if config.save_json {
                     mapdata.save_file().unwrap();
@@ -291,7 +292,7 @@ impl EditorData {
                 }
             }
             map.fixed_weather = 0; //ToDo mapdata.weather;
-            map.music = mapdata.music.clone();
+            map.music.clone_from(&mapdata.music);
         }
     }
 

@@ -6,7 +6,7 @@ mod tileset_input;
 
 use cosmic_text::{Attrs, Metrics};
 use graphics::*;
-use winit::{event::*, keyboard::*};
+use winit::{event::*, event_loop::ActiveEventLoop, keyboard::*};
 
 pub use dialog_input::*;
 use interface_input::*;
@@ -81,7 +81,7 @@ pub fn handle_input(
     mapview: &mut MapView,
     database: &mut EditorData,
     config_data: &mut ConfigData,
-    elwt: &winit::event_loop::EventLoopWindowTarget<()>,
+    elwt: &ActiveEventLoop,
 ) {
     // We convert the mouse position to render position as the y pos increase upward
     let screen_pos = Vec2::new(
