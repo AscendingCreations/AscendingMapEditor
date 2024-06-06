@@ -34,6 +34,7 @@ impl Textbox {
             Vec3::new(textbox_pos.x + 2.0, textbox_pos.y - 2.0, textbox_pos.z),
             textbox_size,
             1.0,
+            0,
         );
         txt.set_buffer_size(
             &mut systems.renderer,
