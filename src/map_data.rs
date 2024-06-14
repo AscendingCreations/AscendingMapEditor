@@ -31,14 +31,14 @@ pub struct EditorData {
 
     // Loaded Maps
     pub current_index: String,
-    pub maps: IndexMap<String, MapData>,
-    pub did_map_change: IndexMap<String, bool>,
+    pub maps: IndexMap<String, MapData, ahash::RandomState>,
+    pub did_map_change: IndexMap<String, bool, ahash::RandomState>,
 }
 
 impl EditorData {
     pub fn new() -> Result<EditorData, GraphicsError> {
-        let mut maps = IndexMap::new();
-        let mut did_map_change = IndexMap::new();
+        let mut maps = IndexMap::default();
+        let mut did_map_change = IndexMap::default();
 
         let current_index = format!("{}_{}_{}", 0, 0, 0);
         let map = load_file(0, 0, 0)?;

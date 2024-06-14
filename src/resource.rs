@@ -62,7 +62,7 @@ pub struct TextureAllocation {
     pub direction_block_tile: TextureData,
     pub tilesheet: Vec<TilesheetData>,
     // This will be used for eyedropper tool
-    pub tile_location: IndexMap<usize, (u32, u32, u32)>,
+    pub tile_location: IndexMap<usize, (u32, u32, u32), ahash::RandomState>,
 }
 
 impl TextureAllocation {
@@ -175,7 +175,7 @@ impl TextureAllocation {
                 .ok_or_else(|| OtherError::new("failed to upload image"))?,
         };
 
-        let mut tile_location = IndexMap::new();
+        let mut tile_location = IndexMap::default();
         let mut tilesheet = Vec::new();
         let mut count = 0;
         let mut path_found = true;

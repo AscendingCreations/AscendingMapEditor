@@ -21,7 +21,7 @@ pub struct ChangeData {
 
 #[derive(Debug)]
 pub struct Record {
-    pub changes: IndexMap<String, ChangeData>,
+    pub changes: IndexMap<String, ChangeData, ahash::RandomState>,
 }
 pub struct Records {
     in_record: bool,
@@ -49,7 +49,7 @@ impl Records {
         let index = self.undo.len();
         self.last_index = Some(index);
         self.undo.push(Record {
-            changes: IndexMap::new(),
+            changes: IndexMap::default(),
         });
     }
 
@@ -96,7 +96,7 @@ impl Records {
         let index = self.redo.len();
         self.last_index = Some(index);
         self.redo.push(Record {
-            changes: IndexMap::new(),
+            changes: IndexMap::default(),
         });
     }
 

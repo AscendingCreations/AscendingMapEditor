@@ -11,31 +11,31 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bytemuck = { version = "1.14.0", features = ["derive"] }
+bytemuck = { version = "1.16.0", features = ["derive"] }
 mint = "0.5.9"
-thiserror = "1.0.48"
-winit = { version = "0.30.0", features = ["serde", "rwh_05"] }
-image = "0.24.7"
-tokio = { version = "1.32.0", features = ["full"] }
+thiserror = "1.0.61"
+winit = { version = "0.30.1", features = ["serde", "rwh_05"] }
+image = "0.25.1"
+tokio = { version = "1.38.0", features = ["full"] }
 guillotiere = "0.6.2"
-serde = { version = "1.0.188", features = ["derive"] }
-log = "0.4.20"
-backtrace = "0.3.69"
-futures = "0.3.28"
-chrono = { version = "0.4.30", disable-defaults = true, features = [
+serde = { version = "1.0.203", features = ["derive"] }
+log = "0.4.21"
+backtrace = "0.3.73"
+futures = "0.3.30"
+chrono = { version = "0.4.38", disable-defaults = true, features = [
     "clock",
     "serde",
     "std",
 ] }
-ubits = "0.3.1"
-hecs = "0.10.3"
-glam = { version = "0.24.1", features = ["bytemuck", "mint"] }
-serde_json = "1.0.82"
-indexmap = "2.1.0"
+hecs = "0.10.5"
+glam = { version = "0.28.0", features = ["bytemuck", "mint"] }
+serde_json = "1.0.117"
+indexmap = "2.2.6"
 slab = "0.4.9"
 bit_op = "0.1.1"
 bytey = { version = "0.3.0", git = "https://github.com/Stefanowhb/bytey.git" }
 speedy = "0.8.7"
+ahash = "0.8.11"
 
 [dependencies.camera]
 #git = "https://github.com/AscendingCreations/AscendingLibraries"

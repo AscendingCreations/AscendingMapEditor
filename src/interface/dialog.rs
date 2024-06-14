@@ -30,7 +30,7 @@ pub enum DialogButtonType {
 pub enum DialogData {
     DataNone,
     MapLocation((i32, i32, i64)),
-    MapList(IndexMap<String, (i32, i32, i64)>),
+    MapList(IndexMap<String, (i32, i32, i64)>, ahash::RandomState),
 }
 
 pub struct DialogButton {
@@ -159,7 +159,7 @@ impl Dialog {
     pub fn new(
         systems: &mut DrawSetting,
         dialog_type: DialogType,
-        data: Option<IndexMap<String, bool>>,
+        data: Option<IndexMap<String, bool, ahash::RandomState>>,
     ) -> Self {
         // This image is for the transparent shadow that will render behind the dialog
         let mut img = Rect::new(&mut systems.renderer, 0);

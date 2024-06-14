@@ -741,7 +741,7 @@ impl Interface {
         &mut self,
         systems: &mut DrawSetting,
         dialogtype: DialogType,
-        data: Option<IndexMap<String, bool>>,
+        data: Option<IndexMap<String, bool, ahash::RandomState>>,
     ) {
         if self.dialog.is_some() {
             return;
