@@ -5,7 +5,7 @@ use crate::DrawSetting;
 
 pub fn center_text(text: &mut Text) {
     let size = text.measure();
-    let bound = text.bounds.unwrap_or_default();
+    let bound = text.bounds;
     let textbox_size = bound.right - bound.left;
     text.pos.x = bound.left + ((textbox_size * 0.5) - (size.x * 0.5));
     text.changed = true;
@@ -28,10 +28,10 @@ pub fn create_label(
     );
     text.set_buffer_size(
         &mut systems.renderer,
-        systems.size.width as i32,
-        systems.size.height as i32,
+        Some(systems.size.width),
+        Some(systems.size.height),
     )
-    .set_bounds(Some(bounds))
+    .set_bounds(bounds)
     .set_default_color(color);
     text.changed = true;
     text
@@ -53,15 +53,15 @@ pub fn create_basic_label(
     );
     text.set_buffer_size(
         &mut systems.renderer,
-        systems.size.width as i32,
-        systems.size.height as i32,
+        Some(systems.size.width),
+        Some(systems.size.height),
     )
-    .set_bounds(Some(Bounds::new(
+    .set_bounds(Bounds::new(
         pos.x,
         pos.y,
         pos.x + label_size.x,
         pos.y + label_size.y,
-    )))
+    ))
     .set_default_color(color);
     text.changed = true;
     text

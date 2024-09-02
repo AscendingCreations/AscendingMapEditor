@@ -38,15 +38,15 @@ impl Textbox {
         );
         txt.set_buffer_size(
             &mut systems.renderer,
-            textbox_size.x as i32,
-            systems.size.height as i32,
+            Some(textbox_size.x),
+            Some(systems.size.height),
         )
-        .set_bounds(Some(Bounds::new(
+        .set_bounds(Bounds::new(
             textbox_pos.x,
             textbox_pos.y,
             textbox_pos.x + textbox_size.x,
             textbox_pos.y + textbox_size.y,
-        )))
+        ))
         .set_default_color(Color::rgba(200, 200, 200, 255))
         .set_text(&mut systems.renderer, "", Attrs::new(), Shaping::Advanced);
         txt.changed = true;

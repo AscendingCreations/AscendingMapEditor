@@ -169,6 +169,7 @@ impl winit::application::ApplicationHandler for Runner {
                     required_features: wgpu::Features::default(),
                     required_limits: wgpu::Limits::default(),
                     label: None,
+                    memory_hints: wgpu::MemoryHints::Performance,
                 },
                 None,
                 // How we are presenting the screen which causes it to either clip to a FPS limit or be unlimited.
@@ -186,6 +187,7 @@ impl winit::application::ApplicationHandler for Runner {
                     &mut renderer,
                     wgpu::TextureFormat::Rgba8UnormSrgb,
                     true,
+                    2048,
                 ))
             })
             .take(4)
@@ -193,7 +195,7 @@ impl winit::application::ApplicationHandler for Runner {
 
             // we generate the Text atlas seperatly since it contains a special texture that only has the red color to it.
             // and another for emojicons.
-            let text_atlas = TextAtlas::new(&mut renderer).unwrap();
+            let text_atlas = TextAtlas::new(&mut renderer, 1024).unwrap();
 
             // get the screen size.
             let size = renderer.size();

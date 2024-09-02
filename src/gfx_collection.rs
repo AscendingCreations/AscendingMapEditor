@@ -142,12 +142,7 @@ impl GfxCollection {
         }
     }
 
-    pub fn set_text(
-        &mut self,
-        renderer: &mut GpuRenderer,
-        index: usize,
-        msg: &str,
-    ) {
+    pub fn set_text(&mut self, renderer: &mut GpuRenderer, index: usize, msg: &str) {
         if let Some(data) = self.collection.get_mut(index) {
             if let GfxType::Text(text) = &mut data.gfx {
                 text.set_text(renderer, msg, Attrs::new(), Shaping::Advanced);
@@ -159,10 +154,9 @@ impl GfxCollection {
         if let Some(data) = self.collection.get_mut(index) {
             if let GfxType::Text(text) = &mut data.gfx {
                 let size = text.measure();
-                let bound = text.bounds.unwrap_or_default();
+                let bound = text.bounds;
                 let textbox_size = bound.right - bound.left;
-                text.pos.x =
-                    bound.left + ((textbox_size * 0.5) - (size.x * 0.5));
+                text.pos.x = bound.left + ((textbox_size * 0.5) - (size.x * 0.5));
                 text.changed = true;
             }
         }

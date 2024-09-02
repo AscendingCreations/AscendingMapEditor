@@ -269,12 +269,12 @@ impl ColorSelection {
 
         if let Some(msg) = msg {
             txt.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
-            txt.set_bounds(Some(Bounds::new(
+            txt.set_bounds(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + txt.measure().x,
                 text_pos.y + 20.0,
-            )));
+            ));
         };
         let text = systems.gfx.add_text(txt, render_layer[1]);
         systems.gfx.set_visible(text, false);
