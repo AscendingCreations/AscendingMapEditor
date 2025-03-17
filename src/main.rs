@@ -5,7 +5,10 @@ use camera::{
     Projection,
 };
 use cosmic_text::{Attrs, Metrics};
-use graphics::*;
+use graphics::{
+    wgpu::{BackendOptions, Dx12BackendOptions},
+    *,
+};
 use input::{Bindings, FrameTime, InputHandler, Key};
 use log::{error, info, warn, Level, LevelFilter, Metadata, Record};
 use serde::{Deserialize, Serialize};
@@ -138,11 +141,17 @@ impl winit::application::ApplicationHandler for Runner {
             // Generates an Instance for WGPU. Sets WGPU to be allowed on all possible supported backends
             // These are DX12, DX11, Vulkan, Metal and Gles. if none of these work on a system they cant
             // play the game basically.
-            let instance = wgpu::Instance::new(InstanceDescriptor {
+            let instance = wgpu::Instance::new(&InstanceDescriptor {
                 backends: Backends::all(),
                 flags: InstanceFlags::empty(),
-                dx12_shader_compiler: Dx12Compiler::default(),
-                gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
+                backend_options: BackendOptions {
+                    gl: wgpu::GlBackendOptions {
+                        gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
+                    },
+                    dx12: Dx12BackendOptions {
+                        shader_compiler: Dx12Compiler::default(),
+                    },
+                },
             });
 
             info!("after wgpu instance initiation");
@@ -436,7 +445,7 @@ impl winit::application::ApplicationHandler for Runner {
             let new_size = systems.renderer.size();
 
             // update our inputs.
-            input_handler.window_updates(systems.renderer.window(), &event, 1.0);
+            input_handler.window_updates(systems.renderer.window(), &event);
 
             if systems.size != new_size {
                 systems.size = new_size;
