@@ -268,7 +268,7 @@ impl ColorSelection {
         );
 
         if let Some(msg) = msg {
-            txt.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+            txt.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
             txt.set_bounds(Bounds::new(
                 text_pos.x,
                 text_pos.y,

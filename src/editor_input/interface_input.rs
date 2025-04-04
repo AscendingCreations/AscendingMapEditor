@@ -491,7 +491,12 @@ pub fn set_tab(
                         Vec2::new(100.0, 20.0),
                         Color::rgba(180, 180, 180, 255),
                     );
-                    text.set_text(&mut systems.renderer, &msg, Attrs::new(), Shaping::Advanced);
+                    text.set_text(
+                        &mut systems.renderer,
+                        &msg,
+                        &Attrs::new(),
+                        Shaping::Advanced,
+                    );
                     gui.editor_label.push(systems.gfx.add_text(text, 1));
 
                     if i != 1 {
@@ -579,7 +584,7 @@ pub fn set_tab(
                 text.set_text(
                     &mut systems.renderer,
                     "Weather",
-                    Attrs::new(),
+                    &Attrs::new(),
                     Shaping::Advanced,
                 );
                 gui.editor_label.push(systems.gfx.add_text(text, 1));
@@ -614,7 +619,7 @@ pub fn set_tab(
                 text.set_text(
                     &mut systems.renderer,
                     "Music",
-                    Attrs::new(),
+                    &Attrs::new(),
                     Shaping::Advanced,
                 );
                 gui.editor_label.push(systems.gfx.add_text(text, 1));
@@ -650,7 +655,7 @@ pub fn set_tab(
                 text.set_text(
                     &mut systems.renderer,
                     "Direction Block",
-                    Attrs::new(),
+                    &Attrs::new(),
                     Shaping::Advanced,
                 );
                 gui.editor_label.push(systems.gfx.add_text(text, 1));
@@ -766,7 +771,7 @@ pub fn open_attribute_settings(
                     Vec2::new(100.0, 20.0),
                     Color::rgba(180, 180, 180, 255),
                 );
-                text.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+                text.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
                 gui.editor_label.push(systems.gfx.add_text(text, 1));
             }
 
@@ -853,7 +858,7 @@ pub fn open_attribute_settings(
                     Vec2::new(100.0, 20.0),
                     Color::rgba(180, 180, 180, 255),
                 );
-                text.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+                text.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
                 gui.editor_label.push(systems.gfx.add_text(text, 1));
             }
 
@@ -897,7 +902,7 @@ pub fn open_attribute_settings(
             text.set_text(
                 &mut systems.renderer,
                 "Index",
-                Attrs::new(),
+                &Attrs::new(),
                 Shaping::Advanced,
             );
             gui.editor_label.push(systems.gfx.add_text(text, 1));

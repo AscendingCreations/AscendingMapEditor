@@ -30,8 +30,7 @@ impl Button {
         img.uv = Vec4::new(0.0, 0.0, button_size.x, button_size.y);
         let image = systems.gfx.add_image(img, render_layer[0]);
 
-        let adjust_x =
-            (button_size.x * 0.5).floor() - (button_size.x * 0.5).floor();
+        let adjust_x = (button_size.x * 0.5).floor() - (button_size.x * 0.5).floor();
         let mut txt = create_label(
             systems,
             Vec3::new(pos.x + adjust_x, pos.y + adjust_text_y, z_order[1]),
@@ -47,13 +46,12 @@ impl Button {
         txt.set_text(
             &mut systems.renderer,
             message,
-            Attrs::new(),
+            &Attrs::new(),
             Shaping::Advanced,
         );
         // Adjust text x position
         let message_size = txt.measure();
-        txt.pos.x = pos.x
-            + ((button_size.x * 0.5).floor() - (message_size.x * 0.5)).floor();
+        txt.pos.x = pos.x + ((button_size.x * 0.5).floor() - (message_size.x * 0.5)).floor();
         txt.changed = true;
         let text = systems.gfx.add_text(txt, render_layer[1]);
 

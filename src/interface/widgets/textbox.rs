@@ -48,7 +48,7 @@ impl Textbox {
             textbox_pos.y + textbox_size.y,
         ))
         .set_default_color(Color::rgba(200, 200, 200, 255))
-        .set_text(&mut systems.renderer, "", Attrs::new(), Shaping::Advanced);
+        .set_text(&mut systems.renderer, "", &Attrs::new(), Shaping::Advanced);
         txt.changed = true;
         if can_wrap {
             txt.set_wrap(&mut systems.renderer, cosmic_text::Wrap::Word);

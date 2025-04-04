@@ -41,7 +41,7 @@ impl MenuButton {
             Bounds::new(pos.x, pos.y, pos.x + 120.0, pos.y + 20.0),
             Color::rgba(20, 20, 20, 255),
         );
-        txt.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+        txt.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
         let text = systems.gfx.add_text(txt, 3);
         systems.gfx.set_visible(text, false);
 
@@ -93,7 +93,7 @@ impl KeyList {
             Bounds::new(pos.x, pos.y, pos.x + label_size.x, pos.y + label_size.y),
             Color::rgba(180, 180, 180, 255),
         );
-        txt.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+        txt.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
         let text = systems.gfx.add_text(txt, 3);
         systems.gfx.set_visible(text, false);
 
@@ -114,7 +114,7 @@ impl KeyList {
         keystring.set_text(
             &mut systems.renderer,
             keystr,
-            Attrs::new(),
+            &Attrs::new(),
             Shaping::Advanced,
         );
         let key_string = systems.gfx.add_text(keystring, 3);

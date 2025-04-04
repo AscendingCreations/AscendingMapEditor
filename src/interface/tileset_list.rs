@@ -122,7 +122,7 @@ impl TilesetList {
             text.set_text(
                 &mut systems.renderer,
                 &systems.resource.tilesheet[index].name,
-                Attrs::new(),
+                &Attrs::new(),
                 Shaping::Advanced,
             );
 

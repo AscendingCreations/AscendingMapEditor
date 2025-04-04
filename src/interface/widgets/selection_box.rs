@@ -150,7 +150,12 @@ impl SelectionBox {
                 Vec2::new(width - 20.0, 20.0),
                 Color::rgba(180, 180, 180, 255),
             );
-            ltext.set_text(&mut systems.renderer, list, Attrs::new(), Shaping::Advanced);
+            ltext.set_text(
+                &mut systems.renderer,
+                list,
+                &Attrs::new(),
+                Shaping::Advanced,
+            );
 
             let (rect, text) = (
                 systems.gfx.add_rect(lrect, 0),
@@ -177,7 +182,7 @@ impl SelectionBox {
         txt.set_text(
             &mut systems.renderer,
             &list[0],
-            Attrs::new(),
+            &Attrs::new(),
             Shaping::Advanced,
         );
         let text = systems.gfx.add_text(txt, 1);

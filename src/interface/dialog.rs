@@ -70,7 +70,7 @@ impl DialogButton {
         txt.set_text(
             &mut systems.renderer,
             message,
-            Attrs::new(),
+            &Attrs::new(),
             Shaping::Advanced,
         );
         // Adjust text x position
@@ -302,7 +302,7 @@ impl Dialog {
             ),
             Color::rgba(200, 200, 200, 255),
         ); // FPS
-        msg_text.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+        msg_text.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
         // Adjust message x position based on message text
         let message_size = msg_text.measure();
         msg_text.pos.x = window_pos.x + ((window_size.x * 0.5) - (message_size.x * 0.5)).floor();
@@ -390,11 +390,11 @@ impl Dialog {
                         text.set_text(
                             &mut systems.renderer,
                             &editor_data[index],
-                            Attrs::new(),
+                            &Attrs::new(),
                             Shaping::Advanced,
                         );
                     } else {
-                        text.set_text(&mut systems.renderer, "", Attrs::new(), Shaping::Advanced);
+                        text.set_text(&mut systems.renderer, "", &Attrs::new(), Shaping::Advanced);
                     }
                     data.push(systems.gfx.add_text(text, 3));
                 }
@@ -420,7 +420,7 @@ impl Dialog {
                     ),
                     Color::rgba(200, 200, 200, 255),
                 ); // X
-                mapx.set_text(&mut systems.renderer, "X", Attrs::new(), Shaping::Advanced);
+                mapx.set_text(&mut systems.renderer, "X", &Attrs::new(), Shaping::Advanced);
                 let mut mapy = create_label(
                     systems,
                     Vec3::new(
@@ -437,7 +437,7 @@ impl Dialog {
                     ),
                     Color::rgba(200, 200, 200, 255),
                 ); // Y
-                mapy.set_text(&mut systems.renderer, "Y", Attrs::new(), Shaping::Advanced);
+                mapy.set_text(&mut systems.renderer, "Y", &Attrs::new(), Shaping::Advanced);
                 let mut mapgroup = create_label(
                     systems,
                     Vec3::new(
@@ -457,7 +457,7 @@ impl Dialog {
                 mapgroup.set_text(
                     &mut systems.renderer,
                     "Group",
-                    Attrs::new(),
+                    &Attrs::new(),
                     Shaping::Advanced,
                 );
                 vec![

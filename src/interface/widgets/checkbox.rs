@@ -63,7 +63,7 @@ impl Checkbox {
             ),
             Color::rgba(180, 180, 180, 255),
         );
-        txt.set_text(&mut systems.renderer, msg, Attrs::new(), Shaping::Advanced);
+        txt.set_text(&mut systems.renderer, msg, &Attrs::new(), Shaping::Advanced);
         let text = systems.gfx.add_text(txt, render_layer[1]);
         systems.gfx.set_visible(text, false);
 

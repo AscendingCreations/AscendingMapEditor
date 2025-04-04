@@ -83,7 +83,7 @@ impl KeybindWindow {
         txt.set_text(
             &mut systems.renderer,
             "Please enter a Key",
-            Attrs::new(),
+            &Attrs::new(),
             Shaping::Advanced,
         );
         center_text(&mut txt);

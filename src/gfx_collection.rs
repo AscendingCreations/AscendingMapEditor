@@ -145,7 +145,7 @@ impl GfxCollection {
     pub fn set_text(&mut self, renderer: &mut GpuRenderer, index: usize, msg: &str) {
         if let Some(data) = self.collection.get_mut(index) {
             if let GfxType::Text(text) = &mut data.gfx {
-                text.set_text(renderer, msg, Attrs::new(), Shaping::Advanced);
+                text.set_text(renderer, msg, &Attrs::new(), Shaping::Advanced);
             }
         }
     }
