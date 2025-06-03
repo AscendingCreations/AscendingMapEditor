@@ -49,7 +49,7 @@ impl DialogButton {
         text_size: Vec2,
         button_type: DialogButtonType,
     ) -> Self {
-        let mut img = Image::new(
+        let img = Image::new(
             Some(systems.resource.dialog_button.allocation),
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, ORDER_DIALOG_BUTTON),

@@ -90,7 +90,7 @@ impl SelectionBox {
             .set_color(Color::rgba(35, 35, 35, 255));
 
         // Dropdown Box Image
-        let mut button_image = Image::new(
+        let button_image = Image::new(
             Some(systems.resource.selection_drop_button.allocation),
             &mut systems.renderer,
             Vec3::new(pos.x + (width - 22.0), pos.y, z_order[0]),

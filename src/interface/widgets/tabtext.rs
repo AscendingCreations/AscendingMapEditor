@@ -13,7 +13,7 @@ pub struct TabText {
 
 impl TabText {
     pub fn new(systems: &mut DrawSetting, pos: Vec2) -> Self {
-        let mut image = Image::new(
+        let image = Image::new(
             Some(systems.resource.tab_option.allocation),
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, ORDER_TAB_BUTTON),

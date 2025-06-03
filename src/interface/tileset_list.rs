@@ -92,7 +92,7 @@ impl TilesetList {
         let mut selection_buttons = Vec::with_capacity(max_view);
         for index in 0..max_view {
             // Create the selectable buttons
-            let mut image = Image::new(
+            let image = Image::new(
                 Some(systems.resource.tileset_list_select.allocation),
                 &mut systems.renderer,
                 Vec3::new(

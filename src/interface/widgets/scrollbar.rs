@@ -43,7 +43,7 @@ impl Scrollbar {
         }
 
         // Top Corner of Scrollbar
-        let mut image = Image::new(
+        let image = Image::new(
             Some(systems.resource.scrollbar.allocation),
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, pos.z),
@@ -55,7 +55,7 @@ impl Scrollbar {
         images.push(systems.gfx.add_image(image, render_layer));
 
         // Center of Scrollbar
-        let mut image = Image::new(
+        let image = Image::new(
             Some(systems.resource.scrollbar.allocation),
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y - scrollbar_size as f32, pos.z),
@@ -67,7 +67,7 @@ impl Scrollbar {
         images.push(systems.gfx.add_image(image, render_layer));
 
         // Bottom Corner of Scrollbar
-        let mut image = Image::new(
+        let image = Image::new(
             Some(systems.resource.scrollbar.allocation),
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y - scrollbar_size as f32 - 4.0, pos.z),

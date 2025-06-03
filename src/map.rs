@@ -249,7 +249,7 @@ impl MapView {
             map_zone.push(systems.gfx.add_rect(zone_box, 0));
 
             // Dir Block
-            let mut block_bg = Image::new(
+            let block_bg = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
@@ -261,7 +261,7 @@ impl MapView {
             let bg = systems.gfx.add_image(block_bg, 0);
             systems.gfx.set_visible(bg, false);
 
-            let mut dir0 = Image::new(
+            let dir0 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
@@ -270,7 +270,7 @@ impl MapView {
                 0,
             );
 
-            let mut dir1 = Image::new(
+            let dir1 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
@@ -279,7 +279,7 @@ impl MapView {
                 0,
             );
 
-            let mut dir2 = Image::new(
+            let dir2 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
@@ -288,7 +288,7 @@ impl MapView {
                 0,
             );
 
-            let mut dir3 = Image::new(
+            let dir3 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
@@ -687,11 +687,7 @@ impl MapView {
 
     pub fn add_map_zone(&mut self, systems: &mut DrawSetting, zone_index: usize, pos: Vec2) {
         // Record change for undo purpose
-        let does_exist = if self.map_zone_loc[zone_index]
-            .pos
-            .iter()
-            .any(|&check_pos| check_pos == pos)
-        {
+        let does_exist = if self.map_zone_loc[zone_index].pos.contains(&pos) {
             1
         } else {
             0
@@ -707,22 +703,14 @@ impl MapView {
         systems
             .gfx
             .set_color(self.map_zone[tilenum], get_zone_color(zone_index));
-        if !self.map_zone_loc[zone_index]
-            .pos
-            .iter()
-            .any(|&check_pos| check_pos == pos)
-        {
+        if !self.map_zone_loc[zone_index].pos.contains(&pos) {
             self.map_zone_loc[zone_index].pos.push(pos);
         }
     }
 
     pub fn set_zone_fill(&mut self, systems: &mut DrawSetting, set_pos: Vec2, zone_index: usize) {
         // Fill only empty area
-        if self.map_zone_loc[zone_index]
-            .pos
-            .iter()
-            .any(|&check_pos| check_pos == set_pos)
-        {
+        if self.map_zone_loc[zone_index].pos.contains(&set_pos) {
             return;
         }
 
@@ -735,11 +723,7 @@ impl MapView {
         // Loop through our collections of position that requires to be paint
         while let Some(pos) = paint_to_map.pop() {
             // Record change for undo purpose
-            let does_exist = if self.map_zone_loc[zone_index]
-                .pos
-                .iter()
-                .any(|&check_pos| check_pos == pos)
-            {
+            let does_exist = if self.map_zone_loc[zone_index].pos.contains(&pos) {
                 1
             } else {
                 0
@@ -756,11 +740,7 @@ impl MapView {
             systems
                 .gfx
                 .set_color(self.map_zone[tilenum], get_zone_color(zone_index));
-            if !self.map_zone_loc[zone_index]
-                .pos
-                .iter()
-                .any(|&check_pos| check_pos == pos)
-            {
+            if !self.map_zone_loc[zone_index].pos.contains(&pos) {
                 self.map_zone_loc[zone_index].pos.push(pos);
             }
 
@@ -787,11 +767,7 @@ impl MapView {
                 if checkpos.x >= 0.0 && checkpos.x < 32.0 && checkpos.y >= 0.0 && checkpos.y < 32.0
                 {
                     // Check if zone is empty
-                    if !self.map_zone_loc[zone_index]
-                        .pos
-                        .iter()
-                        .any(|&check_pos| check_pos == checkpos)
-                    {
+                    if !self.map_zone_loc[zone_index].pos.contains(&checkpos) {
                         paint_to_map.push(checkpos);
                     }
                 }
@@ -801,11 +777,7 @@ impl MapView {
 
     pub fn delete_map_zone(&mut self, systems: &mut DrawSetting, zone_index: usize, pos: Vec2) {
         // Record change for undo purpose
-        let does_exist = if self.map_zone_loc[zone_index]
-            .pos
-            .iter()
-            .any(|&check_pos| check_pos == pos)
-        {
+        let does_exist = if self.map_zone_loc[zone_index].pos.contains(&pos) {
             1
         } else {
             0

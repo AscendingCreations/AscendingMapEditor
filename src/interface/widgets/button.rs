@@ -24,7 +24,7 @@ impl Button {
         adjust_text_y: f32,
         render_layer: [usize; 2],
     ) -> Self {
-        let mut img = Image::new(
+        let img = Image::new(
             Some(texture),
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, z_order[0]),

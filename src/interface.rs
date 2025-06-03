@@ -75,7 +75,7 @@ pub struct Interface {
 impl Interface {
     pub fn new(systems: &mut DrawSetting, config_data: &mut ConfigData) -> Self {
         // Load the texture
-        let mut bglayout = Image::new(
+        let bglayout = Image::new(
             Some(systems.resource.bg_layout.allocation),
             &mut systems.renderer,
             Vec3::new(0.0, 0.0, ORDER_BG),
@@ -84,7 +84,7 @@ impl Interface {
             0,
         );
 
-        let mut mapviewbg = Image::new(
+        let mapviewbg = Image::new(
             Some(systems.resource.mapview_bg.allocation),
             &mut systems.renderer,
             Vec3::new(215.0, 35.0, ORDER_ALPHA_BG),
@@ -93,7 +93,7 @@ impl Interface {
             0,
         );
 
-        let mut tilesetbg = Image::new(
+        let tilesetbg = Image::new(
             Some(systems.resource.tileset_bg.allocation),
             &mut systems.renderer,
             Vec3::new(11.0, 369.0, ORDER_ALPHA_BG),
@@ -778,7 +778,7 @@ fn create_tool_button(
     hw: Vec2,
     uv: Vec4,
 ) -> ToolButton {
-    let mut toolimage = Image::new(Some(resource), &mut systems.renderer, pos, hw, uv, 0);
+    let toolimage = Image::new(Some(resource), &mut systems.renderer, pos, hw, uv, 0);
 
     ToolButton {
         index,
