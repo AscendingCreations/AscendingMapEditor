@@ -27,10 +27,13 @@ pub struct MenuButton {
 
 impl MenuButton {
     pub fn new(systems: &mut DrawSetting, pos: Vec2, msg: &str) -> Self {
-        let mut img = Rect::new(&mut systems.renderer, 0);
-        img.set_position(Vec3::new(pos.x, pos.y, ORDER_PREFERENCE_MENU_BUTTON))
-            .set_size(Vec2::new(118.0, 20.0))
-            .set_color(Color::rgba(50, 50, 50, 0));
+        let mut img = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, ORDER_PREFERENCE_MENU_BUTTON),
+            Vec2::new(118.0, 20.0),
+            0,
+        );
+        img.set_color(Color::rgba(50, 50, 50, 0));
         let image = systems.gfx.add_rect(img, 2);
         systems.gfx.set_visible(image, false);
 
@@ -120,15 +123,13 @@ impl KeyList {
         let key_string = systems.gfx.add_text(keystring, 3);
         systems.gfx.set_visible(key_string, false);
 
-        let mut keybutton = Rect::new(&mut systems.renderer, 0);
-        keybutton
-            .set_size(key_label_size)
-            .set_position(Vec3::new(
-                key_pos.x - 3.0,
-                key_pos.y,
-                ORDER_PREFERENCE_KEYLIST_BUTTON,
-            ))
-            .set_color(Color::rgba(50, 50, 50, 255));
+        let mut keybutton = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(key_pos.x - 3.0, key_pos.y, ORDER_PREFERENCE_KEYLIST_BUTTON),
+            key_label_size,
+            0,
+        );
+        keybutton.set_color(Color::rgba(50, 50, 50, 255));
         let key_button = systems.gfx.add_rect(keybutton, 2);
         systems.gfx.set_visible(key_button, false);
 
@@ -193,10 +194,13 @@ pub struct Preference {
 impl Preference {
     pub fn new(systems: &mut DrawSetting) -> Self {
         // This image is for the transparent shadow that will render behind the preference
-        let mut img = Rect::new(&mut systems.renderer, 0);
-        img.set_position(Vec3::new(0.0, 0.0, ORDER_PREFERENCE_SHADOW))
-            .set_size(Vec2::new(systems.size.width, systems.size.height))
-            .set_color(Color::rgba(0, 0, 0, 200));
+        let mut img = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(0.0, 0.0, ORDER_PREFERENCE_SHADOW),
+            Vec2::new(systems.size.width, systems.size.height),
+            0,
+        );
+        img.set_color(Color::rgba(0, 0, 0, 200));
         let bg = systems.gfx.add_rect(img, 2);
         systems.gfx.set_visible(bg, false);
 
@@ -207,45 +211,47 @@ impl Preference {
             ((systems.size.height / ZOOM_LEVEL) * 0.5) - (window_size.y * 0.5),
         )
         .floor();
-        let mut window0 = Rect::new(&mut systems.renderer, 0);
+        let mut window0 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(window_pos.x, window_pos.y, ORDER_PREFERENCE_WINDOW),
+            window_size,
+            0,
+        );
         window0
-            .set_size(window_size)
-            .set_position(Vec3::new(
-                window_pos.x,
-                window_pos.y,
-                ORDER_PREFERENCE_WINDOW,
-            ))
             .set_radius(3.0)
             .set_border_color(Color::rgba(10, 10, 10, 255))
             .set_border_width(2.0)
             .set_color(Color::rgba(50, 50, 50, 255));
-        let mut window1 = Rect::new(&mut systems.renderer, 0);
-        window1
-            .set_size(Vec2::new(120.0, window_size.y - 65.0))
-            .set_position(Vec3::new(
+        let mut window1 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(
                 window_pos.x + 20.0,
                 window_pos.y + 45.0,
                 ORDER_PREFERENCE_MENU,
-            ))
-            .set_color(Color::rgba(100, 100, 100, 255));
-        let mut window2 = Rect::new(&mut systems.renderer, 0);
-        window2
-            .set_size(Vec2::new(window_size.x - 170.0, window_size.y - 65.0))
-            .set_position(Vec3::new(
+            ),
+            Vec2::new(120.0, window_size.y - 65.0),
+            0,
+        );
+        window1.set_color(Color::rgba(100, 100, 100, 255));
+        let mut window2 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(
                 window_pos.x + 150.0,
                 window_pos.y + 45.0,
                 ORDER_PREFERENCE_MENU,
-            ))
-            .set_color(Color::rgba(70, 70, 70, 255));
-        let pos = Vec2::new(
-            window2.position.x + window2.size.x - 10.0,
-            window2.position.y + 2.0,
+            ),
+            Vec2::new(window_size.x - 170.0, window_size.y - 65.0),
+            0,
         );
-        let mut window3 = Rect::new(&mut systems.renderer, 0);
-        window3
-            .set_size(Vec2::new(8.0, window_size.y - 69.0))
-            .set_position(Vec3::new(pos.x, pos.y, ORDER_PREFERENCE_MENU))
-            .set_color(Color::rgba(50, 50, 50, 255));
+        window2.set_color(Color::rgba(70, 70, 70, 255));
+        let pos = Vec2::new(window2.pos.x + window2.size.x - 10.0, window2.pos.y + 2.0);
+        let mut window3 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, ORDER_PREFERENCE_MENU),
+            Vec2::new(8.0, window_size.y - 69.0),
+            0,
+        );
+        window3.set_color(Color::rgba(50, 50, 50, 255));
 
         // Buttons
         let button_x = window_pos.x + window_size.x - 20.0;
@@ -287,7 +293,7 @@ impl Preference {
         });
 
         // Menu Buttons
-        let button_y = window1.position.y + (window_size.y - 65.0);
+        let button_y = window1.pos.y + (window_size.y - 65.0);
         let mut menu_button = vec![
             MenuButton::new(
                 systems,
@@ -306,8 +312,8 @@ impl Preference {
         let scrollbar = Scrollbar::new(
             systems,
             Vec3::new(
-                window2.position.x + window2.size.x - 11.0,
-                window2.position.y + window2.size.y - 5.0,
+                window2.pos.x + window2.size.x - 11.0,
+                window2.pos.y + window2.size.y - 5.0,
                 ORDER_PREFERENCE_SCROLLBAR,
             ),
             0,

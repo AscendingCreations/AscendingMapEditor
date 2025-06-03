@@ -6,7 +6,7 @@ use camera::{
 };
 use cosmic_text::{Attrs, Metrics};
 use graphics::{
-    wgpu::{BackendOptions, Dx12BackendOptions},
+    wgpu::{BackendOptions, Dx12BackendOptions, NoopBackendOptions},
     *,
 };
 use input::{Bindings, FrameTime, InputHandler, Key};
@@ -147,10 +147,12 @@ impl winit::application::ApplicationHandler for Runner {
                 backend_options: BackendOptions {
                     gl: wgpu::GlBackendOptions {
                         gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
+                        fence_behavior: wgpu::GlFenceBehavior::Normal,
                     },
                     dx12: Dx12BackendOptions {
                         shader_compiler: Dx12Compiler::default(),
                     },
+                    noop: NoopBackendOptions::default(),
                 },
             });
 
@@ -179,8 +181,8 @@ impl winit::application::ApplicationHandler for Runner {
                     required_limits: wgpu::Limits::default(),
                     label: None,
                     memory_hints: wgpu::MemoryHints::Performance,
+                    trace: wgpu::Trace::Off,
                 },
-                None,
                 // How we are presenting the screen which causes it to either clip to a FPS limit or be unlimited.
                 wgpu::PresentMode::AutoVsync,
             ))

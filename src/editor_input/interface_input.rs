@@ -387,7 +387,7 @@ pub fn set_tab(
             TAB_LAYER => {
                 gui.tab_labels
                     .iter_mut()
-                    .zip(MapLayers::LAYERS)
+                    .zip(MAP_LAYERS)
                     .for_each(|(tab_labels, layer)| {
                         tab_labels.init(systems, layer.as_str(), 194.0)
                     });
@@ -661,42 +661,38 @@ pub fn set_tab(
                 gui.editor_label.push(systems.gfx.add_text(text, 1));
 
                 for i in 0..4 {
-                    let mut bg_rect = Rect::new(&mut systems.renderer, 0);
-                    bg_rect
-                        .set_size(Vec2::new(32.0, 32.0))
-                        .set_border_width(1.0)
-                        .set_color(Color::rgba(100, 100, 100, 255))
-                        .set_border_color(Color::rgba(40, 40, 40, 255));
-                    match i {
-                        0 => {
-                            bg_rect.set_position(Vec3::new(
+                    let mut bg_rect = Rect::new(
+                        &mut systems.renderer,
+                        match i {
+                            0 => Vec3::new(
                                 content_pos.x + 32.0,
                                 content_pos.y - 192.0,
                                 ORDER_ATTRIBUTE_RECT,
-                            ));
-                        }
-                        1 => {
-                            bg_rect.set_position(Vec3::new(
+                            ),
+                            1 => Vec3::new(
                                 content_pos.x,
                                 content_pos.y - 224.0,
                                 ORDER_ATTRIBUTE_RECT,
-                            ));
-                        }
-                        2 => {
-                            bg_rect.set_position(Vec3::new(
+                            ),
+                            2 => Vec3::new(
                                 content_pos.x + 32.0,
                                 content_pos.y - 256.0,
                                 ORDER_ATTRIBUTE_RECT,
-                            ));
-                        }
-                        _ => {
-                            bg_rect.set_position(Vec3::new(
+                            ),
+                            _ => Vec3::new(
                                 content_pos.x + 64.0,
                                 content_pos.y - 224.0,
                                 ORDER_ATTRIBUTE_RECT,
-                            ));
-                        }
-                    }
+                            ),
+                        },
+                        Vec2::new(32.0, 32.0),
+                        0,
+                    );
+                    bg_rect
+                        .set_border_width(1.0)
+                        .set_color(Color::rgba(100, 100, 100, 255))
+                        .set_border_color(Color::rgba(40, 40, 40, 255));
+
                     gui.editor_rect.push(systems.gfx.add_rect(bg_rect, 0));
                 }
             }

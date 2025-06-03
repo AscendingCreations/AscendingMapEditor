@@ -52,11 +52,12 @@ impl DialogButton {
         let mut img = Image::new(
             Some(systems.resource.dialog_button.allocation),
             &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, ORDER_DIALOG_BUTTON),
+            Vec2::new(103.0, 36.0),
+            Vec4::new(0.0, 0.0, 103.0, 36.0),
             1,
         );
-        img.pos = Vec3::new(pos.x, pos.y, ORDER_DIALOG_BUTTON);
-        img.hw = Vec2::new(103.0, 36.0);
-        img.uv = Vec4::new(0.0, 0.0, 103.0, 36.0);
+
         let image = systems.gfx.add_image(img, 2);
 
         let adjust_x = 51.0 - (text_size.x * 0.5).floor();
@@ -162,10 +163,13 @@ impl Dialog {
         data: Option<IndexMap<String, bool, ahash::RandomState>>,
     ) -> Self {
         // This image is for the transparent shadow that will render behind the dialog
-        let mut img = Rect::new(&mut systems.renderer, 0);
-        img.set_position(Vec3::new(0.0, 0.0, ORDER_DIALOG_SHADOW))
-            .set_size(Vec2::new(systems.size.width, systems.size.height))
-            .set_color(Color::rgba(0, 0, 0, 200));
+        let mut img = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(0.0, 0.0, ORDER_DIALOG_SHADOW),
+            Vec2::new(systems.size.width, systems.size.height),
+            0,
+        );
+        img.set_color(Color::rgba(0, 0, 0, 200));
         let bg = systems.gfx.add_rect(img, 2);
 
         // Window and button position/size calculations
@@ -273,10 +277,13 @@ impl Dialog {
         };
 
         // This will be the dialog window
-        let mut wndw = Rect::new(&mut systems.renderer, 0);
-        wndw.set_size(window_size)
-            .set_position(Vec3::new(window_pos.x, window_pos.y, ORDER_DIALOG_WINDOW))
-            .set_radius(3.0)
+        let mut wndw = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(window_pos.x, window_pos.y, ORDER_DIALOG_WINDOW),
+            window_size,
+            0,
+        );
+        wndw.set_radius(3.0)
             .set_border_color(Color::rgba(10, 10, 10, 255))
             .set_border_width(2.0)
             .set_color(Color::rgba(50, 50, 50, 255));
@@ -338,25 +345,25 @@ impl Dialog {
                     window_pos.y + 65.0,
                 );
                 scrollbar_x = label_box_pos.x;
-                let mut label_box = Rect::new(&mut systems.renderer, 0);
-                label_box
-                    .set_size(label_box_size)
-                    .set_position(Vec3::new(
-                        label_box_pos.x,
-                        label_box_pos.y,
-                        ORDER_DIALOG_CONTENT_IMG1,
-                    ))
-                    .set_color(Color::rgba(60, 60, 60, 255));
+                let mut label_box = Rect::new(
+                    &mut systems.renderer,
+                    Vec3::new(label_box_pos.x, label_box_pos.y, ORDER_DIALOG_CONTENT_IMG1),
+                    label_box_size,
+                    0,
+                );
+                label_box.set_color(Color::rgba(60, 60, 60, 255));
 
-                let mut scrollbar_box = Rect::new(&mut systems.renderer, 0);
-                scrollbar_box
-                    .set_size(Vec2::new(8.0, label_box_size.y - 4.0))
-                    .set_position(Vec3::new(
-                        label_box.position.x + 354.0,
-                        label_box.position.y + 2.0,
+                let mut scrollbar_box = Rect::new(
+                    &mut systems.renderer,
+                    Vec3::new(
+                        label_box.pos.x + 354.0,
+                        label_box.pos.y + 2.0,
                         ORDER_DIALOG_CONTENT_IMG2,
-                    ))
-                    .set_color(Color::rgba(40, 40, 40, 255));
+                    ),
+                    Vec2::new(8.0, label_box_size.y - 4.0),
+                    0,
+                );
+                scrollbar_box.set_color(Color::rgba(40, 40, 40, 255));
                 vec![
                     systems.gfx.add_rect(label_box, 2),
                     systems.gfx.add_rect(scrollbar_box, 2),

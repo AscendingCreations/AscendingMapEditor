@@ -14,7 +14,7 @@ pub struct Tileset {
 
 impl Tileset {
     pub fn new(systems: &mut DrawSetting, config_data: &mut ConfigData) -> Self {
-        let mut map = Map::new(&mut systems.renderer, TEXTURE_SIZE);
+        let mut map = Map::new(&mut systems.renderer, TEXTURE_SIZE, Vec2::new(11.0, 369.0));
 
         // Loop throughout all texture and place them on the map based on their texture location
         for tiledata in &systems.resource.tilesheet[0].tile.tiles {
@@ -26,7 +26,7 @@ impl Tileset {
             // We make sure that we only set those that are not empty tile
             if id > 0 {
                 map.set_tile(
-                    (x, y, 0),
+                    UVec3::new(x, y, 0),
                     TileData {
                         id,
                         color: Color::rgba(255, 255, 255, 255),
@@ -34,26 +34,27 @@ impl Tileset {
                 );
             }
         }
-        // Adjust tileset position on interface
-        map.pos = Vec2::new(11.0, 369.0);
+
         map.can_render = true;
 
         // Setup tile selection image settings
         // We set the selected tile at the very first tile
-        let mut tileselection = Rect::new(&mut systems.renderer, 0);
-        tileselection
-            .set_position(Vec3::new(
+        let mut tileselection = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(
                 map.pos.x,
                 map.pos.y + ((MAX_TILE_Y - 1) * TEXTURE_SIZE) as f32,
                 ORDER_TILESET_SELECTION,
-            ))
-            .set_size(Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32))
-            .set_color(Color::rgba(
-                config_data.tile_selection_color[0],
-                config_data.tile_selection_color[1],
-                config_data.tile_selection_color[2],
-                150,
-            ));
+            ),
+            Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+            0,
+        );
+        tileselection.set_color(Color::rgba(
+            config_data.tile_selection_color[0],
+            config_data.tile_selection_color[1],
+            config_data.tile_selection_color[2],
+            150,
+        ));
 
         Tileset {
             map,
@@ -104,7 +105,7 @@ impl Tileset {
         // Clear Tileset
         (0..MAX_TILE_X).for_each(|x| {
             (0..MAX_TILE_Y).for_each(|y| {
-                self.map.set_tile((x, y, 0), TileData::default());
+                self.map.set_tile(UVec3::new(x, y, 0), TileData::default());
             });
         });
 
@@ -118,7 +119,7 @@ impl Tileset {
             // We make sure that we only set those that are not empty tile
             if id > 0 {
                 self.map.set_tile(
-                    (x, y, 0),
+                    UVec3::new(x, y, 0),
                     TileData {
                         id,
                         color: Color::rgba(255, 255, 255, 255),

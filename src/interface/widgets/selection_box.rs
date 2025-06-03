@@ -77,11 +77,14 @@ impl SelectionBox {
         list: Vec<String>,
         render_layer: usize,
     ) -> Self {
-        let mut rect0 = Rect::new(&mut systems.renderer, 0);
+        let mut rect0 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, z_order[0]),
+            Vec2::new(width - 21.0, 24.0),
+            0,
+        );
         // Dropdown Box
         rect0
-            .set_position(Vec3::new(pos.x, pos.y, z_order[0]))
-            .set_size(Vec2::new(width - 21.0, 24.0))
             .set_border_width(1.0)
             .set_border_color(Color::rgba(20, 20, 20, 255))
             .set_color(Color::rgba(35, 35, 35, 255));
@@ -90,11 +93,12 @@ impl SelectionBox {
         let mut button_image = Image::new(
             Some(systems.resource.selection_drop_button.allocation),
             &mut systems.renderer,
+            Vec3::new(pos.x + (width - 22.0), pos.y, z_order[0]),
+            Vec2::new(22.0, 24.0),
+            Vec4::new(0.0, 0.0, 22.0, 24.0),
             0,
         );
-        button_image.pos = Vec3::new(pos.x + (width - 22.0), pos.y, z_order[0]);
-        button_image.hw = Vec2::new(22.0, 24.0);
-        button_image.uv = Vec4::new(0.0, 0.0, 22.0, 24.0);
+
         let button = systems.gfx.add_image(button_image, 0);
 
         // List
@@ -117,10 +121,13 @@ impl SelectionBox {
             render_layer,
         );
 
-        let mut rect1 = Rect::new(&mut systems.renderer, 0);
+        let mut rect1 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y - (list_size - 1.0), z_order[2]),
+            Vec2::new(width, list_size),
+            0,
+        );
         rect1
-            .set_position(Vec3::new(pos.x, pos.y - (list_size - 1.0), z_order[2]))
-            .set_size(Vec2::new(width, list_size))
             .set_border_width(1.0)
             .set_border_color(Color::rgba(20, 20, 20, 255))
             .set_color(Color::rgba(35, 35, 35, 255));
@@ -134,15 +141,17 @@ impl SelectionBox {
         for (index, list) in list.iter().enumerate().take(visible_list) {
             let lpos = Vec2::new(pos.x + 4.0, pos.y - 22.0 - (20.0 * index as f32));
 
-            let mut lrect = Rect::new(&mut systems.renderer, 0);
-            lrect
-                .set_position(Vec3::new(lpos.x - 2.0, lpos.y + 1.0, z_order[3]))
-                .set_color(Color::rgba(35, 35, 35, 255));
-            if list_exceed {
-                lrect.set_size(Vec2::new(width - 17.0, 20.0));
-            } else {
-                lrect.set_size(Vec2::new(width - 4.0, 20.0));
-            }
+            let mut lrect = Rect::new(
+                &mut systems.renderer,
+                Vec3::new(lpos.x - 2.0, lpos.y + 1.0, z_order[3]),
+                if list_exceed {
+                    Vec2::new(width - 17.0, 20.0)
+                } else {
+                    Vec2::new(width - 4.0, 20.0)
+                },
+                0,
+            );
+            lrect.set_color(Color::rgba(35, 35, 35, 255));
 
             let mut ltext = create_basic_label(
                 systems,

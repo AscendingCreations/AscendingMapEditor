@@ -1,11 +1,7 @@
-use graphics::*;
 use cosmic_text::{Attrs, Metrics};
+use graphics::*;
 
-use crate::{
-    DrawSetting,
-    interface::label::*,
-    collection::*,
-};
+use crate::{collection::*, interface::label::*, DrawSetting};
 
 pub struct TabText {
     pub text: usize,
@@ -17,17 +13,23 @@ pub struct TabText {
 
 impl TabText {
     pub fn new(systems: &mut DrawSetting, pos: Vec2) -> Self {
-        let mut image = Image::new(Some(systems.resource.tab_option.allocation), &mut systems.renderer, 1);
-        // Setup the interface position, height, width, color and texture coordinate
-        image.pos = Vec3::new(pos.x, pos.y, ORDER_TAB_BUTTON);
-        image.hw = Vec2::new(194.0, 20.0);
-        image.uv = Vec4::new(0.0, 0.0, 194.0, 20.0);
+        let mut image = Image::new(
+            Some(systems.resource.tab_option.allocation),
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, ORDER_TAB_BUTTON),
+            Vec2::new(194.0, 20.0),
+            Vec4::new(0.0, 0.0, 194.0, 20.0),
+            1,
+        );
+
         let button = systems.gfx.add_image(image, 0);
 
-        let txt = create_basic_label(systems,
+        let txt = create_basic_label(
+            systems,
             Vec3::new(pos.x + 24.0, pos.y - 1.0, ORDER_TAB_LABEL),
             Vec2::new(165.0, 20.0),
-            Color::rgba(180, 180, 180, 255));
+            Color::rgba(180, 180, 180, 255),
+        );
         let text = systems.gfx.add_text(txt, 1);
 
         systems.gfx.set_visible(text, false);
@@ -44,9 +46,11 @@ impl TabText {
 
     pub fn init(&mut self, systems: &mut DrawSetting, msg: &str, width: f32) {
         systems.gfx.set_text(&mut systems.renderer, self.text, msg);
-        
-        let (mut uv, mut size) = (systems.gfx.get_uv(self.button),
-                                systems.gfx.get_size(self.button));
+
+        let (mut uv, mut size) = (
+            systems.gfx.get_uv(self.button),
+            systems.gfx.get_size(self.button),
+        );
         // Change width
         size.x = width;
         uv.z = width;
@@ -62,7 +66,7 @@ impl TabText {
         if !self.visible {
             return;
         }
-        
+
         systems.gfx.set_text(&mut systems.renderer, self.text, msg);
 
         if self.is_selected != is_select {

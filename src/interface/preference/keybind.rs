@@ -59,10 +59,13 @@ impl KeybindWindow {
             ((systems.size.height / ZOOM_LEVEL) * 0.5) - (window_size.y * 0.5),
         )
         .floor();
-        let mut wndw = Rect::new(&mut systems.renderer, 0);
-        wndw.set_size(window_size)
-            .set_position(Vec3::new(window_pos.x, window_pos.y, ORDER_KEYBIND_WINDOW))
-            .set_radius(3.0)
+        let mut wndw = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(window_pos.x, window_pos.y, ORDER_KEYBIND_WINDOW),
+            window_size,
+            0,
+        );
+        wndw.set_radius(3.0)
             .set_border_color(Color::rgba(10, 10, 10, 255))
             .set_border_width(2.0)
             .set_color(Color::rgba(50, 50, 50, 255));

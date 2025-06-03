@@ -135,49 +135,40 @@ impl MapView {
 
         // Create 9 maps for our view of the main map and the surrounding maps
         for count in 0..9 {
-            let mut map = Map::new(&mut systems.renderer, TEXTURE_SIZE);
-
             // Set default position of each view
             // Note: Index '0' is the main view on the center
             // while the other view are for surrounding maps
-            match count {
-                1 => {
-                    map.pos = Vec2::new(215.0, 719.0);
-                } // Top Left
-                2 => {
-                    map.pos = Vec2::new(257.0, 719.0);
-                } // Top
-                3 => {
-                    map.pos = Vec2::new(899.0, 719.0);
-                } // Top Right
-                4 => {
-                    map.pos = Vec2::new(215.0, 77.0);
-                } // Left
-                5 => {
-                    map.pos = Vec2::new(899.0, 77.0);
-                } // Right
-                6 => {
-                    map.pos = Vec2::new(215.0, 35.0);
-                } // Bottom Left
-                7 => {
-                    map.pos = Vec2::new(257.0, 35.0);
-                } // Bottom
-                8 => {
-                    map.pos = Vec2::new(899.0, 35.0);
-                } // Bottom Right
-                _ => {
-                    map.pos = Vec2::new(257.0, 77.0);
-                } // Center / Main
-            }
+            let mut map = Map::new(
+                &mut systems.renderer,
+                TEXTURE_SIZE,
+                match count {
+                    1 => Vec2::new(215.0, 719.0), // Top Left
+                    2 => Vec2::new(257.0, 719.0), // Top
+                    3 => Vec2::new(899.0, 719.0), // Top Right
+                    4 => Vec2::new(215.0, 77.0),  // Left
+                    5 => Vec2::new(899.0, 77.0),  // Right
+                    6 => Vec2::new(215.0, 35.0),  // Bottom Left
+                    7 => Vec2::new(257.0, 35.0),  // Bottom
+                    8 => Vec2::new(899.0, 35.0),  // Bottom Right
+                    _ => Vec2::new(257.0, 77.0),  // Center / Main
+                },
+            );
 
             map.can_render = true;
             maps.push(map);
         }
 
         for count in 0..8 {
-            let mut image = Rect::new(&mut systems.renderer, 0);
-            image
-                .set_size(match count {
+            let mut image = Rect::new(
+                &mut systems.renderer,
+                // We set the link selection image at the same position as the linked map
+                // We add +1 on the count as the linked map started on index 1 instead of 0
+                Vec3::new(
+                    maps[count + 1].pos.x,
+                    maps[count + 1].pos.y,
+                    ORDER_MAP_LINK_SELECT,
+                ),
+                match count {
                     1 => Vec2::new(TEXTURE_SIZE as f32 * 32.0, TEXTURE_SIZE as f32 * 2.0), // Top
                     2 => Vec2::new(TEXTURE_SIZE as f32 * 2.0, TEXTURE_SIZE as f32 * 2.0), // Top Right
                     3 => Vec2::new(TEXTURE_SIZE as f32 * 2.0, TEXTURE_SIZE as f32 * 32.0), // Left
@@ -186,30 +177,27 @@ impl MapView {
                     6 => Vec2::new(TEXTURE_SIZE as f32 * 32.0, TEXTURE_SIZE as f32 * 2.0), // Bottom
                     7 => Vec2::new(TEXTURE_SIZE as f32 * 2.0, TEXTURE_SIZE as f32 * 2.0), // Bottom Right
                     _ => Vec2::new(TEXTURE_SIZE as f32 * 2.0, TEXTURE_SIZE as f32 * 2.0), // Top Left
-                })
-                // We set the link selection image at the same position as the linked map
-                // We add +1 on the count as the linked map started on index 1 instead of 0
-                .set_position(Vec3::new(
-                    maps[count + 1].pos.x,
-                    maps[count + 1].pos.y,
-                    ORDER_MAP_LINK_SELECT,
-                ))
-                .set_color(Color::rgba(0, 0, 0, 130));
+                },
+                0,
+            );
+            image.set_color(Color::rgba(0, 0, 0, 130));
 
             link_map_selection.push(systems.gfx.add_rect(image, 0));
         }
 
         // This will create the selection box on the map view
-        let mut selectionpreview = Rect::new(&mut systems.renderer, 0);
-        selectionpreview
-            .set_size(Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32))
-            .set_position(Vec3::new(maps[0].pos.x, maps[0].pos.y, ORDER_MAP_SELECTION))
-            .set_color(Color::rgba(
-                config_data.map_selection_color[0],
-                config_data.map_selection_color[1],
-                config_data.map_selection_color[2],
-                150,
-            ));
+        let mut selectionpreview = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(maps[0].pos.x, maps[0].pos.y, ORDER_MAP_SELECTION),
+            Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+            0,
+        );
+        selectionpreview.set_color(Color::rgba(
+            config_data.map_selection_color[0],
+            config_data.map_selection_color[1],
+            config_data.map_selection_color[2],
+            150,
+        ));
         let selection_preview = systems.gfx.add_rect(selectionpreview, 0);
 
         // Map Attributes & Map Zones
@@ -222,10 +210,13 @@ impl MapView {
                 maps[0].pos.y + ((i / 32) * TEXTURE_SIZE) as f32,
             );
             // BG
-            let mut img = Rect::new(&mut systems.renderer, 0);
-            img.set_size(Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32))
-                .set_position(Vec3::new(pos.x, pos.y, ORDER_MAP_ATTRIBUTE_BG))
-                .set_color(Color::rgba(0, 0, 0, 0));
+            let mut img = Rect::new(
+                &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_ATTRIBUTE_BG),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                0,
+            );
+            img.set_color(Color::rgba(0, 0, 0, 0));
 
             // Text
             let label_size = Vec2::new(32.0, 32.0);
@@ -248,60 +239,63 @@ impl MapView {
             });
 
             // Zone BG
-            let mut zone_box = Rect::new(&mut systems.renderer, 0);
-            zone_box
-                .set_size(Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32))
-                .set_position(Vec3::new(pos.x, pos.y, ORDER_MAP_ZONE))
-                .set_color(Color::rgba(0, 0, 0, 0));
+            let mut zone_box = Rect::new(
+                &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_ZONE),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                0,
+            );
+            zone_box.set_color(Color::rgba(0, 0, 0, 0));
             map_zone.push(systems.gfx.add_rect(zone_box, 0));
 
             // Dir Block
             let mut block_bg = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Vec4::new(0.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
                 0,
             );
-            block_bg.pos = Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK);
-            block_bg.hw = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
-            block_bg.uv = Vec4::new(0.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
+
             let bg = systems.gfx.add_image(block_bg, 0);
             systems.gfx.set_visible(bg, false);
 
             let mut dir0 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Vec4::new(20.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
                 0,
             );
-            dir0.pos = Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK);
-            dir0.hw = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
-            dir0.uv = Vec4::new(20.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
 
             let mut dir1 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Vec4::new(40.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
                 0,
             );
-            dir1.pos = Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK);
-            dir1.hw = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
-            dir1.uv = Vec4::new(40.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
 
             let mut dir2 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Vec4::new(60.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
                 0,
             );
-            dir2.pos = Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK);
-            dir2.hw = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
-            dir2.uv = Vec4::new(60.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
 
             let mut dir3 = Image::new(
                 Some(systems.resource.direction_block_tile.allocation),
                 &mut systems.renderer,
+                Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK),
+                Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Vec4::new(80.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
                 0,
             );
-            dir3.pos = Vec3::new(pos.x, pos.y, ORDER_MAP_DIRBLOCK);
-            dir3.hw = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
-            dir3.uv = Vec4::new(80.0, 0.0, TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
 
             let dir = [
                 systems.gfx.add_image(dir0, 0),
@@ -528,8 +522,11 @@ impl MapView {
         for x in 0..selection_size.x as u32 {
             for y in 0..selection_size.y as u32 {
                 // We load the tile data from the tileset
-                let tiledata =
-                    tileset.get_tile((start_pos.x as u32 + x, start_pos.y as u32 + y, 0));
+                let tiledata = tileset.get_tile(UVec3::new(
+                    start_pos.x as u32 + x,
+                    start_pos.y as u32 + y,
+                    0,
+                ));
 
                 // Make sure we only add tile that are not empty
                 if tiledata.id > 0 {
@@ -537,7 +534,11 @@ impl MapView {
                     if (set_pos.x as u32 + x) < 32 && (set_pos.y as u32 + y) < 32 {
                         // Record change for undo purpose
                         let last_texture = self.maps[0]
-                            .get_tile((set_pos.x as u32 + x, set_pos.y as u32 + y, layer))
+                            .get_tile(UVec3::new(
+                                set_pos.x as u32 + x,
+                                set_pos.y as u32 + y,
+                                layer,
+                            ))
                             .id;
                         self.record.push_undo(
                             Vec3::new(set_pos.x + x as f32, set_pos.y + y as f32, layer as f32),
@@ -547,7 +548,7 @@ impl MapView {
                         );
 
                         self.maps[0].set_tile(
-                            (set_pos.x as u32 + x, set_pos.y as u32 + y, layer),
+                            UVec3::new(set_pos.x as u32 + x, set_pos.y as u32 + y, layer),
                             tiledata,
                         );
                     }
@@ -562,12 +563,20 @@ impl MapView {
                 // Make sure we wont set map outside the map size limit
                 if (set_pos.x as u32 + x) < 32 && (set_pos.y as u32 + y) < 32 {
                     let texture_id = self.maps[0]
-                        .get_tile((set_pos.x as u32 + x, set_pos.y as u32 + y, layer))
+                        .get_tile(UVec3::new(
+                            set_pos.x as u32 + x,
+                            set_pos.y as u32 + y,
+                            layer,
+                        ))
                         .id;
                     if texture_id > 0 {
                         // Record change for undo purpose
                         let last_texture = self.maps[0]
-                            .get_tile((set_pos.x as u32 + x, set_pos.y as u32 + y, layer))
+                            .get_tile(UVec3::new(
+                                set_pos.x as u32 + x,
+                                set_pos.y as u32 + y,
+                                layer,
+                            ))
                             .id;
                         self.record.push_undo(
                             Vec3::new(set_pos.x + x as f32, set_pos.y + y as f32, layer as f32),
@@ -577,7 +586,7 @@ impl MapView {
                         );
 
                         self.maps[0].set_tile(
-                            (set_pos.x as u32 + x, set_pos.y as u32 + y, layer),
+                            UVec3::new(set_pos.x as u32 + x, set_pos.y as u32 + y, layer),
                             TileData::default(),
                         );
                     }
@@ -587,19 +596,19 @@ impl MapView {
     }
 
     pub fn get_tile_data(&mut self, set_pos: Vec2) -> TileData {
-        self.maps[0].get_tile((set_pos.x as u32, set_pos.y as u32, 0))
+        self.maps[0].get_tile(UVec3::new(set_pos.x as u32, set_pos.y as u32, 0))
     }
 
     pub fn set_tile_fill(&mut self, set_pos: Vec2, layer: u32, tileset: &Map, tileset_pos: Vec2) {
         // Get the tile data from the tileset
-        let tiledata = tileset.get_tile((tileset_pos.x as u32, tileset_pos.y as u32, 0));
+        let tiledata = tileset.get_tile(UVec3::new(tileset_pos.x as u32, tileset_pos.y as u32, 0));
         if tiledata.id == 0 {
             return;
         }
 
         // We will only change the tiles that have a similar texture id, and this will be use to check
         let comparedata = self.maps[0]
-            .get_tile((set_pos.x as u32, set_pos.y as u32, layer))
+            .get_tile(UVec3::new(set_pos.x as u32, set_pos.y as u32, layer))
             .id;
         if comparedata == tiledata.id {
             return;
@@ -615,7 +624,7 @@ impl MapView {
         while let Some(pos) = paint_to_map.pop() {
             // Record change for undo purpose
             let last_texture = self.maps[0]
-                .get_tile((pos.x as u32, pos.y as u32, layer))
+                .get_tile(UVec3::new(pos.x as u32, pos.y as u32, layer))
                 .id;
             self.record.push_undo(
                 Vec3::new(pos.x, pos.y, layer as f32),
@@ -625,7 +634,7 @@ impl MapView {
             );
 
             // Paint the map
-            self.maps[0].set_tile((pos.x as u32, pos.y as u32, layer), tiledata);
+            self.maps[0].set_tile(UVec3::new(pos.x as u32, pos.y as u32, layer), tiledata);
 
             // Check direction
             for dir in 0..4 {
@@ -652,7 +661,7 @@ impl MapView {
                     // Check the map texture id and we make sure that we only change
                     // if they have the same texture id as the starting tile
                     let check_data = self.maps[0]
-                        .get_tile((checkpos.x as u32, checkpos.y as u32, layer))
+                        .get_tile(UVec3::new(checkpos.x as u32, checkpos.y as u32, layer))
                         .id;
                     if check_data == comparedata {
                         paint_to_map.push(checkpos);
@@ -841,7 +850,7 @@ impl MapView {
         (0..9).for_each(|layer| {
             (0..32).for_each(|x| {
                 (0..32).for_each(|y| {
-                    self.maps[index].set_tile((x, y, layer), TileData::default());
+                    self.maps[index].set_tile(UVec3::new(x, y, layer), TileData::default());
                 });
             });
         });
@@ -897,7 +906,7 @@ impl MapView {
                 match changedata.record_type {
                     RecordType::Layer => {
                         let last_texture = self.maps[0]
-                            .get_tile((pos.x as u32, pos.y as u32, pos.z as u32))
+                            .get_tile(UVec3::new(pos.x as u32, pos.y as u32, pos.z as u32))
                             .id;
                         if is_undo {
                             self.record.push_redo(
@@ -917,7 +926,7 @@ impl MapView {
 
                         let texture_id = changedata.id as u32;
                         self.maps[0].set_tile(
-                            (pos.x as u32, pos.y as u32, pos.z as u32),
+                            UVec3::new(pos.x as u32, pos.y as u32, pos.z as u32),
                             TileData {
                                 id: texture_id as usize,
                                 color: Color::rgba(255, 255, 255, 255),

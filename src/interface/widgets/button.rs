@@ -24,10 +24,15 @@ impl Button {
         adjust_text_y: f32,
         render_layer: [usize; 2],
     ) -> Self {
-        let mut img = Image::new(Some(texture), &mut systems.renderer, 1);
-        img.pos = Vec3::new(pos.x, pos.y, z_order[0]);
-        img.hw = button_size;
-        img.uv = Vec4::new(0.0, 0.0, button_size.x, button_size.y);
+        let mut img = Image::new(
+            Some(texture),
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, z_order[0]),
+            button_size,
+            Vec4::new(0.0, 0.0, button_size.x, button_size.y),
+            1,
+        );
+
         let image = systems.gfx.add_image(img, render_layer[0]);
 
         let adjust_x = (button_size.x * 0.5).floor() - (button_size.x * 0.5).floor();

@@ -78,27 +78,30 @@ impl Interface {
         let mut bglayout = Image::new(
             Some(systems.resource.bg_layout.allocation),
             &mut systems.renderer,
+            Vec3::new(0.0, 0.0, ORDER_BG),
+            Vec2::new(949.0, 802.0),
+            Vec4::new(0.0, 0.0, 949.0, 802.0),
             0,
         );
-        bglayout.pos = Vec3::new(0.0, 0.0, ORDER_BG);
-        bglayout.hw = Vec2::new(949.0, 802.0);
-        bglayout.uv = Vec4::new(0.0, 0.0, 949.0, 802.0);
+
         let mut mapviewbg = Image::new(
             Some(systems.resource.mapview_bg.allocation),
             &mut systems.renderer,
+            Vec3::new(215.0, 35.0, ORDER_ALPHA_BG),
+            Vec2::new(724.0, 724.0),
+            Vec4::new(0.0, 0.0, 724.0, 724.0),
             0,
         );
-        mapviewbg.pos = Vec3::new(215.0, 35.0, ORDER_ALPHA_BG);
-        mapviewbg.hw = Vec2::new(724.0, 724.0);
-        mapviewbg.uv = Vec4::new(0.0, 0.0, 724.0, 724.0);
+
         let mut tilesetbg = Image::new(
             Some(systems.resource.tileset_bg.allocation),
             &mut systems.renderer,
+            Vec3::new(11.0, 369.0, ORDER_ALPHA_BG),
+            Vec2::new(200.0, 400.0),
+            Vec4::new(0.0, 0.0, 200.0, 400.0),
             0,
         );
-        tilesetbg.pos = Vec3::new(11.0, 369.0, ORDER_ALPHA_BG);
-        tilesetbg.hw = Vec2::new(200.0, 400.0);
-        tilesetbg.uv = Vec4::new(0.0, 0.0, 200.0, 400.0);
+
         let bg_layout = vec![
             systems.gfx.add_image(bglayout, 0),
             systems.gfx.add_image(mapviewbg, 0),
@@ -209,11 +212,13 @@ impl Interface {
             scroll_amount = MAX_ATTRIBUTE - MAX_TAB_LABEL - 1;
         }
         // This will create the visual image of the scrollable area
-        let mut scrollbarbg = Rect::new(&mut systems.renderer, 0);
-        scrollbarbg
-            .set_size(Vec2::new(8.0, 313.0))
-            .set_position(Vec3::new(200.0, 15.0, ORDER_TAB_SCROLLBAR_BG))
-            .set_color(Color::rgba(35, 35, 35, 255));
+        let mut scrollbarbg = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(200.0, 15.0, ORDER_TAB_SCROLLBAR_BG),
+            Vec2::new(8.0, 313.0),
+            0,
+        );
+        scrollbarbg.set_color(Color::rgba(35, 35, 35, 255));
         let scrollbar_bg = systems.gfx.add_rect(scrollbarbg, 0);
         systems.gfx.set_visible(scrollbar_bg, false);
         // This create the actual scrollbar
@@ -230,16 +235,20 @@ impl Interface {
         let tileset_list = TilesetList::new(systems);
 
         // Attributes Properties Window
-        let mut tab_opt_bg0 = Rect::new(&mut systems.renderer, 0);
-        tab_opt_bg0
-            .set_size(Vec2::new(200.0, 422.0))
-            .set_position(Vec3::new(11.0, 369.0, ORDER_ATTRIBUTE_BG))
-            .set_color(Color::rgba(50, 50, 50, 255));
-        let mut tab_opt_bg1 = Rect::new(&mut systems.renderer, 0);
-        tab_opt_bg1
-            .set_size(Vec2::new(200.0, 24.0))
-            .set_position(Vec3::new(11.0, 767.0, ORDER_ATTRIBUTE_HEADER_BG))
-            .set_color(Color::rgba(25, 25, 25, 255));
+        let mut tab_opt_bg0 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(11.0, 369.0, ORDER_ATTRIBUTE_BG),
+            Vec2::new(200.0, 422.0),
+            0,
+        );
+        tab_opt_bg0.set_color(Color::rgba(50, 50, 50, 255));
+        let mut tab_opt_bg1 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(11.0, 767.0, ORDER_ATTRIBUTE_HEADER_BG),
+            Vec2::new(200.0, 24.0),
+            0,
+        );
+        tab_opt_bg1.set_color(Color::rgba(25, 25, 25, 255));
         let tab_opt_bg = vec![
             systems.gfx.add_rect(tab_opt_bg0, 0),
             systems.gfx.add_rect(tab_opt_bg1, 0),
@@ -270,7 +279,7 @@ impl Interface {
         );
         tab_labels
             .iter_mut()
-            .zip(MapLayers::LAYERS)
+            .zip(MAP_LAYERS)
             .for_each(|(tab_labels, layer)| tab_labels.init(systems, layer.as_str(), 194.0));
         tab_labels[0].set_select(systems, true); // Set Ground as selected
         systems
@@ -769,10 +778,7 @@ fn create_tool_button(
     hw: Vec2,
     uv: Vec4,
 ) -> ToolButton {
-    let mut toolimage = Image::new(Some(resource), &mut systems.renderer, 0);
-    toolimage.pos = pos;
-    toolimage.hw = hw;
-    toolimage.uv = uv;
+    let mut toolimage = Image::new(Some(resource), &mut systems.renderer, pos, hw, uv, 0);
 
     ToolButton {
         index,

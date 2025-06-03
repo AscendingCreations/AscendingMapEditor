@@ -159,7 +159,7 @@ impl EditorData {
                     let tile_num = get_tile_pos(x, y);
                     (0..9).for_each(|layer| {
                         mapdata.tile[layer].id[tile_num] = mapview.maps[0]
-                            .get_tile((x as u32, y as u32, layer as u32))
+                            .get_tile(UVec3::new(x as u32, y as u32, layer as u32))
                             .id as u32;
                     });
                     mapdata.attribute[tile_num] =
@@ -266,7 +266,7 @@ impl EditorData {
                         let id = mapdata.tile[layer].id[tile_num] as usize;
                         if id > 0 {
                             map.maps[0].set_tile(
-                                (x as u32, y as u32, layer as u32),
+                                UVec3::new(x as u32, y as u32, layer as u32),
                                 TileData {
                                     id,
                                     color: Color::rgba(255, 255, 255, 255),
@@ -381,7 +381,7 @@ impl EditorData {
 
                             if id > 0 {
                                 map.maps[maplink + 1].set_tile(
-                                    (x as u32, y as u32, layer as u32),
+                                    UVec3::new(x as u32, y as u32, layer as u32),
                                     TileData {
                                         id,
                                         color: Color::rgba(255, 255, 255, 255),

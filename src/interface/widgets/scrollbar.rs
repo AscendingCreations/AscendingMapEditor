@@ -46,34 +46,36 @@ impl Scrollbar {
         let mut image = Image::new(
             Some(systems.resource.scrollbar.allocation),
             &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, pos.z),
+            Vec2::new(10.0, 4.0),
+            Vec4::new(0.0, 0.0, 10.0, 4.0),
             1,
         );
-        image.pos = Vec3::new(pos.x, pos.y, pos.z);
-        image.hw = Vec2::new(10.0, 4.0);
-        image.uv = Vec4::new(0.0, 0.0, 10.0, 4.0);
+
         images.push(systems.gfx.add_image(image, render_layer));
 
         // Center of Scrollbar
         let mut image = Image::new(
             Some(systems.resource.scrollbar.allocation),
             &mut systems.renderer,
+            Vec3::new(pos.x, pos.y - scrollbar_size as f32, pos.z),
+            Vec2::new(10.0, scrollbar_size as f32),
+            Vec4::new(0.0, 5.0, 10.0, 6.0),
             1,
         );
-        image.pos = Vec3::new(pos.x, pos.y - scrollbar_size as f32, pos.z);
-        image.hw = Vec2::new(10.0, scrollbar_size as f32);
-        image.uv = Vec4::new(0.0, 5.0, 10.0, 6.0);
+
         images.push(systems.gfx.add_image(image, render_layer));
 
         // Bottom Corner of Scrollbar
         let mut image = Image::new(
             Some(systems.resource.scrollbar.allocation),
             &mut systems.renderer,
+            Vec3::new(pos.x, pos.y - scrollbar_size as f32 - 4.0, pos.z),
+            Vec2::new(10.0, 4.0),
+            Vec4::new(0.0, 12.0, 10.0, 4.0),
             1,
         );
-        image.pos =
-            Vec3::new(pos.x, pos.y - scrollbar_size as f32 - 4.0, pos.z);
-        image.hw = Vec2::new(10.0, 4.0);
-        image.uv = Vec4::new(0.0, 12.0, 10.0, 4.0);
+
         images.push(systems.gfx.add_image(image, render_layer));
 
         images.iter().for_each(|image| {
@@ -102,18 +104,13 @@ impl Scrollbar {
         }
     }
 
-    pub fn update_scroll_max_value(
-        &mut self,
-        systems: &mut DrawSetting,
-        max_value: usize,
-    ) {
+    pub fn update_scroll_max_value(&mut self, systems: &mut DrawSetting, max_value: usize) {
         if self.max_value == max_value {
             reset_scrollbar(systems, self);
             return;
         }
 
-        let mut scrollbar_size =
-            (self.max_scroll_size / (max_value + 1)).floor();
+        let mut scrollbar_size = (self.max_scroll_size / (max_value + 1)).floor();
         if scrollbar_size < self.min_bar_size {
             scrollbar_size = self.min_bar_size;
         }
@@ -121,11 +118,7 @@ impl Scrollbar {
         // Top Corner of Scrollbar
         systems.gfx.set_pos(
             self.images[0],
-            Vec3::new(
-                self.default_pos.x,
-                self.default_pos.y,
-                self.default_pos.z,
-            ),
+            Vec3::new(self.default_pos.x, self.default_pos.y, self.default_pos.z),
         );
 
         // Center of Scrollbar
@@ -152,8 +145,7 @@ impl Scrollbar {
         );
 
         // Reset data
-        self.end_pos = self.default_pos.y as usize
-            - (self.max_scroll_size - scrollbar_size);
+        self.end_pos = self.default_pos.y as usize - (self.max_scroll_size - scrollbar_size);
         self.length = self.start_pos - self.end_pos;
         self.scrollbar_size = scrollbar_size;
         self.cur_value = 0;
@@ -163,11 +155,7 @@ impl Scrollbar {
         self.max_value = max_value;
     }
 
-    pub fn in_scrollbar(
-        &mut self,
-        systems: &mut DrawSetting,
-        mouse_pos: Vec2,
-    ) -> bool {
+    pub fn in_scrollbar(&mut self, systems: &mut DrawSetting, mouse_pos: Vec2) -> bool {
         let (pos0, pos2, size) = (
             systems.gfx.get_pos(self.images[0]),
             systems.gfx.get_pos(self.images[2]),
@@ -195,17 +183,9 @@ impl Scrollbar {
         if self.in_hold {
             self.in_hold = false;
             if self.in_hover {
-                set_texture_state(
-                    systems,
-                    &mut self.images,
-                    TextureState::Hover,
-                );
+                set_texture_state(systems, &mut self.images, TextureState::Hover);
             } else {
-                set_texture_state(
-                    systems,
-                    &mut self.images,
-                    TextureState::Normal,
-                );
+                set_texture_state(systems, &mut self.images, TextureState::Normal);
             }
         }
     }
@@ -226,27 +206,14 @@ impl Scrollbar {
 
         if !self.in_hold {
             if self.in_hover {
-                set_texture_state(
-                    systems,
-                    &mut self.images,
-                    TextureState::Hover,
-                );
+                set_texture_state(systems, &mut self.images, TextureState::Hover);
             } else {
-                set_texture_state(
-                    systems,
-                    &mut self.images,
-                    TextureState::Normal,
-                );
+                set_texture_state(systems, &mut self.images, TextureState::Normal);
             }
         }
     }
 
-    pub fn move_scrollbar(
-        &mut self,
-        systems: &mut DrawSetting,
-        pos_y: f32,
-        forced: bool,
-    ) {
+    pub fn move_scrollbar(&mut self, systems: &mut DrawSetting, pos_y: f32, forced: bool) {
         if !forced && (!self.in_hold || !self.visible) {
             return;
         }
@@ -298,11 +265,7 @@ pub fn reset_scrollbar(systems: &mut DrawSetting, scrollbar: &mut Scrollbar) {
     scrollbar.set_hover(systems, Vec2::new(0.0, 0.0));
 }
 
-fn set_texture_state(
-    systems: &mut DrawSetting,
-    image: &mut [usize],
-    state: TextureState,
-) {
+fn set_texture_state(systems: &mut DrawSetting, image: &mut [usize], state: TextureState) {
     match state {
         TextureState::Normal => {
             let mut uv = systems.gfx.get_uv(image[0]);

@@ -20,10 +20,8 @@ impl Textbox {
         can_wrap: bool,
         render_layer: [usize; 2],
     ) -> Self {
-        let mut img = Rect::new(&mut systems.renderer, 0);
-        img.set_size(textbox_size)
-            .set_position(textbox_pos)
-            .set_border_color(Color::rgba(80, 80, 80, 255))
+        let mut img = Rect::new(&mut systems.renderer, textbox_pos, textbox_size, 0);
+        img.set_border_color(Color::rgba(80, 80, 80, 255))
             .set_border_width(1.0)
             .set_color(Color::rgba(80, 80, 80, 255));
         let image = systems.gfx.add_rect(img, render_layer[0]);

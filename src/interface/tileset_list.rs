@@ -1,6 +1,5 @@
 use cosmic_text::{Attrs, Metrics};
 use graphics::*;
-use wgpu::core::device::resource;
 
 use crate::{
     collection::*,
@@ -69,14 +68,20 @@ pub struct TilesetList {
 
 impl TilesetList {
     pub fn new(systems: &mut DrawSetting) -> Self {
-        let mut bg1 = Rect::new(&mut systems.renderer, 0);
-        bg1.set_size(Vec2::new(200.0, 400.0))
-            .set_position(Vec3::new(11.0, 369.0, ORDER_TILESETLIST))
-            .set_color(Color::rgba(50, 50, 50, 255));
-        let mut bg2 = Rect::new(&mut systems.renderer, 0);
-        bg2.set_size(Vec2::new(8.0, 377.0))
-            .set_position(Vec3::new(200.0, 381.0, ORDER_TILESETLIST_SCROLL_BG))
-            .set_color(Color::rgba(30, 30, 30, 255));
+        let mut bg1 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(11.0, 369.0, ORDER_TILESETLIST),
+            Vec2::new(200.0, 400.0),
+            0,
+        );
+        bg1.set_color(Color::rgba(50, 50, 50, 255));
+        let mut bg2 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(200.0, 381.0, ORDER_TILESETLIST_SCROLL_BG),
+            Vec2::new(8.0, 377.0),
+            0,
+        );
+        bg2.set_color(Color::rgba(30, 30, 30, 255));
 
         // Tileset List and Button
         // This limit the amount of item on the list if tileset count is lower than the visible count
@@ -90,15 +95,16 @@ impl TilesetList {
             let mut image = Image::new(
                 Some(systems.resource.tileset_list_select.allocation),
                 &mut systems.renderer,
+                Vec3::new(
+                    bg1.pos.x + 3.0,
+                    bg1.pos.y + 369.0 - (21.0 * index as f32),
+                    ORDER_TILESETLIST_BUTTON,
+                ),
+                Vec2::new(183.0, 20.0),
+                Vec4::new(0.0, 0.0, 183.0, 20.0),
                 0,
             );
-            image.pos = Vec3::new(
-                bg1.position.x + 3.0,
-                bg1.position.y + 369.0 - (21.0 * index as f32),
-                ORDER_TILESETLIST_BUTTON,
-            );
-            image.hw = Vec2::new(183.0, 20.0);
-            image.uv = Vec4::new(0.0, 0.0, 183.0, 20.0);
+
             let button = SelectButton {
                 image: systems.gfx.add_image(image, 0),
                 in_hover: false,
@@ -112,8 +118,8 @@ impl TilesetList {
             let mut text = create_basic_label(
                 systems,
                 Vec3::new(
-                    bg1.position.x + 7.0,
-                    bg1.position.y + 369.0 - (21.0 * index as f32),
+                    bg1.pos.x + 7.0,
+                    bg1.pos.y + 369.0 - (21.0 * index as f32),
                     ORDER_TILESETLIST_LABEL,
                 ),
                 Vec2::new(100.0, 20.0),
@@ -138,8 +144,8 @@ impl TilesetList {
         let scrollbar = Scrollbar::new(
             systems,
             Vec3::new(
-                bg1.position.x + 188.0,
-                bg1.position.y + 389.0,
+                bg1.pos.x + 188.0,
+                bg1.pos.y + 389.0,
                 ORDER_TILESETLIST_SCROLLBAR,
             ),
             scrollbar_value as usize,

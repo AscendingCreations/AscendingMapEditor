@@ -109,10 +109,10 @@ impl GfxCollection {
                     image.changed = true;
                 }
                 GfxType::Rect(rect) => {
-                    rect.set_position(pos);
+                    rect.set_pos(pos);
                 }
                 GfxType::Text(text) => {
-                    text.set_position(pos);
+                    text.set_pos(pos);
                 }
             }
         }
@@ -122,7 +122,7 @@ impl GfxCollection {
         if let Some(data) = self.collection.get_mut(index) {
             match &mut data.gfx {
                 GfxType::Image(image) => {
-                    image.hw = size;
+                    image.size = size;
                     image.changed = true;
                 }
                 GfxType::Rect(rect) => {
@@ -166,7 +166,7 @@ impl GfxCollection {
         if let Some(data) = self.collection.get(index) {
             match &data.gfx {
                 GfxType::Image(image) => image.pos,
-                GfxType::Rect(rect) => rect.position,
+                GfxType::Rect(rect) => rect.pos,
                 GfxType::Text(text) => text.pos,
             }
         } else {
@@ -177,7 +177,7 @@ impl GfxCollection {
     pub fn get_size(&mut self, index: usize) -> Vec2 {
         if let Some(data) = self.collection.get(index) {
             match &data.gfx {
-                GfxType::Image(image) => image.hw,
+                GfxType::Image(image) => image.size,
                 GfxType::Rect(rect) => rect.size,
                 GfxType::Text(text) => text.size,
             }

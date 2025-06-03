@@ -20,19 +20,24 @@ impl Checkbox {
         default_value: bool,
         render_layer: [usize; 2],
     ) -> Self {
-        let mut window0 = Rect::new(&mut systems.renderer, 0);
-        let mut window1 = Rect::new(&mut systems.renderer, 0);
-        window0
-            .set_size(checkbox_size)
-            .set_position(Vec3::new(pos.x, pos.y, z_pos[0]))
-            .set_color(Color::rgba(180, 180, 180, 0)); // Button
-        window1
-            .set_size(Vec2::new(16.0, 16.0))
-            .set_position(Vec3::new(
+        let mut window0 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(pos.x, pos.y, z_pos[0]),
+            checkbox_size,
+            0,
+        );
+        let mut window1 = Rect::new(
+            &mut systems.renderer,
+            Vec3::new(
                 pos.x + 2.0,
                 pos.y + ((checkbox_size.y * 0.5) - 8.0),
                 z_pos[1],
-            )); // Checkbox
+            ),
+            Vec2::new(16.0, 16.0),
+            0,
+        );
+        window0.set_color(Color::rgba(180, 180, 180, 0)); // Button
+
         if default_value {
             window1
                 .set_color(Color::rgba(200, 200, 200, 255))

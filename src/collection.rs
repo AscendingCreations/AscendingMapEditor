@@ -1,3 +1,5 @@
+use graphics::MapLayers;
+
 pub const TEXTURE_SIZE: u32 = 20;
 pub const ZOOM_LEVEL: f32 = 1.0;
 
@@ -67,3 +69,15 @@ pub const ORDER_KEYBIND_WINDOW: f32 = 2.59;
 pub const ORDER_KEYBIND_TEXT: f32 = 2.56;
 pub const ORDER_KEYBIND_BUTTON: f32 = 2.56;
 pub const ORDER_KEYBIND_BUTTON_TEXT: f32 = 2.55;
+
+pub const MAP_LAYERS: [MapLayers; 9] = [
+    MapLayers::Ground,
+    MapLayers::Mask,
+    MapLayers::Mask2,
+    MapLayers::Anim1,
+    MapLayers::Anim2,
+    MapLayers::Anim3,
+    MapLayers::Anim4,
+    MapLayers::Fringe,
+    MapLayers::Fringe2,
+];
