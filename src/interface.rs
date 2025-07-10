@@ -212,13 +212,13 @@ impl Interface {
             scroll_amount = MAX_ATTRIBUTE - MAX_TAB_LABEL - 1;
         }
         // This will create the visual image of the scrollable area
-        let mut scrollbarbg = Rect::new(
+        let scrollbarbg = Rect::new(
             &mut systems.renderer,
             Vec3::new(200.0, 15.0, ORDER_TAB_SCROLLBAR_BG),
             Vec2::new(8.0, 313.0),
+            Color::rgba(35, 35, 35, 255),
             0,
         );
-        scrollbarbg.set_color(Color::rgba(35, 35, 35, 255));
         let scrollbar_bg = systems.gfx.add_rect(scrollbarbg, 0);
         systems.gfx.set_visible(scrollbar_bg, false);
         // This create the actual scrollbar
@@ -235,20 +235,20 @@ impl Interface {
         let tileset_list = TilesetList::new(systems);
 
         // Attributes Properties Window
-        let mut tab_opt_bg0 = Rect::new(
+        let tab_opt_bg0 = Rect::new(
             &mut systems.renderer,
             Vec3::new(11.0, 369.0, ORDER_ATTRIBUTE_BG),
             Vec2::new(200.0, 422.0),
+            Color::rgba(50, 50, 50, 255),
             0,
         );
-        tab_opt_bg0.set_color(Color::rgba(50, 50, 50, 255));
-        let mut tab_opt_bg1 = Rect::new(
+        let tab_opt_bg1 = Rect::new(
             &mut systems.renderer,
             Vec3::new(11.0, 767.0, ORDER_ATTRIBUTE_HEADER_BG),
             Vec2::new(200.0, 24.0),
+            Color::rgba(25, 25, 25, 255),
             0,
         );
-        tab_opt_bg1.set_color(Color::rgba(25, 25, 25, 255));
         let tab_opt_bg = vec![
             systems.gfx.add_rect(tab_opt_bg0, 0),
             systems.gfx.add_rect(tab_opt_bg1, 0),

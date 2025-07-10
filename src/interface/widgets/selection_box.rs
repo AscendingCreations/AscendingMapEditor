@@ -81,13 +81,13 @@ impl SelectionBox {
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, z_order[0]),
             Vec2::new(width - 21.0, 24.0),
+            Color::rgba(35, 35, 35, 255),
             0,
         );
         // Dropdown Box
         rect0
             .set_border_width(1.0)
-            .set_border_color(Color::rgba(20, 20, 20, 255))
-            .set_color(Color::rgba(35, 35, 35, 255));
+            .set_border_color(Color::rgba(20, 20, 20, 255));
 
         // Dropdown Box Image
         let button_image = Image::new(
@@ -125,12 +125,12 @@ impl SelectionBox {
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y - (list_size - 1.0), z_order[2]),
             Vec2::new(width, list_size),
+            Color::rgba(35, 35, 35, 255),
             0,
         );
         rect1
             .set_border_width(1.0)
-            .set_border_color(Color::rgba(20, 20, 20, 255))
-            .set_color(Color::rgba(35, 35, 35, 255));
+            .set_border_color(Color::rgba(20, 20, 20, 255));
 
         let rect = vec![
             systems.gfx.add_rect(rect0, 0),
@@ -141,7 +141,7 @@ impl SelectionBox {
         for (index, list) in list.iter().enumerate().take(visible_list) {
             let lpos = Vec2::new(pos.x + 4.0, pos.y - 22.0 - (20.0 * index as f32));
 
-            let mut lrect = Rect::new(
+            let lrect = Rect::new(
                 &mut systems.renderer,
                 Vec3::new(lpos.x - 2.0, lpos.y + 1.0, z_order[3]),
                 if list_exceed {
@@ -149,9 +149,9 @@ impl SelectionBox {
                 } else {
                     Vec2::new(width - 4.0, 20.0)
                 },
+                Color::rgba(35, 35, 35, 255),
                 0,
             );
-            lrect.set_color(Color::rgba(35, 35, 35, 255));
 
             let mut ltext = create_basic_label(
                 systems,

@@ -38,22 +38,13 @@ tokio = {version = "1.38.0", features = ["full"]}
 winit = {version = "0.30.1", features = ["serde", "rwh_05"]}
 
 [dependencies.camera]
-#git = "https://github.com/AscendingCreations/AscendingLibraries"
-#path = "../AscendingLibraries/camera"
-#rev = "f2324c1"
 package = "ascending_camera"
 version = "0.6.0"
 
 [dependencies.input]
-#git = "https://github.com/AscendingCreations/AscendingLibraries"
-#path = "../AscendingLibraries/input"
-#rev = "f2324c1"
 package = "ascending_input"
-version = "0.4.1"
+version = "0.5.0"
 
 [dependencies.graphics]
-#git = "https://github.com/AscendingCreations/AscendingLibraries"
-#path = "../AscendingLibraries/graphics"
-#rev = "f2324c1"
 package = "ascending_graphics"
-version = "0.25.0"
+version = "0.26.0"

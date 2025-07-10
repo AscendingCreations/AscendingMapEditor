@@ -31,9 +31,14 @@ impl ColorEditor {
             Vec2::new(100.0, 128.0)
         };
         let window_pos = Vec3::new(pos.x, pos.y - window_size.y, z_order[0]);
-        let mut wndw = Rect::new(&mut systems.renderer, window_pos, window_size, 0);
-        wndw.set_color(Color::rgba(70, 70, 70, 255))
-            .set_radius(3.0)
+        let mut wndw = Rect::new(
+            &mut systems.renderer,
+            window_pos,
+            window_size,
+            Color::rgba(70, 70, 70, 255),
+            0,
+        );
+        wndw.set_radius(3.0)
             .set_border_width(2.0)
             .set_border_color(Color::rgba(20, 20, 20, 255));
         let window = systems.gfx.add_rect(wndw, render_layer[0]);
@@ -251,10 +256,10 @@ impl ColorSelection {
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, pos.z),
             size,
+            Color::rgba(color[0], color[1], color[2], color[3]),
             0,
         );
-        img.set_color(Color::rgba(color[0], color[1], color[2], color[3]))
-            .set_radius(3.0)
+        img.set_radius(3.0)
             .set_border_width(2.0)
             .set_border_color(Color::rgba(20, 20, 20, 255));
         let image = systems.gfx.add_rect(img, render_layer[0]);

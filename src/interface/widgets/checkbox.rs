@@ -20,10 +20,11 @@ impl Checkbox {
         default_value: bool,
         render_layer: [usize; 2],
     ) -> Self {
-        let mut window0 = Rect::new(
+        let window0 = Rect::new(
             &mut systems.renderer,
             Vec3::new(pos.x, pos.y, z_pos[0]),
             checkbox_size,
+            Color::rgba(180, 180, 180, 0),
             0,
         );
         let mut window1 = Rect::new(
@@ -34,9 +35,13 @@ impl Checkbox {
                 z_pos[1],
             ),
             Vec2::new(16.0, 16.0),
+            if default_value {
+                Color::rgba(200, 200, 200, 255)
+            } else {
+                Color::rgba(100, 100, 100, 255)
+            },
             0,
         );
-        window0.set_color(Color::rgba(180, 180, 180, 0)); // Button
 
         if default_value {
             window1

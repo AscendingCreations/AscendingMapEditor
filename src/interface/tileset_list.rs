@@ -68,20 +68,20 @@ pub struct TilesetList {
 
 impl TilesetList {
     pub fn new(systems: &mut DrawSetting) -> Self {
-        let mut bg1 = Rect::new(
+        let bg1 = Rect::new(
             &mut systems.renderer,
             Vec3::new(11.0, 369.0, ORDER_TILESETLIST),
             Vec2::new(200.0, 400.0),
+            Color::rgba(50, 50, 50, 255),
             0,
         );
-        bg1.set_color(Color::rgba(50, 50, 50, 255));
-        let mut bg2 = Rect::new(
+        let bg2 = Rect::new(
             &mut systems.renderer,
             Vec3::new(200.0, 381.0, ORDER_TILESETLIST_SCROLL_BG),
             Vec2::new(8.0, 377.0),
+            Color::rgba(30, 30, 30, 255),
             0,
         );
-        bg2.set_color(Color::rgba(30, 30, 30, 255));
 
         // Tileset List and Button
         // This limit the amount of item on the list if tileset count is lower than the visible count

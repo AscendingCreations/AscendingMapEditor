@@ -28,7 +28,7 @@ impl AudioCollection {
             }
         });
 
-        println!("{:?}", audio);
+        println!("{audio:?}");
 
         AudioCollection { audio }
     }
@@ -180,11 +180,11 @@ impl TextureAllocation {
         let mut count = 0;
         let mut path_found = true;
         while path_found {
-            let path = format!("./images/tiles/tile_{}.png", count);
+            let path = format!("./images/tiles/tile_{count}.png");
             if Path::new(&path).exists() {
                 let res = TilesheetData {
-                    name: format!("tile_{}.png", count),
-                    tile: Texture::from_file(format!("images/tiles/tile_{}.png", count))?
+                    name: format!("tile_{count}.png"),
+                    tile: Texture::from_file(format!("images/tiles/tile_{count}.png"))?
                         .new_tilesheet(&mut atlases[1], renderer, TEXTURE_SIZE)
                         .ok_or_else(|| OtherError::new("failed to upload tiles"))?,
                 };

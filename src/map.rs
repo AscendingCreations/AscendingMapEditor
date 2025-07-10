@@ -129,7 +129,11 @@ pub struct MapView {
 }
 
 impl MapView {
-    pub fn new(systems: &mut DrawSetting, config_data: &mut ConfigData) -> Self {
+    pub fn new(
+        systems: &mut DrawSetting,
+        map_renderer: &mut MapRenderer,
+        config_data: &mut ConfigData,
+    ) -> Self {
         let mut maps = Vec::with_capacity(9);
         let mut link_map_selection = Vec::with_capacity(8);
 
@@ -140,6 +144,7 @@ impl MapView {
             // while the other view are for surrounding maps
             let mut map = Map::new(
                 &mut systems.renderer,
+                map_renderer,
                 TEXTURE_SIZE,
                 match count {
                     1 => Vec2::new(215.0, 719.0), // Top Left
@@ -152,14 +157,16 @@ impl MapView {
                     8 => Vec2::new(899.0, 35.0),  // Bottom Right
                     _ => Vec2::new(257.0, 77.0),  // Center / Main
                 },
-            );
+                MapZLayers::default(),
+            )
+            .unwrap();
 
             map.can_render = true;
             maps.push(map);
         }
 
         for count in 0..8 {
-            let mut image = Rect::new(
+            let image = Rect::new(
                 &mut systems.renderer,
                 // We set the link selection image at the same position as the linked map
                 // We add +1 on the count as the linked map started on index 1 instead of 0
@@ -178,26 +185,26 @@ impl MapView {
                     7 => Vec2::new(TEXTURE_SIZE as f32 * 2.0, TEXTURE_SIZE as f32 * 2.0), // Bottom Right
                     _ => Vec2::new(TEXTURE_SIZE as f32 * 2.0, TEXTURE_SIZE as f32 * 2.0), // Top Left
                 },
+                Color::rgba(0, 0, 0, 130),
                 0,
             );
-            image.set_color(Color::rgba(0, 0, 0, 130));
 
             link_map_selection.push(systems.gfx.add_rect(image, 0));
         }
 
         // This will create the selection box on the map view
-        let mut selectionpreview = Rect::new(
+        let selectionpreview = Rect::new(
             &mut systems.renderer,
             Vec3::new(maps[0].pos.x, maps[0].pos.y, ORDER_MAP_SELECTION),
             Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+            Color::rgba(
+                config_data.map_selection_color[0],
+                config_data.map_selection_color[1],
+                config_data.map_selection_color[2],
+                150,
+            ),
             0,
         );
-        selectionpreview.set_color(Color::rgba(
-            config_data.map_selection_color[0],
-            config_data.map_selection_color[1],
-            config_data.map_selection_color[2],
-            150,
-        ));
         let selection_preview = systems.gfx.add_rect(selectionpreview, 0);
 
         // Map Attributes & Map Zones
@@ -210,13 +217,13 @@ impl MapView {
                 maps[0].pos.y + ((i / 32) * TEXTURE_SIZE) as f32,
             );
             // BG
-            let mut img = Rect::new(
+            let img = Rect::new(
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_ATTRIBUTE_BG),
                 Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Color::rgba(0, 0, 0, 0),
                 0,
             );
-            img.set_color(Color::rgba(0, 0, 0, 0));
 
             // Text
             let label_size = Vec2::new(32.0, 32.0);
@@ -239,13 +246,13 @@ impl MapView {
             });
 
             // Zone BG
-            let mut zone_box = Rect::new(
+            let zone_box = Rect::new(
                 &mut systems.renderer,
                 Vec3::new(pos.x, pos.y, ORDER_MAP_ZONE),
                 Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+                Color::rgba(0, 0, 0, 0),
                 0,
             );
-            zone_box.set_color(Color::rgba(0, 0, 0, 0));
             map_zone.push(systems.gfx.add_rect(zone_box, 0));
 
             // Dir Block

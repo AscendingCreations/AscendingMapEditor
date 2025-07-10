@@ -63,12 +63,12 @@ impl KeybindWindow {
             &mut systems.renderer,
             Vec3::new(window_pos.x, window_pos.y, ORDER_KEYBIND_WINDOW),
             window_size,
+            Color::rgba(50, 50, 50, 255),
             0,
         );
         wndw.set_radius(3.0)
             .set_border_color(Color::rgba(10, 10, 10, 255))
-            .set_border_width(2.0)
-            .set_color(Color::rgba(50, 50, 50, 255));
+            .set_border_width(2.0);
         let window = systems.gfx.add_rect(wndw, 4);
 
         // Text

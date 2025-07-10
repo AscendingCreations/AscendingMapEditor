@@ -13,8 +13,19 @@ pub struct Tileset {
 }
 
 impl Tileset {
-    pub fn new(systems: &mut DrawSetting, config_data: &mut ConfigData) -> Self {
-        let mut map = Map::new(&mut systems.renderer, TEXTURE_SIZE, Vec2::new(11.0, 369.0));
+    pub fn new(
+        systems: &mut DrawSetting,
+        map_renderer: &mut MapRenderer,
+        config_data: &mut ConfigData,
+    ) -> Self {
+        let mut map = Map::new(
+            &mut systems.renderer,
+            map_renderer,
+            TEXTURE_SIZE,
+            Vec2::new(11.0, 369.0),
+            MapZLayers::default(),
+        )
+        .unwrap();
 
         // Loop throughout all texture and place them on the map based on their texture location
         for tiledata in &systems.resource.tilesheet[0].tile.tiles {
@@ -39,7 +50,7 @@ impl Tileset {
 
         // Setup tile selection image settings
         // We set the selected tile at the very first tile
-        let mut tileselection = Rect::new(
+        let tileselection = Rect::new(
             &mut systems.renderer,
             Vec3::new(
                 map.pos.x,
@@ -47,14 +58,14 @@ impl Tileset {
                 ORDER_TILESET_SELECTION,
             ),
             Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32),
+            Color::rgba(
+                config_data.tile_selection_color[0],
+                config_data.tile_selection_color[1],
+                config_data.tile_selection_color[2],
+                150,
+            ),
             0,
         );
-        tileselection.set_color(Color::rgba(
-            config_data.tile_selection_color[0],
-            config_data.tile_selection_color[1],
-            config_data.tile_selection_color[2],
-            150,
-        ));
 
         Tileset {
             map,

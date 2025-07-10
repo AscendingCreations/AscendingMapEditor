@@ -60,7 +60,7 @@ impl EditorData {
         self.x = x;
         self.y = y;
         self.group = group;
-        let key_data = format!("{}_{}_{}", x, y, group);
+        let key_data = format!("{x}_{y}_{group}");
 
         if self.maps.contains_key(&key_data) {
             // Since the map is already loaded, we just switch the center map
@@ -145,9 +145,9 @@ impl EditorData {
         // Check if the map should be save as file or temporary data
         let should_save;
         let mut find_key = String::new();
-        if old_map_key.is_some() {
+        if let Some(key) = old_map_key {
             should_save = false;
-            find_key = old_map_key.unwrap();
+            find_key = key;
         } else {
             should_save = true;
             find_key.clone_from(&self.current_index);
@@ -407,7 +407,7 @@ impl EditorData {
     }
 
     pub fn did_change(&self, x: i32, y: i32, group: u64) -> bool {
-        let key_data = format!("{}_{}_{}", x, y, group);
+        let key_data = format!("{x}_{y}_{group}");
         if !self.did_map_change.contains_key(&key_data) {
             return false;
         }
@@ -484,8 +484,7 @@ impl MapData {
             Ok(file) => {
                 if let Err(e) = serde_json::to_writer_pretty(&file, self) {
                     Err(GraphicsError::Other(OtherError::new(&format!(
-                        "Serdes File Error Err {:?}",
-                        e
+                        "Serdes File Error Err {e:?}"
                     ))))
                 } else {
                     Ok(())
@@ -493,8 +492,7 @@ impl MapData {
             }
             Err(ref e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
             Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-                "Failed to open {}, Err {:?}",
-                name, e
+                "Failed to open {name}, Err {e:?}",
             )))),
         }
     }
@@ -516,23 +514,21 @@ impl MapData {
             Ok(mut file) => {
                 if let Err(e) = file.write(bytes.as_slice()) {
                     Err(GraphicsError::Other(OtherError::new(&format!(
-                        "File Error Err {:?}",
-                        e
+                        "File Error Err {e:?}",
                     ))))
                 } else {
                     Ok(())
                 }
             }
             Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-                "Failed to open {}, Err {:?}",
-                name, e
+                "Failed to open {name}, Err {e:?}",
             )))),
         }
     }
 }
 
 pub fn create_file(x: i32, y: i32, group: u64, data: &MapData) -> Result<(), GraphicsError> {
-    let name = format!("./data/maps/{}_{}_{}.bin", x, y, group);
+    let name = format!("./data/maps/{x}_{y}_{group}.bin");
 
     let bytes = data.write_to_vec().unwrap();
 
@@ -540,8 +536,7 @@ pub fn create_file(x: i32, y: i32, group: u64, data: &MapData) -> Result<(), Gra
         Ok(mut file) => {
             if let Err(e) = file.write(bytes.as_slice()) {
                 Err(GraphicsError::Other(OtherError::new(&format!(
-                    "File Error Err {:?}",
-                    e
+                    "File Error Err {e:?}",
                 ))))
             } else {
                 Ok(())
@@ -549,8 +544,7 @@ pub fn create_file(x: i32, y: i32, group: u64, data: &MapData) -> Result<(), Gra
         }
         Err(ref e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
         Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-            "Failed to open {}, Err {:?}",
-            name, e
+            "Failed to open {name}, Err {e:?}",
         )))),
     }
 }
@@ -564,7 +558,7 @@ pub fn load_file(x: i32, y: i32, group: u64) -> Result<MapData, GraphicsError> {
         }
     }
 
-    let name: String = format!("./data/maps/{}_{}_{}.bin", x, y, group);
+    let name: String = format!("./data/maps/{x}_{y}_{group}.bin");
     match OpenOptions::new().read(true).open(name) {
         Ok(mut file) => {
             let mut bytes = Vec::new();
@@ -576,7 +570,7 @@ pub fn load_file(x: i32, y: i32, group: u64) -> Result<MapData, GraphicsError> {
 }
 
 pub fn is_map_exist(x: i32, y: i32, group: u64) -> bool {
-    let name = format!("./data/maps/{}_{}_{}.bin", x, y, group);
+    let name = format!("./data/maps/{x}_{y}_{group}.bin");
     Path::new(&name).exists()
 }
 

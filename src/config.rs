@@ -70,8 +70,7 @@ impl ConfigData {
             Ok(file) => {
                 if let Err(e) = serde_json::to_writer_pretty(&file, self) {
                     Err(GraphicsError::Other(OtherError::new(&format!(
-                        "Serdes File Error Err {:?}",
-                        e
+                        "Serdes File Error Err {e:?}",
                     ))))
                 } else {
                     Ok(())
@@ -79,8 +78,7 @@ impl ConfigData {
             }
             Err(ref e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
             Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-                "Failed to open {}, Err {:?}",
-                name, e
+                "Failed to open {name}, Err {e:?}",
             )))),
         }
     }
@@ -102,8 +100,7 @@ pub fn create_config(data: &ConfigData) -> Result<(), GraphicsError> {
         Ok(file) => {
             if let Err(e) = serde_json::to_writer_pretty(&file, &data) {
                 Err(GraphicsError::Other(OtherError::new(&format!(
-                    "Serdes File Error Err {:?}",
-                    e
+                    "Serdes File Error Err {e:?}",
                 ))))
             } else {
                 Ok(())
@@ -111,8 +108,7 @@ pub fn create_config(data: &ConfigData) -> Result<(), GraphicsError> {
         }
         Err(ref e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
         Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-            "Failed to open {}, Err {:?}",
-            name, e
+            "Failed to open {name}, Err {e:?}",
         )))),
     }
 }
@@ -133,7 +129,7 @@ pub fn load_config() -> ConfigData {
             match serde_json::from_reader(reader) {
                 Ok(data) => data,
                 Err(e) => {
-                    println!("Error {:?}", e);
+                    println!("Error {e:?}");
                     ConfigData::default()
                 }
             }

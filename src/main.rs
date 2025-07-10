@@ -237,12 +237,18 @@ impl winit::application::ApplicationHandler for Runner {
                 audio_list: AudioCollection::new(),
             };
 
+            // We establish the different renderers here to load their data up to use them.
+            let text_renderer = TextRenderer::new(&systems.renderer).unwrap();
+            let image_renderer = ImageRenderer::new(&systems.renderer).unwrap();
+            let mut map_renderer = MapRenderer::new(&mut systems.renderer, 81).unwrap();
+            let ui_renderer = RectRenderer::new(&systems.renderer).unwrap();
+
             // Initiate map editor data
             let mut config_data = load_config();
             let gui = Interface::new(&mut systems, &mut config_data);
-            let tileset = Tileset::new(&mut systems, &mut config_data);
+            let tileset = Tileset::new(&mut systems, &mut map_renderer, &mut config_data);
             let gameinput = GameInput::new();
-            let mut mapview = MapView::new(&mut systems, &mut config_data);
+            let mut mapview = MapView::new(&mut systems, &mut map_renderer, &mut config_data);
             let mut database = EditorData::new().unwrap();
 
             // Load the initial map
@@ -266,12 +272,6 @@ impl winit::application::ApplicationHandler for Runner {
                 mat,
                 1.5,
             );
-
-            // We establish the different renderers here to load their data up to use them.
-            let text_renderer = TextRenderer::new(&systems.renderer).unwrap();
-            let image_renderer = ImageRenderer::new(&systems.renderer).unwrap();
-            let map_renderer = MapRenderer::new(&mut systems.renderer, 81).unwrap();
-            let ui_renderer = RectRenderer::new(&systems.renderer).unwrap();
 
             // Allow the window to be seen. hiding it then making visible speeds up
             // load times.
@@ -447,7 +447,7 @@ impl winit::application::ApplicationHandler for Runner {
             let new_size = systems.renderer.size();
 
             // update our inputs.
-            input_handler.window_updates(systems.renderer.window(), &event);
+            input_handler.window_updates(&event);
 
             if systems.size != new_size {
                 systems.size = new_size;
@@ -540,7 +540,7 @@ impl winit::application::ApplicationHandler for Runner {
     ) {
         if let Self::Ready {
             config_data: _,
-            systems,
+            systems: _,
             graphics: _,
             gui: _,
             tileset: _,
@@ -555,7 +555,7 @@ impl winit::application::ApplicationHandler for Runner {
             mouse_press: _,
         } = self
         {
-            input_handler.device_updates(systems.renderer.window(), &event);
+            input_handler.device_updates(&event);
         }
     }
 
@@ -598,7 +598,7 @@ async fn main() -> Result<(), GraphicsError> {
     panic::set_hook(Box::new(|panic_info| {
         let bt = Backtrace::new();
 
-        error!("PANIC: {}, BACKTRACE: {:?}", panic_info, bt);
+        error!("PANIC: {panic_info}, BACKTRACE: {bt:?}");
     }));
 
     env::set_var("WGPU_VALIDATION", "0");

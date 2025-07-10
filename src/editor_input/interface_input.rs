@@ -394,7 +394,8 @@ pub fn set_tab(
 
                 gui.tab_labels[0].set_select(systems, true);
 
-                tileset.map.changed = true;
+                tileset.map.map_changed = true;
+                tileset.map.tiles_changed = true;
                 systems.gfx.set_visible(tileset.selection, true);
 
                 systems.gfx.set_visible(gui.labels[LABEL_TILESET], true);
@@ -686,11 +687,11 @@ pub fn set_tab(
                             ),
                         },
                         Vec2::new(32.0, 32.0),
+                        Color::rgba(100, 100, 100, 255),
                         0,
                     );
                     bg_rect
                         .set_border_width(1.0)
-                        .set_color(Color::rgba(100, 100, 100, 255))
                         .set_border_color(Color::rgba(40, 40, 40, 255));
 
                     gui.editor_rect.push(systems.gfx.add_rect(bg_rect, 0));
