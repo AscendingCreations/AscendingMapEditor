@@ -6,7 +6,7 @@ use camera::{
 };
 use cosmic_text::{Attrs, Metrics};
 use graphics::{
-    wgpu::{BackendOptions, Dx12BackendOptions, NoopBackendOptions},
+    wgpu::{BackendOptions, Dx12BackendOptions, MemoryBudgetThresholds, NoopBackendOptions},
     *,
 };
 use input::{Bindings, FrameTime, InputHandler, Key};
@@ -154,6 +154,7 @@ impl winit::application::ApplicationHandler for Runner {
                     },
                     noop: NoopBackendOptions::default(),
                 },
+                memory_budget_thresholds: MemoryBudgetThresholds::default(),
             });
 
             info!("after wgpu instance initiation");
