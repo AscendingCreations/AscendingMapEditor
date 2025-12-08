@@ -1,85 +1,48 @@
 use graphics::*;
 
 use serde::{Deserialize, Serialize};
+use snafu::Backtrace;
 use std::fs::OpenOptions;
 use std::io::BufReader;
 use std::path::Path;
 
 use winit::{event::*, keyboard::*};
 
-use crate::interface::preference::keybind::*;
+use crate::data_types::{EditorError, Result};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ConfigData {
-    pub key_code: Vec<Key>,
-    pub key_code_modifier: Vec<[bool; 3]>,
     pub hide_fps: bool,
-    pub hide_tileset_bg: bool,
-    pub hide_mapview_bg: bool,
-    pub map_selection_color: [u8; 4],
-    pub tile_selection_color: [u8; 4],
-    pub save_json: bool,
+    pub zoom: f32,
 }
 
 impl ConfigData {
     pub fn default() -> Self {
-        let mut key_code = Vec::new();
-        let mut key_code_modifier = Vec::new();
-
-        for key in 0..EditorKey::Count as usize {
-            let keycode = match key {
-                1 => Key::Character(SmolStr::new("s")), // Save
-                2 => Key::Character(SmolStr::new("z")), // Undo
-                3 => Key::Character(SmolStr::new("y")), // Redo
-                4 => Key::Character(SmolStr::new("d")), // Draw
-                5 => Key::Character(SmolStr::new("e")), // Erase
-                6 => Key::Character(SmolStr::new("f")), // Fill
-                7 => Key::Character(SmolStr::new("y")), // Eyetool
-                _ => Key::Character(SmolStr::new("o")), // Load
-            };
-            let keycodemodifier = match key {
-                1 => [true, false, false],  // Save
-                2 => [true, false, false],  // Undo
-                3 => [true, false, false],  // Redo
-                4 => [false, false, false], // Draw
-                5 => [false, false, false], // Erase
-                6 => [false, false, false], // Fill
-                7 => [false, false, false], // Eyetool
-                _ => [true, false, false],  // Load
-            };
-            key_code.push(keycode);
-            key_code_modifier.push(keycodemodifier);
-        }
-
         Self {
-            key_code,
-            key_code_modifier,
             hide_fps: false,
-            hide_tileset_bg: false,
-            hide_mapview_bg: false,
-            map_selection_color: [0, 0, 150, 150],
-            tile_selection_color: [80, 0, 0, 150],
-            save_json: false,
+            zoom: 1.0,
         }
     }
 
-    pub fn save_config(&self) -> Result<(), GraphicsError> {
+    pub fn save_config(&self) -> Result<()> {
         let name = "./map_config.json".to_string();
 
         match OpenOptions::new().truncate(true).write(true).open(&name) {
             Ok(file) => {
                 if let Err(e) = serde_json::to_writer_pretty(&file, self) {
-                    Err(GraphicsError::Other(OtherError::new(&format!(
-                        "Serdes File Error Err {e:?}",
-                    ))))
+                    Err(EditorError::Other {
+                        source: OtherError::new(&format!("Serdes File Error Err {e:?}",)),
+                        backtrace: Backtrace::new(),
+                    })
                 } else {
                     Ok(())
                 }
             }
             Err(ref e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
-            Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-                "Failed to open {name}, Err {e:?}",
-            )))),
+            Err(e) => Err(EditorError::Other {
+                source: OtherError::new(&format!("Failed to open {name}, Err {e:?}",)),
+                backtrace: Backtrace::new(),
+            }),
         }
     }
 
@@ -93,23 +56,25 @@ impl ConfigData {
     }
 }
 
-pub fn create_config(data: &ConfigData) -> Result<(), GraphicsError> {
+pub fn create_config(data: &ConfigData) -> Result<()> {
     let name = "./map_config.json".to_string();
 
     match OpenOptions::new().write(true).create_new(true).open(&name) {
         Ok(file) => {
             if let Err(e) = serde_json::to_writer_pretty(&file, &data) {
-                Err(GraphicsError::Other(OtherError::new(&format!(
-                    "Serdes File Error Err {e:?}",
-                ))))
+                Err(EditorError::Other {
+                    source: OtherError::new(&format!("Serdes File Error Err {e:?}",)),
+                    backtrace: Backtrace::new(),
+                })
             } else {
                 Ok(())
             }
         }
         Err(ref e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),
-        Err(e) => Err(GraphicsError::Other(OtherError::new(&format!(
-            "Failed to open {name}, Err {e:?}",
-        )))),
+        Err(e) => Err(EditorError::Other {
+            source: OtherError::new(&format!("Failed to open {name}, Err {e:?}",)),
+            backtrace: Backtrace::new(),
+        }),
     }
 }
 

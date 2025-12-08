@@ -4,14 +4,15 @@ authors = [
   "Sherwin Salonga",
   "S.J.R. van Schaik",
 ]
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 name = "mapeditor"
 resolver = "2"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 ahash = "0.8.11"
+arboard = "3.4.1"
 backtrace = "0.3.73"
 bit_op = "0.1.1"
 bytemuck = {version = "1.16.0", features = ["derive"]}
@@ -29,22 +30,41 @@ image = "0.25.1"
 indexmap = "2.2.6"
 log = "0.4.21"
 mint = "0.5.9"
+rodio = "0.20.1"
 serde = {version = "1.0.203", features = ["derive"]}
 serde_json = "1.0.117"
 slab = "0.4.9"
+slotmap = "1.0.7"
+snafu = {version = "0.8.8", features = [
+  "backtraces-impl-backtrace-crate",
+  "rust_1_81",
+]}
 speedy = "0.8.7"
 thiserror = "1.0.61"
 tokio = {version = "1.38.0", features = ["full"]}
 winit = {version = "0.30.1", features = ["serde", "rwh_05"]}
 
 [dependencies.camera]
+git = "https://github.com/AscendingCreations/AscendingLibraries"
 package = "ascending_camera"
-version = "0.6.0"
+#path = "../AscendingLibraries/camera"
+#branch = "main"
+#rev = "7e42d2957c84c8b553ba84009672b47644d9efd9"
+#version = "0.6.0"
 
 [dependencies.input]
+git = "https://github.com/AscendingCreations/AscendingLibraries"
 package = "ascending_input"
-version = "0.5.0"
+#path = "../AscendingLibraries/input"
+#branch = "main"
+#rev = "7e42d2957c84c8b553ba84009672b47644d9efd9"
+#version = "0.5.0"
 
 [dependencies.graphics]
+git = "https://github.com/AscendingCreations/AscendingLibraries"
 package = "ascending_graphics"
-version = "0.27.0"
+#path = "../AscendingLibraries/graphics"
+#branch = "main"
+#rev = "7e42d2957c84c8b553ba84009672b47644d9efd9"
+features = ["static_dx"]
+#version = "0.27.0"

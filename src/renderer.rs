@@ -2,17 +2,25 @@ use graphics::*;
 use winit::dpi::PhysicalSize;
 
 use crate::{
-    gfx_collection::*, interface::*, AudioCollection, ConfigData, MapView, TextureAllocation,
-    Tileset,
+    AudioCollection, ConfigData, TextureAllocation, audio::Audio, content::Content, data_types::*,
+    gfx_collection::*,
 };
 
-pub struct DrawSetting {
+pub struct TextCaret {
+    pub visible: bool,
+    pub index: Option<GfxType>,
+    pub timer: f32,
+}
+
+pub struct SystemHolder {
     pub gfx: GfxCollection,
     pub renderer: GpuRenderer,
     pub size: PhysicalSize<f32>,
     pub scale: f64,
-    pub resource: TextureAllocation,
-    pub audio_list: AudioCollection,
+    pub resource: Box<TextureAllocation>,
+    pub config: ConfigData,
+    pub caret: TextCaret,
+    pub audio: Audio,
 }
 
 pub struct Graphics<Controls>
@@ -27,9 +35,11 @@ where
     pub text_atlas: TextAtlas,
     pub ui_atlas: AtlasSet,
     /// Rendering Buffers and other shared data.
-    pub text_renderer: TextRenderer,
     pub image_renderer: ImageRenderer,
+    pub text_renderer: TextRenderer,
+    pub mesh_renderer: Mesh2DRenderer,
     pub map_renderer: MapRenderer,
+    pub light_renderer: LightRenderer,
     pub ui_renderer: RectRenderer,
 }
 
@@ -45,9 +55,9 @@ where
                 resolve_target: None,
                 ops: wgpu::Operations {
                     load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: 0.3,
-                        g: 0.3,
-                        b: 0.3,
+                        r: 0.05,
+                        g: 0.05,
+                        b: 0.05,
                         a: 1.0,
                     }),
                     store: wgpu::StoreOp::Store,
@@ -76,96 +86,148 @@ where
         pass.set_vertex_buffer(0, renderer.buffer_object.vertices());
         pass.set_index_buffer(renderer.buffer_object.indices(), wgpu::IndexFormat::Uint32);
 
-        pass.render_map(renderer, &self.map_renderer, &self.map_atlas, 0);
-        pass.render_image(
-            renderer,
-            &self.image_renderer,
-            &self.image_atlas,
-            &self.system,
-            0,
-        );
-        pass.render_rects(renderer, &self.ui_renderer, &self.ui_atlas, &self.system, 0);
-        pass.render_text(renderer, &self.text_renderer, &self.text_atlas, 1);
-
-        pass.render_image(
-            renderer,
-            &self.image_renderer,
-            &self.image_atlas,
-            &self.system,
-            2,
-        );
-        pass.render_rects(renderer, &self.ui_renderer, &self.ui_atlas, &self.system, 2);
-        pass.render_text(renderer, &self.text_renderer, &self.text_atlas, 3);
-
-        pass.render_image(
-            renderer,
-            &self.image_renderer,
-            &self.image_atlas,
-            &self.system,
-            4,
-        );
-        pass.render_rects(renderer, &self.ui_renderer, &self.ui_atlas, &self.system, 4);
-        pass.render_text(renderer, &self.text_renderer, &self.text_atlas, 5);
+        for layer in 0..=MAX_RENDER {
+            pass.render_map(renderer, &self.map_renderer, &self.map_atlas, layer);
+            pass.render_image(
+                renderer,
+                &self.image_renderer,
+                &self.image_atlas,
+                &self.system,
+                layer,
+            );
+            pass.render_rects(
+                renderer,
+                &self.ui_renderer,
+                &self.ui_atlas,
+                &self.system,
+                layer,
+            );
+            pass.render_text(renderer, &self.text_renderer, &self.text_atlas, layer);
+            pass.render_2dmeshs(renderer, &self.mesh_renderer, &self.system, layer);
+            if layer == RENDER_LIGHT {
+                pass.render_lights(renderer, &self.light_renderer, RENDER_LIGHT);
+            }
+        }
     }
 }
 
 pub fn add_image_to_buffer<Controls>(
-    systems: &mut DrawSetting,
+    content: &mut Content,
+    systems: &mut SystemHolder,
     graphics: &mut Graphics<Controls>,
-    mapview: &mut MapView,
-    gui: &mut Interface,
-    tileset: &mut Tileset,
 ) where
     Controls: camera::controls::Controls,
 {
-    systems.gfx.collection.iter_mut().for_each(|data| {
-        if data.1.visible {
-            match &mut data.1.gfx {
-                GfxType::Image(image) => {
-                    graphics.image_renderer.image_update(
-                        image,
-                        &mut systems.renderer,
-                        &mut graphics.image_atlas,
-                        data.1.layer,
-                    );
-                }
-                GfxType::Rect(rect) => {
-                    graphics.ui_renderer.rect_update(
-                        rect,
-                        &mut systems.renderer,
-                        &mut graphics.ui_atlas,
-                        data.1.layer,
-                    );
-                }
-                GfxType::Text(text) => {
-                    graphics
-                        .text_renderer
-                        .text_update(
-                            text,
-                            &mut graphics.text_atlas,
-                            &mut systems.renderer,
-                            data.1.layer,
-                        )
-                        .unwrap();
-                }
+    systems.gfx.image_storage.iter_mut().for_each(|(_, gfx)| {
+        let visible = if let Some(visible) = gfx.data.override_visible {
+            visible
+        } else {
+            gfx.data.visible
+        };
+
+        if visible {
+            if gfx.data.debug_track {
+                // Add Breakpoint to proceed with debug here
+                gfx.data.debug_track = false;
             }
+            graphics.image_renderer.update(
+                &mut gfx.gfx,
+                &mut systems.renderer,
+                &mut graphics.image_atlas,
+                gfx.data.layer,
+            );
+        }
+    });
+    systems.gfx.text_storage.iter_mut().for_each(|(_, gfx)| {
+        let visible = if let Some(visible) = gfx.data.override_visible {
+            visible
+        } else {
+            gfx.data.visible
+        };
+
+        if visible {
+            if gfx.data.debug_track {
+                // Add Breakpoint to proceed with debug here
+                gfx.data.debug_track = false;
+            }
+            graphics
+                .text_renderer
+                .update(
+                    &mut gfx.gfx,
+                    &mut graphics.text_atlas,
+                    &mut systems.renderer,
+                    gfx.data.layer,
+                )
+                .unwrap();
+        }
+    });
+    systems.gfx.rect_storage.iter_mut().for_each(|(_, gfx)| {
+        let visible = if let Some(visible) = gfx.data.override_visible {
+            visible
+        } else {
+            gfx.data.visible
+        };
+
+        if visible {
+            if gfx.data.debug_track {
+                // Add Breakpoint to proceed with debug here
+                gfx.data.debug_track = false;
+            }
+            graphics.ui_renderer.update(
+                &mut gfx.gfx,
+                &mut systems.renderer,
+                &mut graphics.ui_atlas,
+                gfx.data.layer,
+            );
+        }
+    });
+    systems.gfx.mesh_storage.iter_mut().for_each(|(_, gfx)| {
+        let visible = if let Some(visible) = gfx.data.override_visible {
+            visible
+        } else {
+            gfx.data.visible
+        };
+
+        if visible {
+            if gfx.data.debug_track {
+                // Add Breakpoint to proceed with debug here
+                gfx.data.debug_track = false;
+            }
+            graphics
+                .mesh_renderer
+                .update(&mut gfx.gfx, &mut systems.renderer, gfx.data.layer);
+        }
+    });
+    systems.gfx.light_storage.iter_mut().for_each(|(_, gfx)| {
+        let visible = if let Some(visible) = gfx.data.override_visible {
+            visible
+        } else {
+            gfx.data.visible
+        };
+
+        if visible {
+            if gfx.data.debug_track {
+                // Add Breakpoint to proceed with debug here
+                gfx.data.debug_track = false;
+            }
+            graphics
+                .light_renderer
+                .update(&mut gfx.gfx, &mut systems.renderer, gfx.data.layer);
         }
     });
 
-    mapview.maps.iter_mut().for_each(|map| {
-        graphics.map_renderer.map_update(
-            map,
+    graphics.map_renderer.update(
+        &mut content.map_view.map,
+        &mut systems.renderer,
+        &mut graphics.map_atlas,
+        [0, 1],
+    );
+    for map in content.map_view.linked_map.iter_mut() {
+        graphics.map_renderer.update(
+            &mut map.map,
             &mut systems.renderer,
             &mut graphics.map_atlas,
-            [0, 0],
+            [0, 1],
         );
-    });
-    if gui.current_tab == TAB_LAYER {
-        graphics.map_renderer.map_update(
-            &mut tileset.map,
-            &mut systems.renderer,
-            &mut graphics.map_atlas,
-            [0, 0],
-        ); // Tileset
     }
 }

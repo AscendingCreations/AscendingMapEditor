@@ -1,21 +1,24 @@
 #![allow(dead_code, clippy::collapsible_match, unused_imports)]
 use backtrace::Backtrace;
 use camera::{
-    controls::{Controls, FlatControls, FlatSettings},
     Projection,
+    controls::{Controls, FlatControls, FlatSettings},
 };
 use cosmic_text::{Attrs, Metrics};
 use graphics::{
-    wgpu::{BackendOptions, Dx12BackendOptions, MemoryBudgetThresholds, NoopBackendOptions},
+    wgpu::{
+        BackendOptions, Dx12BackendOptions, ExperimentalFeatures, MemoryBudgetThresholds,
+        NoopBackendOptions, wgt::Dx12SwapchainKind,
+    },
     *,
 };
-use input::{Bindings, FrameTime, InputHandler, Key};
-use log::{error, info, warn, Level, LevelFilter, Metadata, Record};
+use input::{Bindings, FrameTime, InputHandler, Key, MouseAxis};
+use log::{Level, LevelFilter, Metadata, Record, error, info, warn};
 use serde::{Deserialize, Serialize};
 use std::{
     env,
     fs::{self, File},
-    io::{prelude::*, Read, Write},
+    io::{Read, Write, prelude::*},
     iter, panic,
     sync::Arc,
     time::{Duration, Instant},
@@ -29,27 +32,27 @@ use winit::{
     window::{WindowAttributes, WindowButtons},
 };
 
-mod collection;
+const WAIT_TIME: std::time::Duration = std::time::Duration::from_millis(20);
+
+mod audio;
 mod config;
-mod editor_input;
+mod content;
+mod data_types;
+mod database;
 mod gfx_collection;
-mod interface;
-mod map;
-mod map_data;
 mod renderer;
 mod resource;
-mod tileset;
 
-use collection::*;
+use audio::*;
 use config::*;
-use editor_input::{dialog_input::*, *};
+use content::*;
+use data_types::*;
+use database::*;
 use gfx_collection::*;
-use interface::*;
-use map::*;
-use map_data::*;
 use renderer::*;
 use resource::*;
-use tileset::*;
+
+use crate::content::widget::{Alert, AlertBuilder, AlertIndex, Tooltip};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 enum Axis {
@@ -62,6 +65,14 @@ enum Axis {
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 enum Action {
     None,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum MousePress {
+    None,
+    LeftClick,
+    RightClick,
+    MiddleClick,
 }
 
 // creates a static global logger type for setting the logger
@@ -101,20 +112,18 @@ impl log::Log for MyLogger {
 enum Runner {
     Loading,
     Ready {
-        config_data: ConfigData,
-        systems: DrawSetting,
+        systems: SystemHolder,
         graphics: Graphics<FlatControls>,
-        gui: Interface,
-        tileset: Tileset,
-        gameinput: GameInput,
-        database: EditorData,
-        mapview: MapView,
+        content: Content,
         input_handler: InputHandler<Action, Axis>,
         frame_time: FrameTime,
         time: f32,
         fps: u32,
         mouse_pos: PhysicalPosition<f64>,
-        mouse_press: bool,
+        mouse_press: MousePress,
+        loop_timer: LoopTimer,
+        tooltip: Tooltip,
+        alert: Alert,
     },
 }
 
@@ -125,13 +134,10 @@ impl winit::application::ApplicationHandler for Runner {
             let win_attrs = WindowAttributes::default()
                 .with_active(false)
                 .with_visible(false)
-                .with_inner_size(PhysicalSize::new(949.0 * ZOOM_LEVEL, 802.0 * ZOOM_LEVEL))
+                .with_inner_size(PhysicalSize::new(1024.0, 768.0))
+                .with_min_inner_size(PhysicalSize::new(800.0, 400.0))
                 .with_title("Map Editor")
-                .with_enabled_buttons({
-                    let mut buttons = WindowButtons::all();
-                    buttons.remove(WindowButtons::MAXIMIZE);
-                    buttons
-                });
+                .with_enabled_buttons(WindowButtons::all());
 
             // Builds the Windows that will be rendered too.
             let window = Arc::new(event_loop.create_window(win_attrs).expect("Create window"));
@@ -149,8 +155,11 @@ impl winit::application::ApplicationHandler for Runner {
                         gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
                         fence_behavior: wgpu::GlFenceBehavior::Normal,
                     },
-                    dx12: Dx12BackendOptions {
-                        shader_compiler: Dx12Compiler::default(),
+                    dx12: wgpu::Dx12BackendOptions {
+                        shader_compiler: Dx12Compiler::StaticDxc,
+                        latency_waitable_object:
+                            wgpu::wgt::Dx12UseFrameLatencyWaitableObject::DontWait,
+                        presentation_system: Dx12SwapchainKind::default(),
                     },
                     noop: NoopBackendOptions::default(),
                 },
@@ -183,9 +192,11 @@ impl winit::application::ApplicationHandler for Runner {
                     label: None,
                     memory_hints: wgpu::MemoryHints::Performance,
                     trace: wgpu::Trace::Off,
+                    experimental_features: ExperimentalFeatures::disabled(),
                 },
                 // How we are presenting the screen which causes it to either clip to a FPS limit or be unlimited.
                 wgpu::PresentMode::AutoVsync,
+                EnabledPipelines::all(),
             ))
             .unwrap();
 
@@ -194,19 +205,24 @@ impl winit::application::ApplicationHandler for Runner {
             println!("{:?}", renderer.adapter().get_info());
 
             // We generate Texture atlases to use with out types.
-            let mut atlases: Vec<AtlasSet> = iter::from_fn(|| {
-                Some(AtlasSet::new(
-                    &mut renderer,
-                    wgpu::TextureFormat::Rgba8UnormSrgb,
-                    true,
-                    2048,
-                ))
-            })
-            .take(4)
-            .collect();
-
-            // we generate the Text atlas seperatly since it contains a special texture that only has the red color to it.
-            // and another for emojicons.
+            let mut image_atlas = AtlasSet::new(
+                &mut renderer,
+                wgpu::TextureFormat::Rgba8UnormSrgb,
+                true,
+                8192,
+            );
+            let mut map_atlas = AtlasSet::new(
+                &mut renderer,
+                wgpu::TextureFormat::Rgba8UnormSrgb,
+                true,
+                2048,
+            );
+            let ui_atlas = AtlasSet::new(
+                &mut renderer,
+                wgpu::TextureFormat::Rgba8UnormSrgb,
+                true,
+                256,
+            );
             let text_atlas = TextAtlas::new(&mut renderer, 1024).unwrap();
 
             // get the screen size.
@@ -226,35 +242,53 @@ impl winit::application::ApplicationHandler for Runner {
                 .clamp(1.0, 1.5);
 
             // Load textures image
-            let resource = TextureAllocation::new(&mut atlases, &renderer).unwrap();
+            let resource = Box::new(
+                TextureAllocation::new(&mut image_atlas, &mut map_atlas, &renderer).unwrap(),
+            );
+
+            let mut audio = Audio::new(0.15).unwrap();
+            audio.set_effect_volume(1.0);
+            audio.set_music_volume(1.0);
 
             // Compile all rendering data in one type for quick access and passing
-            let mut systems = DrawSetting {
+            let mut systems = SystemHolder {
                 gfx: GfxCollection::new(),
                 renderer,
                 size,
                 scale,
                 resource,
-                audio_list: AudioCollection::new(),
+                config: load_config(),
+                caret: TextCaret {
+                    visible: false,
+                    index: None,
+                    timer: 0.0,
+                },
+                audio,
             };
 
             // We establish the different renderers here to load their data up to use them.
             let text_renderer = TextRenderer::new(&systems.renderer).unwrap();
+            let mesh_renderer = Mesh2DRenderer::new(&systems.renderer).unwrap();
             let image_renderer = ImageRenderer::new(&systems.renderer).unwrap();
             let mut map_renderer = MapRenderer::new(&mut systems.renderer, 81).unwrap();
+            let light_renderer = LightRenderer::new(&mut systems.renderer).unwrap();
             let ui_renderer = RectRenderer::new(&systems.renderer).unwrap();
 
             // Initiate map editor data
-            let mut config_data = load_config();
-            let gui = Interface::new(&mut systems, &mut config_data);
-            let tileset = Tileset::new(&mut systems, &mut map_renderer, &mut config_data);
-            let gameinput = GameInput::new();
-            let mut mapview = MapView::new(&mut systems, &mut map_renderer, &mut config_data);
-            let mut database = EditorData::new().unwrap();
+            let content = Content::new(&mut systems, &mut map_renderer).unwrap();
+            let tooltip = Tooltip::new(&mut systems);
+            let mut alert = Alert::new();
 
-            // Load the initial map
-            database.load_map_data(&mut systems, &mut mapview);
-            database.load_link_maps(&mut mapview);
+            if is_recovery_map_file_exist() {
+                alert.show_alert(
+                    &mut systems,
+                    AlertBuilder::new_confirm(
+                        "Recovery File",
+                        "Previous map file has been recovered, would you like to load this map?",
+                    )
+                    .with_index(AlertIndex::LoadRecoveryFile),
+                );
+            }
 
             // setup our system which includes Camera and projection as well as our controls.
             // for the camera.
@@ -268,7 +302,9 @@ impl winit::application::ApplicationHandler for Runner {
                     near: 1.0,
                     far: -100.0,
                 },
-                FlatControls::new(FlatSettings { zoom: ZOOM_LEVEL }),
+                FlatControls::new(FlatSettings {
+                    zoom: systems.config.zoom,
+                }),
                 [size.width, size.height],
                 mat,
                 1.5,
@@ -281,36 +317,36 @@ impl winit::application::ApplicationHandler for Runner {
             // add everything into our convience type for quicker access and passing.
             let graphics = Graphics {
                 system,
-                image_atlas: atlases.remove(0),
-                map_renderer,
-                map_atlas: atlases.remove(0),
-                image_renderer,
+                image_atlas,
                 text_atlas,
+                map_atlas,
+                ui_atlas,
+                image_renderer,
                 text_renderer,
+                map_renderer,
+                light_renderer,
                 ui_renderer,
-                ui_atlas: atlases.remove(0),
+                mesh_renderer,
             };
-
-            // Create the mouse/keyboard bindings for our stuff.
-            let bindings = Bindings::<Action, Axis>::new();
 
             systems.renderer.window().set_visible(true);
 
             *self = Self::Ready {
-                config_data,
                 systems,
                 graphics,
-                gui,
-                tileset,
-                gameinput,
-                database,
-                mapview,
-                input_handler: InputHandler::new(bindings, Duration::from_millis(180)),
+                content,
+                input_handler: InputHandler::new(
+                    Bindings::<Action, Axis>::new(),
+                    Duration::from_millis(250),
+                ),
                 frame_time: FrameTime::new(),
                 time: 0.0f32,
                 fps: 0u32,
                 mouse_pos: PhysicalPosition::new(0.0, 0.0),
-                mouse_press: false,
+                mouse_press: MousePress::None,
+                loop_timer: LoopTimer::default(),
+                tooltip,
+                alert,
             }
         }
     }
@@ -322,119 +358,143 @@ impl winit::application::ApplicationHandler for Runner {
         event: WindowEvent,
     ) {
         if let Self::Ready {
-            config_data,
             systems,
             graphics,
-            gui,
-            tileset,
-            gameinput,
-            database,
-            mapview,
+            content,
             input_handler,
             frame_time,
             time,
             fps,
             mouse_pos,
             mouse_press,
+            loop_timer,
+            tooltip,
+            alert,
         } = self
         {
-            if window_id == systems.renderer.window().id() {
-                match &event {
-                    WindowEvent::CloseRequested => {
-                        // Close preference window
-                        if gui.preference.is_open {
-                            config_data.set_data(load_config());
-                            gui.preference.close(systems);
-                        }
-                        if database.got_changes() {
-                            // We found changes on our map, we need to confirm if we would like to proceed to exit the editor
-                            gui.open_dialog(
-                                systems,
-                                DialogType::MapSave,
-                                Some(database.did_map_change.clone()),
-                            );
-                        } else {
-                            gui.open_dialog(systems, DialogType::ExitConfirm, None);
-                        }
-                    }
-                    WindowEvent::KeyboardInput { event, .. } => {
-                        if !handle_key_input(event, gui, mapview, database, systems) {
-                            // Make sure that we only trigger the shortcut keys when we are not on a textbox
-                            access_shortcut(
-                                event,
-                                systems,
-                                gameinput,
-                                database,
-                                tileset,
-                                mapview,
-                                gui,
-                                config_data,
-                            );
-                        };
-                    }
-                    WindowEvent::CursorMoved { position, .. } => {
-                        *mouse_pos = *position;
+            frame_time.update();
+            let seconds = frame_time.seconds();
 
-                        if *mouse_press {
-                            handle_input(
+            if window_id == systems.renderer.window().id()
+                && event == WindowEvent::CloseRequested
+                && !content.data.exiting_save
+            {
+                alert.show_alert(
+                    systems,
+                    AlertBuilder::new_confirm(
+                        "Exit",
+                        "Are you sure that you want to exit the editor?",
+                    )
+                    .with_width(300)
+                    .with_index(AlertIndex::ExitEditor),
+                );
+                return;
+            }
+
+            // update our inputs.
+            input_handler.window_updates(&event);
+
+            for input in input_handler.events() {
+                match input {
+                    input::InputEvent::KeyInput { key, pressed, .. } => {
+                        handle_key_input(
+                            &key, pressed, content, systems, alert, event_loop, seconds,
+                        )
+                        .unwrap();
+                    }
+                    input::InputEvent::MouseWheel { amount, axis } => {
+                        if axis == MouseAxis::Vertical {
+                            handle_mouse_wheel(
                                 systems,
-                                MouseInputType::LeftDownMove,
-                                &Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
-                                gameinput,
-                                gui,
-                                tileset,
-                                mapview,
-                                database,
-                                config_data,
-                                event_loop,
-                            );
-                        } else {
-                            handle_input(
-                                systems,
-                                MouseInputType::Move,
-                                &Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
-                                gameinput,
-                                gui,
-                                tileset,
-                                mapview,
-                                database,
-                                config_data,
-                                event_loop,
+                                graphics,
+                                amount,
+                                Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
+                                content,
                             );
                         }
                     }
-                    WindowEvent::MouseInput { state, .. } => match state {
-                        ElementState::Pressed => {
+                    input::InputEvent::MouseButton { button, pressed } => {
+                        if let Some(mouseinput) = if pressed {
+                            if button == MouseButton::Left {
+                                *mouse_press = MousePress::LeftClick;
+                                Some(MouseInputType::LeftDown)
+                            } else if button == MouseButton::Right {
+                                *mouse_press = MousePress::RightClick;
+                                Some(MouseInputType::RightDown)
+                            } else if button == MouseButton::Middle {
+                                *mouse_press = MousePress::MiddleClick;
+                                Some(MouseInputType::MiddleDown)
+                            } else {
+                                None
+                            }
+                        } else if *mouse_press != MousePress::None {
+                            *mouse_press = MousePress::None;
+                            Some(MouseInputType::Release)
+                        } else {
+                            None
+                        } {
                             handle_input(
                                 systems,
-                                MouseInputType::LeftDown,
-                                &Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
-                                gameinput,
-                                gui,
-                                tileset,
-                                mapview,
-                                database,
-                                config_data,
+                                graphics,
+                                mouseinput,
+                                Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
+                                content,
+                                tooltip,
+                                alert,
                                 event_loop,
-                            );
-                            *mouse_press = true;
+                                seconds,
+                            )
+                            .unwrap();
                         }
-                        ElementState::Released => {
+                    }
+                    input::InputEvent::MousePosition { x, y } => {
+                        *mouse_pos = PhysicalPosition { x, y };
+
+                        let mouse_input = if *mouse_press != MousePress::None {
+                            if *mouse_press == MousePress::LeftClick {
+                                MouseInputType::LeftDownMove
+                            } else if *mouse_press == MousePress::MiddleClick {
+                                MouseInputType::MiddleDownMove
+                            } else {
+                                MouseInputType::RightDownMove
+                            }
+                        } else {
+                            MouseInputType::Move
+                        };
+
+                        handle_input(
+                            systems,
+                            graphics,
+                            mouse_input,
+                            Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
+                            content,
+                            tooltip,
+                            alert,
+                            event_loop,
+                            seconds,
+                        )
+                        .unwrap();
+                    }
+                    input::InputEvent::MouseButtonAction(action) => {
+                        if let input::MouseButtonAction::Double(mousebutton) = action {
                             handle_input(
                                 systems,
-                                MouseInputType::Release,
-                                &Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
-                                gameinput,
-                                gui,
-                                tileset,
-                                mapview,
-                                database,
-                                config_data,
+                                graphics,
+                                if mousebutton == MouseButton::Left {
+                                    MouseInputType::DoubleLeftDown
+                                } else {
+                                    MouseInputType::DoubleRightDown
+                                },
+                                Vec2::new(mouse_pos.x as f32, mouse_pos.y as f32),
+                                content,
+                                tooltip,
+                                alert,
                                 event_loop,
-                            );
-                            *mouse_press = false;
+                                seconds,
+                            )
+                            .unwrap();
                         }
-                    },
+                    }
                     _ => {}
                 }
             }
@@ -446,9 +506,6 @@ impl winit::application::ApplicationHandler for Runner {
 
             // get the current window size so we can see if we need to resize the renderer.
             let new_size = systems.renderer.size();
-
-            // update our inputs.
-            input_handler.window_updates(&event);
 
             if systems.size != new_size {
                 systems.size = new_size;
@@ -464,10 +521,28 @@ impl winit::application::ApplicationHandler for Runner {
                 });
 
                 systems.renderer.update_depth_texture();
+
+                content.screen_resize(systems);
             }
 
-            frame_time.update();
-            let seconds = frame_time.seconds();
+            tooltip.handle_tooltip_logic(systems, seconds);
+            editor_loop(
+                systems,
+                &mut graphics.map_renderer,
+                content,
+                seconds,
+                loop_timer,
+            )
+            .unwrap();
+
+            if let Some(gfx_index) = systems.caret.index
+                && systems.caret.timer <= seconds
+            {
+                systems.caret.visible = !systems.caret.visible;
+                systems.caret.timer = seconds + 0.35;
+                systems.gfx.set_visible(&gfx_index, systems.caret.visible);
+            }
+
             // update our systems data to the gpu. this is the Camera in the shaders.
             graphics.system.update(&systems.renderer, frame_time);
 
@@ -477,16 +552,18 @@ impl winit::application::ApplicationHandler for Runner {
                 .update_screen(&systems.renderer, [new_size.width, new_size.height]);
 
             // This adds the Image data to the Buffer for rendering.
-            add_image_to_buffer(systems, graphics, mapview, gui, tileset);
+            add_image_to_buffer(content, systems, graphics);
 
             // this cycles all the Image's in the Image buffer by first putting them in rendering order
             // and then uploading them to the GPU if they have moved or changed in any way. clears the
             // Image buffer for the next render pass. Image buffer only holds the ID's and Sortign info
             // of the finalized Indicies of each Image.
             graphics.image_renderer.finalize(&mut systems.renderer);
-            graphics.map_renderer.finalize(&mut systems.renderer);
             graphics.text_renderer.finalize(&mut systems.renderer);
+            graphics.map_renderer.finalize(&mut systems.renderer);
+            graphics.light_renderer.finalize(&mut systems.renderer);
             graphics.ui_renderer.finalize(&mut systems.renderer);
+            graphics.mesh_renderer.finalize(&mut systems.renderer);
 
             // Start encoding commands. this stores all the rendering calls for execution when
             // finish is called.
@@ -509,11 +586,6 @@ impl winit::application::ApplicationHandler for Runner {
                 .submit(std::iter::once(encoder.finish()));
 
             if *time < seconds {
-                systems.gfx.set_text(
-                    &mut systems.renderer,
-                    gui.labels[LABEL_FPS],
-                    &format!("FPS: {fps}"),
-                );
                 *fps = 0u32;
                 *time = seconds + 1.0;
             }
@@ -524,11 +596,13 @@ impl winit::application::ApplicationHandler for Runner {
 
             // These clear the Last used image tags.
             //Can be used later to auto unload things not used anymore if ram/gpu ram becomes a issue.
-            if *fps == 1 {
-                graphics.image_atlas.trim();
-                graphics.map_atlas.trim();
-                graphics.text_atlas.trim();
-                systems.renderer.font_sys.shape_run_cache.trim(1024);
+            match *fps {
+                1 => graphics.image_atlas.trim(),
+                2 => graphics.map_atlas.trim(),
+                3 => graphics.text_atlas.trim(),
+                4 => graphics.ui_atlas.trim(),
+                5 => systems.renderer.font_sys.shape_run_cache.trim(1024),
+                _ => {}
             }
         }
     }
@@ -540,51 +614,51 @@ impl winit::application::ApplicationHandler for Runner {
         event: DeviceEvent,
     ) {
         if let Self::Ready {
-            config_data: _,
             systems: _,
             graphics: _,
-            gui: _,
-            tileset: _,
-            gameinput: _,
-            database: _,
-            mapview: _,
+            content: _,
             input_handler,
             frame_time: _,
             time: _,
             fps: _,
             mouse_pos: _,
             mouse_press: _,
+            loop_timer: _,
+            tooltip: _,
+            alert: _,
         } = self
         {
             input_handler.device_updates(&event);
         }
     }
 
-    fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
+    fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
         if let Self::Ready {
-            config_data: _,
             systems,
             graphics: _,
-            gui: _,
-            tileset: _,
-            gameinput: _,
-            database: _,
-            mapview: _,
+            content: _,
             input_handler: _,
             frame_time: _,
             time: _,
             fps: _,
             mouse_pos: _,
             mouse_press: _,
+            loop_timer: _,
+            tooltip: _,
+            alert: _,
         } = self
         {
             systems.renderer.window().request_redraw();
         }
+
+        event_loop.set_control_flow(ControlFlow::WaitUntil(
+            std::time::Instant::now() + WAIT_TIME,
+        ));
     }
 }
 
 #[tokio::main]
-async fn main() -> Result<(), GraphicsError> {
+async fn main() -> Result<()> {
     // Create logger to output to a File
     log::set_logger(&MY_LOGGER).unwrap();
     // Set the Max level we accept logging to the file for.
@@ -594,6 +668,9 @@ async fn main() -> Result<(), GraphicsError> {
 
     // Create the directory for our map data
     fs::create_dir_all("./data/maps/")?;
+    fs::create_dir_all("./temp/")?;
+    fs::create_dir_all("./mapeditor/images/")?;
+    fs::create_dir_all("./mapeditor/data/presets/")?;
 
     // This allows us to take control of panic!() so we can send it to a file via the logger.
     panic::set_hook(Box::new(|panic_info| {
@@ -602,8 +679,6 @@ async fn main() -> Result<(), GraphicsError> {
         error!("PANIC: {panic_info}, BACKTRACE: {bt:?}");
     }));
 
-    env::set_var("WGPU_VALIDATION", "0");
-    env::set_var("WGPU_DEBUG", "0");
     // Starts an event gathering type for the window.
     let event_loop = EventLoop::new()?;
 
