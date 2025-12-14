@@ -70,9 +70,13 @@ impl SideWindow {
             Color::rgba(130, 130, 130, 255),
             0,
         );
-        let bg = systems
-            .gfx
-            .add_rect(rect, RENDER_GUI, "Side Window BG", true);
+        let bg = systems.gfx.add_rect(
+            rect,
+            RENDER_GUI,
+            "Side Window BG",
+            true,
+            CameraView::SubView1,
+        );
 
         let rect = Rect::new(
             &mut systems.renderer,
@@ -81,9 +85,13 @@ impl SideWindow {
             Color::rgb(100, 100, 100),
             1,
         );
-        let content_bg = systems
-            .gfx
-            .add_rect(rect, RENDER_GUI, "Side Window BG", true);
+        let content_bg = systems.gfx.add_rect(
+            rect,
+            RENDER_GUI,
+            "Side Window BG",
+            true,
+            CameraView::SubView1,
+        );
 
         let button_rect = ButtonRect {
             rect_color: Color::rgb(60, 60, 60),

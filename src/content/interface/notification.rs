@@ -46,9 +46,13 @@ impl Notification {
         rect.set_border_width(1.0)
             .set_border_color(Color::rgb(0, 0, 0))
             .set_radius(5.0);
-        let bg = systems
-            .gfx
-            .add_rect(rect, RENDER_NOTIFICATION, "Notification Window", true);
+        let bg = systems.gfx.add_rect(
+            rect,
+            RENDER_NOTIFICATION,
+            "Notification Window",
+            true,
+            CameraView::SubView1,
+        );
 
         let text_pos = Vec2::new(
             window_pos.x,
@@ -71,9 +75,13 @@ impl Notification {
             16.0,
             true,
         );
-        let text = systems
-            .gfx
-            .add_text(txt, RENDER_NOTIFICATION_TEXT, "Notification Text", true);
+        let text = systems.gfx.add_text(
+            txt,
+            RENDER_NOTIFICATION_TEXT,
+            "Notification Text",
+            true,
+            CameraView::SubView1,
+        );
         systems.gfx.set_text(&mut systems.renderer, &text, &msg);
         systems.gfx.center_text(&text);
 

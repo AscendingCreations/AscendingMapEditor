@@ -145,9 +145,13 @@ impl TextList {
                     rect.set_border_width(1.0)
                         .set_border_color(data.border_color);
                 }
-                systems
-                    .gfx
-                    .add_rect(rect, data.buffer_layer, "TextList BG", visible)
+                systems.gfx.add_rect(
+                    rect,
+                    data.buffer_layer,
+                    "TextList BG",
+                    visible,
+                    CameraView::SubView1,
+                )
             }
             TextListBG::None => GfxType::None,
         };
@@ -214,6 +218,7 @@ impl TextList {
                     text_data.text_bufferlayer,
                     "TextList Text",
                     visible,
+                    CameraView::SubView1,
                 );
                 systems.gfx.set_text(&mut systems.renderer, &text_gfx, data);
                 list.push(ListData {
@@ -223,6 +228,7 @@ impl TextList {
                         text_data.selection_bufferlayer,
                         "TextList Selection",
                         visible,
+                        CameraView::SubView1,
                     ),
                     is_hover: false,
                     is_selected: false,
@@ -417,6 +423,7 @@ impl TextList {
                     self.text_data.text_bufferlayer,
                     "TextList Text",
                     self.visible,
+                    CameraView::SubView1,
                 );
                 systems.gfx.set_text(&mut systems.renderer, &text_gfx, data);
                 self.list.push(ListData {
@@ -426,6 +433,7 @@ impl TextList {
                         self.text_data.selection_bufferlayer,
                         "TextList Selection",
                         self.visible,
+                        CameraView::SubView1,
                     ),
                     is_hover: false,
                     is_selected: false,
@@ -666,6 +674,7 @@ impl TextList {
                     self.text_data.text_bufferlayer,
                     "TextList Text",
                     self.visible,
+                    CameraView::SubView1,
                 );
                 systems.gfx.set_text(&mut systems.renderer, &text_gfx, data);
                 self.list.push(ListData {
@@ -675,6 +684,7 @@ impl TextList {
                         self.text_data.selection_bufferlayer,
                         "TextList Selection",
                         self.visible,
+                        CameraView::SubView1,
                     ),
                     is_hover: false,
                     is_selected: false,

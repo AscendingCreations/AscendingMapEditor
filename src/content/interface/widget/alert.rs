@@ -187,10 +187,13 @@ impl Alert {
             header_text_size.y + (4.0 * systems.scale as f32).floor(),
         );
         header_text.changed = true;
-        let header_text_index =
-            systems
-                .gfx
-                .add_text(header_text, RENDER_ALERT_TEXT, "Alert Header Text", true);
+        let header_text_index = systems.gfx.add_text(
+            header_text,
+            RENDER_ALERT_TEXT,
+            "Alert Header Text",
+            true,
+            CameraView::SubView1,
+        );
         if builder.alert_type == AlertType::Input {
             systems.gfx.center_text(&header_text_index);
         }
@@ -215,13 +218,20 @@ impl Alert {
             .set_border_width(1.0)
             .set_border_color(Color::rgb(0, 0, 0));
 
-        self.window
-            .push(systems.gfx.add_rect(bg, RENDER_ALERT_GUI, "Alert BG", true));
-        self.window.push(
-            systems
-                .gfx
-                .add_rect(window, RENDER_ALERT_GUI, "Alert Window", true),
-        );
+        self.window.push(systems.gfx.add_rect(
+            bg,
+            RENDER_ALERT_GUI,
+            "Alert BG",
+            true,
+            CameraView::SubView1,
+        ));
+        self.window.push(systems.gfx.add_rect(
+            window,
+            RENDER_ALERT_GUI,
+            "Alert Window",
+            true,
+            CameraView::SubView1,
+        ));
 
         if builder.alert_type != AlertType::Input {
             let pos = Vec2::new(
@@ -243,11 +253,13 @@ impl Alert {
                 text_size.y + (10.0 * systems.scale as f32).floor(),
             );
             text.changed = true;
-            self.text.push(
-                systems
-                    .gfx
-                    .add_text(text, RENDER_ALERT_TEXT, "Alert Text", true),
-            );
+            self.text.push(systems.gfx.add_text(
+                text,
+                RENDER_ALERT_TEXT,
+                "Alert Text",
+                true,
+                CameraView::SubView1,
+            ));
 
             let header = Rect::new(
                 &mut systems.renderer,
@@ -266,6 +278,7 @@ impl Alert {
                 RENDER_ALERT_GUI,
                 "Alert Header BG",
                 true,
+                CameraView::SubView1,
             ));
         }
 
@@ -447,9 +460,13 @@ impl Alert {
                     true,
                 );
                 let mut alert_text_box = AlertTextbox {
-                    bg: systems
-                        .gfx
-                        .add_rect(textbox_bg, RENDER_ALERT_GUI, "Alert Input BG", true),
+                    bg: systems.gfx.add_rect(
+                        textbox_bg,
+                        RENDER_ALERT_GUI,
+                        "Alert Input BG",
+                        true,
+                        CameraView::SubView1,
+                    ),
                     textbox,
                     selected: false,
                     numeric_only: builder.numeric_only,

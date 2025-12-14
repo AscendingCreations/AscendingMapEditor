@@ -87,11 +87,15 @@ impl GfxCollection {
 
     pub fn add_image(
         &mut self,
-        gfx: Image,
+        mut gfx: Image,
         layer: usize,
         identifier: impl Into<Cow<'static, str>>,
         visible: bool,
+        view: CameraView,
     ) -> GfxType {
+        if view != CameraView::MainView {
+            gfx.set_camera_view(view);
+        }
         let data = GfxData {
             layer,
             visible,
@@ -104,11 +108,15 @@ impl GfxCollection {
 
     pub fn add_rect(
         &mut self,
-        gfx: Rect,
+        mut gfx: Rect,
         layer: usize,
         identifier: impl Into<Cow<'static, str>>,
         visible: bool,
+        view: CameraView,
     ) -> GfxType {
+        if view != CameraView::MainView {
+            gfx.set_camera_view(view);
+        }
         let data = GfxData {
             layer,
             visible,
@@ -121,11 +129,15 @@ impl GfxCollection {
 
     pub fn add_text(
         &mut self,
-        gfx: Text,
+        mut gfx: Text,
         layer: usize,
         identifier: impl Into<Cow<'static, str>>,
         visible: bool,
+        view: CameraView,
     ) -> GfxType {
+        if view != CameraView::MainView {
+            gfx.set_camera_view(view);
+        }
         let data = GfxData {
             layer,
             visible,

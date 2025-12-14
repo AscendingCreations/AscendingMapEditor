@@ -58,9 +58,13 @@ impl AttrItemSpawn {
                 16.0,
                 true,
             );
-            let gfx = systems
-                .gfx
-                .add_text(text, RENDER_GUI_TEXT, "AttrItemSpawn Label", visible);
+            let gfx = systems.gfx.add_text(
+                text,
+                RENDER_GUI_TEXT,
+                "AttrItemSpawn Label",
+                visible,
+                CameraView::SubView1,
+            );
             systems.gfx.set_text(
                 &mut systems.renderer,
                 &gfx,
@@ -109,7 +113,9 @@ impl AttrItemSpawn {
                 Color::rgb(70, 70, 70),
                 1,
             );
-            let bg = systems.gfx.add_rect(rect, RENDER_GUI, "BG", visible);
+            let bg = systems
+                .gfx
+                .add_rect(rect, RENDER_GUI, "BG", visible, CameraView::SubView1);
 
             content_y_size += (30.0 * systems.scale as f32).floor();
             start_y_pos -= (30.0 * systems.scale as f32).floor();

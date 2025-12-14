@@ -46,7 +46,9 @@ impl DrawingTool {
             0,
         );
         rect.set_border_color(Color::rgb(0, 0, 0)).set_radius(5.0);
-        let tool_bg = systems.gfx.add_rect(rect, RENDER_GUI, "Tool BG", true);
+        let tool_bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI, "Tool BG", true, CameraView::SubView1);
 
         let button_rect = ButtonRect {
             rect_color: Color::rgb(90, 90, 90),
@@ -109,7 +111,9 @@ impl DrawingTool {
             0,
         );
         rect.set_border_color(Color::rgb(0, 0, 0)).set_radius(5.0);
-        let zoom_bg = systems.gfx.add_rect(rect, RENDER_GUI, "Zoom BG", true);
+        let zoom_bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI, "Zoom BG", true, CameraView::SubView1);
 
         let zoom_scroll = Scrollbar::new(
             systems,
@@ -172,9 +176,13 @@ impl DrawingTool {
             16.0,
             true,
         );
-        let zoom_label = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Zoom Label", true);
+        let zoom_label = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Zoom Label",
+            true,
+            CameraView::SubView1,
+        );
         systems.gfx.set_text(
             &mut systems.renderer,
             &zoom_label,

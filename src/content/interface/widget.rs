@@ -54,7 +54,11 @@ pub fn in_drawing_area(content: &Content, systems: &SystemHolder, screen_pos: Ve
     let tile_size = (Vec2::new(32.0 * TEXTURE_SIZE as f32, 32.0 * TEXTURE_SIZE as f32)
         * systems.config.zoom)
         .floor();
-    is_within_area(screen_pos, start_pos, tile_size)
+    is_within_area(
+        screen_pos,
+        start_pos + content.map_view.camera_pos,
+        tile_size,
+    )
 }
 
 #[derive(Default, Clone, Copy, PartialEq)]

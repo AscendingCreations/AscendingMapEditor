@@ -135,9 +135,13 @@ impl Button {
                     rect.set_border_width(1.0)
                         .set_border_color(data.border_color);
                 }
-                let rect_index = systems
-                    .gfx
-                    .add_rect(rect, buffer_layer, "Button Image", visible);
+                let rect_index = systems.gfx.add_rect(
+                    rect,
+                    buffer_layer,
+                    "Button Image",
+                    visible,
+                    CameraView::SubView1,
+                );
                 Some(rect_index)
             }
             ButtonType::Image(data) => {
@@ -150,10 +154,13 @@ impl Button {
                     order_layer,
                 );
 
-                let image_index =
-                    systems
-                        .gfx
-                        .add_image(image, buffer_layer, "Button Image", visible);
+                let image_index = systems.gfx.add_image(
+                    image,
+                    buffer_layer,
+                    "Button Image",
+                    visible,
+                    CameraView::SubView1,
+                );
                 Some(image_index)
             }
             _ => None,
@@ -182,10 +189,13 @@ impl Button {
                     data.order_layer,
                 );
 
-                let image_index =
-                    systems
-                        .gfx
-                        .add_image(image, data.buffer_layer, "Button Content", visible);
+                let image_index = systems.gfx.add_image(
+                    image,
+                    data.buffer_layer,
+                    "Button Content",
+                    visible,
+                    CameraView::SubView1,
+                );
                 Some(image_index)
             }
             ButtonContentType::Text(data) => {
@@ -215,10 +225,13 @@ impl Button {
                     16.0,
                     !fix_scale,
                 );
-                let index =
-                    systems
-                        .gfx
-                        .add_text(text, data.buffer_layer, "Button Content", visible);
+                let index = systems.gfx.add_text(
+                    text,
+                    data.buffer_layer,
+                    "Button Content",
+                    visible,
+                    CameraView::SubView1,
+                );
                 systems
                     .gfx
                     .set_text(&mut systems.renderer, &index, &data.text);
@@ -535,10 +548,13 @@ impl Button {
                     rect.set_border_width(1.0)
                         .set_border_color(data.border_color);
                 }
-                let rect_index =
-                    systems
-                        .gfx
-                        .add_rect(rect, self.buffer_layer, "Button Image", self.visible);
+                let rect_index = systems.gfx.add_rect(
+                    rect,
+                    self.buffer_layer,
+                    "Button Image",
+                    self.visible,
+                    CameraView::SubView1,
+                );
                 Some(rect_index)
             }
             ButtonType::Image(data) => {
@@ -557,10 +573,13 @@ impl Button {
                     self.order_layer,
                 );
 
-                let image_index =
-                    systems
-                        .gfx
-                        .add_image(image, self.buffer_layer, "Button Image", self.visible);
+                let image_index = systems.gfx.add_image(
+                    image,
+                    self.buffer_layer,
+                    "Button Image",
+                    self.visible,
+                    CameraView::SubView1,
+                );
                 Some(image_index)
             }
             _ => None,
@@ -625,10 +644,13 @@ impl Button {
                     data.order_layer,
                 );
 
-                let image_index =
-                    systems
-                        .gfx
-                        .add_image(image, data.buffer_layer, "Button Content", self.visible);
+                let image_index = systems.gfx.add_image(
+                    image,
+                    data.buffer_layer,
+                    "Button Content",
+                    self.visible,
+                    CameraView::SubView1,
+                );
                 Some(image_index)
             }
             ButtonContentType::Text(data) => {
@@ -687,10 +709,13 @@ impl Button {
                     16.0,
                     !self.fix_scale,
                 );
-                let index =
-                    systems
-                        .gfx
-                        .add_text(text, data.buffer_layer, "Button Content", self.visible);
+                let index = systems.gfx.add_text(
+                    text,
+                    data.buffer_layer,
+                    "Button Content",
+                    self.visible,
+                    CameraView::SubView1,
+                );
                 systems
                     .gfx
                     .set_text(&mut systems.renderer, &index, &data.text);

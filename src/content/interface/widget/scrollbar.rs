@@ -118,10 +118,13 @@ impl Scrollbar {
                     .set_border_color(data.border_color);
             }
 
-            let bg =
-                systems
-                    .gfx
-                    .add_rect(scrollbg_rect, data.buffer_layer, "Scrollbar BG", visible);
+            let bg = systems.gfx.add_rect(
+                scrollbg_rect,
+                data.buffer_layer,
+                "Scrollbar BG",
+                visible,
+                CameraView::SubView1,
+            );
             (Some(bg), Some(data.color), Some(data.border_color))
         } else {
             (None, None, None)
@@ -201,6 +204,7 @@ impl Scrollbar {
             scrollbar.buffer_layer,
             "Scrollbar Scroll",
             visible,
+            CameraView::SubView1,
         );
 
         Scrollbar {

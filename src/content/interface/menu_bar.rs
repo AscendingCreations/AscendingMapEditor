@@ -31,7 +31,9 @@ impl MenuBar {
             Color::rgb(130, 130, 130),
             0,
         );
-        let bg = systems.gfx.add_rect(rect, RENDER_GUI, "Menu Bar BG", true);
+        let bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI, "Menu Bar BG", true, CameraView::SubView1);
 
         let button_rect = ButtonRect {
             rect_color: Color::rgb(130, 130, 130),

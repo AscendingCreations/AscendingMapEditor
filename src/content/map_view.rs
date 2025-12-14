@@ -1,3 +1,4 @@
+use camera::controls::FlatControls;
 use graphics::*;
 use snafu::Backtrace;
 
@@ -5,7 +6,7 @@ use crate::{
     content::widget::{create_label, is_within_area},
     data_types::*,
     gfx_collection::GfxType,
-    renderer::SystemHolder,
+    renderer::{Graphics, SystemHolder},
     resource::GuiTexture,
 };
 
@@ -58,6 +59,8 @@ pub struct MapView {
     pub tile: TileSelect,
     pub drag: MapDrag,
     pub hover_linked_map: Option<usize>,
+    pub camera_pos: Vec2,
+    pub last_camera_pos: Vec2,
 }
 
 impl MapView {
@@ -81,7 +84,6 @@ impl MapView {
                 fringe2: 10.1,
             },
         ) {
-            map.camera_type = CameraType::ControlViewWithScale;
             map.can_render = true;
 
             map
@@ -124,7 +126,6 @@ impl MapView {
                     fringe2: 11.1,
                 },
             ) {
-                map.camera_type = CameraType::ControlViewWithScale;
                 map.can_render = true;
 
                 map
@@ -146,9 +147,13 @@ impl MapView {
                 Color::rgba(0, 0, 0, 150),
                 1,
             );
-            let bg = systems
-                .gfx
-                .add_rect(rect, RENDER_TOP_MAP, "Linked Map BG", true);
+            let bg = systems.gfx.add_rect(
+                rect,
+                RENDER_TOP_MAP,
+                "Linked Map BG",
+                true,
+                CameraView::MainView,
+            );
 
             linked_map.push(LinkedMap { map: l_map, bg });
         }
@@ -159,7 +164,7 @@ impl MapView {
             (map_pos.y * systems.config.zoom).floor() + zoom_adjustment,
         );
 
-        let mut image = Image::new(
+        let image = Image::new(
             Some(systems.resource.interface[GuiTexture::TileSelect as usize]),
             &mut systems.renderer,
             Vec3::new(start_zoom_pos.x, start_zoom_pos.y, ORDER_TILE_SELECT),
@@ -167,11 +172,14 @@ impl MapView {
             Vec4::new(0.0, 0.0, 20.0, 20.0),
             4,
         );
-        image.camera_type = CameraType::ControlViewWithScale;
         let tile = TileSelect {
-            gfx: systems
-                .gfx
-                .add_image(image, RENDER_IMG, "Tile Selection", true),
+            gfx: systems.gfx.add_image(
+                image,
+                RENDER_IMG,
+                "Tile Selection",
+                true,
+                CameraView::MainView,
+            ),
             frame: 0,
             cur_pos: Vec2::new(0.0, 0.0),
             start_zoom_pos,
@@ -201,9 +209,13 @@ impl MapView {
                     Color::rgba(0, 0, 0, 0),
                     0,
                 );
-                let bg = systems
-                    .gfx
-                    .add_rect(rect, RENDER_GUI, "MapView Attribute BG", false);
+                let bg = systems.gfx.add_rect(
+                    rect,
+                    RENDER_GUI,
+                    "MapView Attribute BG",
+                    false,
+                    CameraView::MainView,
+                );
 
                 let text_size = Vec2::new(tile_size.x, 20.0);
                 let text_pos = Vec2::new(
@@ -226,10 +238,13 @@ impl MapView {
                     16.0,
                     false,
                 );
-                let text =
-                    systems
-                        .gfx
-                        .add_text(label, RENDER_GUI_TEXT, "MapView Attribute Text", false);
+                let text = systems.gfx.add_text(
+                    label,
+                    RENDER_GUI_TEXT,
+                    "MapView Attribute Text",
+                    false,
+                    CameraView::MainView,
+                );
 
                 attribute.push(ViewAttribute { bg, text });
 
@@ -240,9 +255,13 @@ impl MapView {
                     Color::rgba(0, 0, 0, 0),
                     0,
                 );
-                let gfx = systems
-                    .gfx
-                    .add_rect(rect, RENDER_GUI, "MapView Zones BG", false);
+                let gfx = systems.gfx.add_rect(
+                    rect,
+                    RENDER_GUI,
+                    "MapView Zones BG",
+                    false,
+                    CameraView::MainView,
+                );
                 zones.push(gfx);
 
                 let img = Image::new(
@@ -253,9 +272,13 @@ impl MapView {
                     Vec4::new(0.0, 0.0, 20.0, 20.0),
                     1,
                 );
-                let gfx = systems
-                    .gfx
-                    .add_image(img, RENDER_GUI2, "MapView DirBlock", false);
+                let gfx = systems.gfx.add_image(
+                    img,
+                    RENDER_GUI2,
+                    "MapView DirBlock",
+                    false,
+                    CameraView::MainView,
+                );
                 dir_block.push(gfx);
             }
         }
@@ -283,7 +306,9 @@ impl MapView {
                 Color::rgb(0, 0, 0),
                 2,
             );
-            *gfx = systems.gfx.add_rect(rect, RENDER_TOP_MAP, "Border", true);
+            *gfx = systems
+                .gfx
+                .add_rect(rect, RENDER_TOP_MAP, "Border", true, CameraView::MainView);
         }
 
         Ok(MapView {
@@ -300,6 +325,8 @@ impl MapView {
             hover_linked_map: None,
             map_border,
             attr_preview: AttrPreview::default(),
+            camera_pos: Vec2::new(0.0, 0.0),
+            last_camera_pos: Vec2::new(0.0, 0.0),
         })
     }
 
@@ -433,8 +460,9 @@ impl MapView {
             * systems.config.zoom)
             .floor();
 
-        if is_within_area(mouse_pos, self.tile.start_zoom_pos, map_size) {
-            let selecting_pos = mouse_pos - self.tile.start_zoom_pos;
+        let start_pos = self.tile.start_zoom_pos + self.camera_pos;
+        if is_within_area(mouse_pos, start_pos, map_size) {
+            let selecting_pos = mouse_pos - start_pos;
             let tile_size = (TEXTURE_SIZE as f32 * systems.config.zoom).round();
             let tile_pos = Vec2::new(
                 (selecting_pos.x / tile_size).floor().min(31.0),
@@ -470,74 +498,28 @@ impl MapView {
         );
     }
 
-    pub fn update_map_drag(&mut self, systems: &mut SystemHolder, mouse_pos: Vec2) {
+    pub fn update_map_drag(
+        &mut self,
+        graphics: &mut Graphics<FlatControls>,
+        mouse_pos: Vec2,
+    ) -> Vec2 {
         if !self.drag.in_hold {
-            return;
+            return self.camera_pos;
         }
 
-        let difference = mouse_pos - self.drag.start_mouse_pos;
-        let new_pos = self.drag.start_map_pos + (difference / systems.config.zoom);
+        let difference = self.camera_pos + (mouse_pos - self.drag.start_mouse_pos);
 
-        let _ = self.map.set_pos(new_pos);
-
-        let map_size = 32.0 * TEXTURE_SIZE as f32;
-
-        for (i, map) in self.linked_map.iter_mut().enumerate() {
-            let linked_map_pos = match i {
-                1 => Vec2::new(0.0, map_size),        // Top
-                2 => Vec2::new(map_size, map_size),   // Top Right
-                3 => Vec2::new(-map_size, 0.0),       // Left
-                4 => Vec2::new(map_size, 0.0),        // Right
-                5 => Vec2::new(-map_size, -map_size), // Down Left
-                6 => Vec2::new(0.0, -map_size),       // Down
-                7 => Vec2::new(map_size, -map_size),  // Down Right
-                _ => Vec2::new(-map_size, map_size),  // Top Left
-            };
-            let l_pos = new_pos + linked_map_pos;
-            map.map.set_pos(l_pos);
-
-            systems.gfx.set_pos(
-                &map.bg,
-                Vec3::new(
-                    (l_pos.x * systems.config.zoom).floor(),
-                    (l_pos.y * systems.config.zoom).floor(),
-                    ORDER_LINKED_TILE_BG,
-                ),
-            );
+        {
+            let input = graphics.system.controls_mut().inputs_mut();
+            input.translation.x = difference.x;
+            input.translation.y = difference.y;
         }
 
-        for (i, gfx) in self.map_border.iter_mut().enumerate() {
-            let set_pos = (match i {
-                1 => Vec2::new(new_pos.x - 2.0, new_pos.y - 2.0), // Bottom
-                2 => Vec2::new(new_pos.x - 2.0, new_pos.y - 2.0), // Left
-                3 => Vec2::new(new_pos.x + map_size - 1.0, new_pos.y - 2.0), // Right
-                _ => Vec2::new(new_pos.x - 2.0, new_pos.y + map_size - 1.0), // Top
-            } * systems.config.zoom)
-                .floor();
+        let camera_view = graphics.system.get_view(CameraView::MainView);
+        let view = graphics.system.get_view_mut(CameraView::SubView2);
+        *view = camera_view;
 
-            systems
-                .gfx
-                .set_pos(gfx, Vec3::new(set_pos.x, set_pos.y, ORDER_LINKED_TILE_BG));
-        }
-
-        let zoom_adjustment = (systems.config.zoom - 1.0) * 10.0;
-        self.tile.start_zoom_pos = Vec2::new(
-            (self.map.pos.x * systems.config.zoom).floor() + zoom_adjustment,
-            (self.map.pos.y * systems.config.zoom).floor() + zoom_adjustment,
-        );
-        let cursor_tile_pos = Vec2::new(
-            ((self.tile.cur_pos.x * TEXTURE_SIZE as f32) * systems.config.zoom).floor(),
-            ((self.tile.cur_pos.y * TEXTURE_SIZE as f32) * systems.config.zoom).floor(),
-        );
-
-        systems.gfx.set_pos(
-            &self.tile.gfx,
-            Vec3::new(
-                self.tile.start_zoom_pos.x + cursor_tile_pos.x,
-                self.tile.start_zoom_pos.y + cursor_tile_pos.y,
-                ORDER_TILE_SELECT,
-            ),
-        );
+        difference
     }
 
     pub fn adjust_map_by_zoom(&mut self, systems: &mut SystemHolder, new_zoom: f32) {
@@ -704,7 +686,7 @@ impl MapView {
                 (map_size * systems.config.zoom).floor(),
                 (map_size * systems.config.zoom).floor(),
             );
-            if is_within_area(mouse_pos, pos, size) {
+            if is_within_area(mouse_pos, pos + self.camera_pos, size) {
                 return Some(i);
             }
         }

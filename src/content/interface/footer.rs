@@ -28,7 +28,9 @@ impl Footer {
             Color::rgb(110, 110, 110),
             0,
         );
-        let bg = systems.gfx.add_rect(rect, RENDER_GUI, "Footer BG", true);
+        let bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI, "Footer BG", true, CameraView::SubView1);
 
         let text_pos = pos + Vec3::new((10.0 * systems.scale as f32).floor(), 0.0, 0.0);
         let text_size = (Vec2::new(500.0, 20.0) * systems.scale as f32).floor();
@@ -49,9 +51,13 @@ impl Footer {
             16.0,
             true,
         );
-        let map_pos = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Map Pos Text", true);
+        let map_pos = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Map Pos Text",
+            true,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &map_pos, "Unsaved");
@@ -82,9 +88,13 @@ impl Footer {
             16.0,
             true,
         );
-        let tile_pos = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Map Pos Text", true);
+        let tile_pos = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Map Pos Text",
+            true,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &tile_pos, &message);

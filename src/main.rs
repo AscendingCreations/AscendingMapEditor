@@ -228,7 +228,7 @@ impl winit::application::ApplicationHandler for Runner {
             // get the screen size.
             let size = renderer.size();
             let mat = Mat4::from_translation(Vec3 {
-                x: 40.0,
+                x: 0.0,
                 y: 0.0,
                 z: 0.0,
             });
@@ -292,7 +292,7 @@ impl winit::application::ApplicationHandler for Runner {
 
             // setup our system which includes Camera and projection as well as our controls.
             // for the camera.
-            let system = System::new(
+            let mut system = System::new(
                 &mut systems.renderer,
                 Projection::Orthographic {
                     left: 0.0,
@@ -306,9 +306,8 @@ impl winit::application::ApplicationHandler for Runner {
                     zoom: systems.config.zoom,
                 }),
                 [size.width, size.height],
-                mat,
-                1.5,
             );
+            system.set_view(CameraView::SubView1, mat, 1.0);
 
             // Allow the window to be seen. hiding it then making visible speeds up
             // load times.

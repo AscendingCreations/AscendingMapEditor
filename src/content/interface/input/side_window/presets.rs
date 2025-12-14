@@ -611,6 +611,7 @@ pub fn preset_update_preview(content: &mut Content, systems: &mut SystemHolder) 
             RENDER_GUI3,
             "Preset Tiles",
             gui.visible && gui.window_type == PresetWindowType::Base && i == 0,
+            CameraView::SubView1,
         );
 
         let start_pos = Vec2::new(frame.start.x as f32, frame.start.y as f32);

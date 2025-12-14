@@ -78,7 +78,9 @@ impl AttributeWindow {
             Color::rgb(100, 100, 100),
             0,
         );
-        let bg = systems.gfx.add_rect(rect, RENDER_GUI2, "BG", false);
+        let bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI2, "BG", false, CameraView::SubView1);
 
         let rect = Rect::new(
             &mut systems.renderer,
@@ -87,7 +89,9 @@ impl AttributeWindow {
             Color::rgb(130, 130, 130),
             0,
         );
-        let lower_bg = systems.gfx.add_rect(rect, RENDER_GUI2, "BG", false);
+        let lower_bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI2, "BG", false, CameraView::SubView1);
 
         let mut attribute = Vec::with_capacity(12);
         let max_attribute = (EditorMapAttribute::Count as usize).saturating_sub(1);
@@ -178,9 +182,13 @@ impl AttributeWindow {
             Color::rgb(140, 140, 140),
             1,
         );
-        let seperator = systems
-            .gfx
-            .add_rect(separator_rect, RENDER_GUI2, "Seperator", false);
+        let seperator = systems.gfx.add_rect(
+            separator_rect,
+            RENDER_GUI2,
+            "Seperator",
+            false,
+            CameraView::SubView1,
+        );
 
         AttributeWindow {
             visible: false,

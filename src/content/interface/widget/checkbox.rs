@@ -142,9 +142,13 @@ impl Checkbox {
                     rect.set_border_width(1.0)
                         .set_border_color(data.border_color);
                 }
-                systems
-                    .gfx
-                    .add_rect(rect, buffer_layer, "Checkbox Image", visible)
+                systems.gfx.add_rect(
+                    rect,
+                    buffer_layer,
+                    "Checkbox Image",
+                    visible,
+                    CameraView::SubView1,
+                )
             }
             CheckboxType::Image(data) => {
                 let img = Image::new(
@@ -161,9 +165,13 @@ impl Checkbox {
                     order_layer,
                 );
 
-                systems
-                    .gfx
-                    .add_image(img, buffer_layer, "Checkbox Image", visible)
+                systems.gfx.add_image(
+                    img,
+                    buffer_layer,
+                    "Checkbox Image",
+                    visible,
+                    CameraView::SubView1,
+                )
             }
             _ => GfxType::None,
         };
@@ -186,9 +194,13 @@ impl Checkbox {
                     rect.set_border_width(1.0)
                         .set_border_color(data.border_color);
                 }
-                systems
-                    .gfx
-                    .add_rect(rect, check_buffer_layer, "Checkbox Check", false)
+                systems.gfx.add_rect(
+                    rect,
+                    check_buffer_layer,
+                    "Checkbox Check",
+                    false,
+                    CameraView::SubView1,
+                )
             }
             CheckType::SetImage(data) => {
                 let img = Image::new(
@@ -204,9 +216,13 @@ impl Checkbox {
                     check_order_layer,
                 );
 
-                systems
-                    .gfx
-                    .add_image(img, check_buffer_layer, "Checkbox Check", false)
+                systems.gfx.add_image(
+                    img,
+                    check_buffer_layer,
+                    "Checkbox Check",
+                    false,
+                    CameraView::SubView1,
+                )
             }
             _ => GfxType::None,
         };
@@ -235,9 +251,13 @@ impl Checkbox {
                 16.0,
                 true,
             );
-            let txt_index = systems
-                .gfx
-                .add_text(txt, data.buffer_layer, "Checkbox Text", visible);
+            let txt_index = systems.gfx.add_text(
+                txt,
+                data.buffer_layer,
+                "Checkbox Text",
+                visible,
+                CameraView::SubView1,
+            );
             systems
                 .gfx
                 .set_text(&mut systems.renderer, &txt_index, &data.text);

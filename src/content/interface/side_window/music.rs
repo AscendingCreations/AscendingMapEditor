@@ -47,9 +47,13 @@ impl MusicWindow {
             16.0,
             true,
         );
-        let label = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Music Label", false);
+        let label = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Music Label",
+            false,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &label, "Map Music");

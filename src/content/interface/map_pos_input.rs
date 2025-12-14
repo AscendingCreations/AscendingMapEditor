@@ -36,9 +36,13 @@ impl MapPosInput {
             Color::rgba(0, 0, 0, 150),
             0,
         );
-        let black = systems
-            .gfx
-            .add_rect(rect, RENDER_MAPPOS_GUI, "Map Pos Shadow", false);
+        let black = systems.gfx.add_rect(
+            rect,
+            RENDER_MAPPOS_GUI,
+            "Map Pos Shadow",
+            false,
+            CameraView::SubView1,
+        );
 
         let bg_size = (Vec2::new(350.0, 120.0) * systems.scale as f32).floor();
         let bg_pos = ((screen_size - bg_size) * 0.5).floor();
@@ -53,9 +57,13 @@ impl MapPosInput {
         window
             .set_border_width(1.0)
             .set_border_color(Color::rgb(0, 0, 0));
-        let bg = systems
-            .gfx
-            .add_rect(window, RENDER_MAPPOS_GUI, "Map Pos Window", false);
+        let bg = systems.gfx.add_rect(
+            window,
+            RENDER_MAPPOS_GUI,
+            "Map Pos Window",
+            false,
+            CameraView::SubView1,
+        );
 
         let mut label = Vec::with_capacity(4);
         let mut textbox = Vec::with_capacity(3);
@@ -102,9 +110,13 @@ impl MapPosInput {
                 16.0,
                 true,
             );
-            let lbl = systems
-                .gfx
-                .add_text(text, RENDER_MAPPOS_TEXT, "Map Pos Text", false);
+            let lbl = systems.gfx.add_text(
+                text,
+                RENDER_MAPPOS_TEXT,
+                "Map Pos Text",
+                false,
+                CameraView::SubView1,
+            );
             systems.gfx.set_text(
                 &mut systems.renderer,
                 &lbl,
@@ -163,9 +175,13 @@ impl MapPosInput {
                     Color::rgb(70, 70, 70),
                     2,
                 );
-                let rect_gfx = systems
-                    .gfx
-                    .add_rect(rect, RENDER_MAPPOS_GUI, "Textbox BG", false);
+                let rect_gfx = systems.gfx.add_rect(
+                    rect,
+                    RENDER_MAPPOS_GUI,
+                    "Textbox BG",
+                    false,
+                    CameraView::SubView1,
+                );
                 label_bg.push(rect_gfx);
             }
 

@@ -97,9 +97,13 @@ impl PresetWindow {
             16.0,
             true,
         );
-        let preview_name = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Preview Name", false);
+        let preview_name = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Preview Name",
+            false,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &preview_name, "Name");
@@ -127,9 +131,13 @@ impl PresetWindow {
             16.0,
             true,
         );
-        let preview_info = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Preview Info", false);
+        let preview_info = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Preview Info",
+            false,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &preview_info, "Info Text");
@@ -149,7 +157,10 @@ impl PresetWindow {
             Vec4::new(0.0, 0.0, 104.0, 64.0),
             1,
         );
-        let preview_bg = systems.gfx.add_image(img, RENDER_GUI2, "Preview BG", false);
+        let preview_bg =
+            systems
+                .gfx
+                .add_image(img, RENDER_GUI2, "Preview BG", false, CameraView::SubView1);
 
         let edit_button = Button::new(
             systems,
@@ -199,9 +210,13 @@ impl PresetWindow {
             Color::rgb(140, 140, 140),
             1,
         );
-        let seperator = systems
-            .gfx
-            .add_rect(separator_rect, RENDER_GUI2, "Seperator", false);
+        let seperator = systems.gfx.add_rect(
+            separator_rect,
+            RENDER_GUI2,
+            "Seperator",
+            false,
+            CameraView::SubView1,
+        );
 
         let mut list_size = Vec2::new(
             (area_size.x / systems.scale as f32).floor() - 20.0,
@@ -304,7 +319,9 @@ impl PresetWindow {
             Color::rgb(80, 80, 80),
             0,
         );
-        let bg = systems.gfx.add_rect(rect, RENDER_GUI, "Tileset BG", false);
+        let bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI, "Tileset BG", false, CameraView::SubView1);
 
         let content_y_size = tileset_size.y + (165.0 * systems.scale as f32).floor();
         let scroll_value = (content_y_size - area_size.y).max(0.0) as usize;
@@ -396,9 +413,13 @@ impl PresetWindow {
             16.0,
             true,
         );
-        let frame_label = systems
-            .gfx
-            .add_text(frame_text, RENDER_GUI_TEXT, "Frame Label", false);
+        let frame_label = systems.gfx.add_text(
+            frame_text,
+            RENDER_GUI_TEXT,
+            "Frame Label",
+            false,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &frame_label, "Frm: 1");
@@ -411,7 +432,10 @@ impl PresetWindow {
             Vec4::new(0.0, 0.0, tileset_size.x, tileset_size.y),
             1,
         );
-        let tileset = systems.gfx.add_image(img, RENDER_GUI2, "Tileset", false);
+        let tileset =
+            systems
+                .gfx
+                .add_image(img, RENDER_GUI2, "Tileset", false, CameraView::SubView1);
 
         let tileset_name_list: Vec<String> = systems
             .resource
@@ -475,7 +499,9 @@ impl PresetWindow {
             Color::rgb(130, 130, 130),
             0,
         );
-        let lower_bg = systems.gfx.add_rect(rect, RENDER_GUI2, "BG", false);
+        let lower_bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI2, "BG", false, CameraView::SubView1);
 
         let mut gfx = [GfxType::None; 4];
         for (i, gfx_slot) in gfx.iter_mut().enumerate() {
@@ -512,9 +538,13 @@ impl PresetWindow {
                 ),
                 2,
             );
-            *gfx_slot = systems
-                .gfx
-                .add_image(img, RENDER_GUI2, "Tileset Selection", false);
+            *gfx_slot = systems.gfx.add_image(
+                img,
+                RENDER_GUI2,
+                "Tileset Selection",
+                false,
+                CameraView::SubView1,
+            );
         }
 
         let type_list = OptionList::new(
@@ -648,9 +678,13 @@ impl PresetWindow {
                 ),
                 2,
             );
-            *gfx_slot = systems
-                .gfx
-                .add_image(img, RENDER_GUI2, "Tileset Selection", false);
+            *gfx_slot = systems.gfx.add_image(
+                img,
+                RENDER_GUI2,
+                "Tileset Selection",
+                false,
+                CameraView::SubView1,
+            );
         }
 
         let img = Image::new(
@@ -661,7 +695,10 @@ impl PresetWindow {
             Vec4::new(0.0, 0.0, 40.0, 20.0),
             2,
         );
-        let blocker = systems.gfx.add_image(img, RENDER_GUI2, "Blocker", false);
+        let blocker =
+            systems
+                .gfx
+                .add_image(img, RENDER_GUI2, "Blocker", false, CameraView::SubView1);
 
         let selection = PresetTileSelection {
             gfx,
@@ -1173,9 +1210,13 @@ impl PresetWindow {
             Vec4::new(0.0, 0.0, tileset_size.x, tileset_size.y),
             1,
         );
-        self.editor.tileset = systems
-            .gfx
-            .add_image(img, RENDER_GUI2, "Tileset", self.visible);
+        self.editor.tileset = systems.gfx.add_image(
+            img,
+            RENDER_GUI2,
+            "Tileset",
+            self.visible,
+            CameraView::SubView1,
+        );
     }
 
     pub fn select_tile(&mut self, systems: &mut SystemHolder, start_pos: Vec2, end_pos: Vec2) {

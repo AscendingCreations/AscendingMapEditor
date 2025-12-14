@@ -95,9 +95,13 @@ impl OptionList {
         );
         rect.set_border_color(Color::rgb(0, 0, 0))
             .set_border_width(1.0);
-        let data_bar = systems
-            .gfx
-            .add_rect(rect, buffer_layer[0], "Option Bar", visible);
+        let data_bar = systems.gfx.add_rect(
+            rect,
+            buffer_layer[0],
+            "Option Bar",
+            visible,
+            CameraView::SubView1,
+        );
 
         let y_adjust = ((size.y - 16.0) * 0.5).floor() + 1.0;
 
@@ -121,9 +125,13 @@ impl OptionList {
             16.0,
             true,
         );
-        let data_text = systems
-            .gfx
-            .add_text(textdata, buffer_layer[1], "Option Text", visible);
+        let data_text = systems.gfx.add_text(
+            textdata,
+            buffer_layer[1],
+            "Option Text",
+            visible,
+            CameraView::SubView1,
+        );
         systems.gfx.set_text(
             &mut systems.renderer,
             &data_text,

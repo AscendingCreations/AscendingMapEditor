@@ -40,9 +40,13 @@ impl WeatherWindow {
             16.0,
             true,
         );
-        let label = systems
-            .gfx
-            .add_text(text, RENDER_GUI_TEXT, "Weather Label", false);
+        let label = systems.gfx.add_text(
+            text,
+            RENDER_GUI_TEXT,
+            "Weather Label",
+            false,
+            CameraView::SubView1,
+        );
         systems
             .gfx
             .set_text(&mut systems.renderer, &label, "Weather");

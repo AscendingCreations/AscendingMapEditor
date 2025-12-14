@@ -93,7 +93,9 @@ impl ZoneWindow {
             Color::rgb(130, 130, 130),
             0,
         );
-        let lower_bg = systems.gfx.add_rect(rect, RENDER_GUI2, "BG", false);
+        let lower_bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI2, "BG", false, CameraView::SubView1);
 
         let separator_rect = Rect::new(
             &mut systems.renderer,
@@ -109,9 +111,13 @@ impl ZoneWindow {
             Color::rgb(140, 140, 140),
             1,
         );
-        let seperator = systems
-            .gfx
-            .add_rect(separator_rect, RENDER_GUI, "Seperator", false);
+        let seperator = systems.gfx.add_rect(
+            separator_rect,
+            RENDER_GUI,
+            "Seperator",
+            false,
+            CameraView::SubView1,
+        );
 
         let content_y_size = (368.0 * systems.scale as f32).floor();
         let scroll_value = (content_y_size - area_size.y).max(0.0) as usize;
@@ -183,9 +189,13 @@ impl ZoneWindow {
                 16.0,
                 true,
             );
-            let text_gfx = systems
-                .gfx
-                .add_text(text, RENDER_GUI_TEXT, "Zone Labels", false);
+            let text_gfx = systems.gfx.add_text(
+                text,
+                RENDER_GUI_TEXT,
+                "Zone Labels",
+                false,
+                CameraView::SubView1,
+            );
             systems.gfx.set_text(
                 &mut systems.renderer,
                 &text_gfx,
@@ -241,7 +251,9 @@ impl ZoneWindow {
                     Color::rgb(70, 70, 70),
                     1,
                 );
-                let bg = systems.gfx.add_rect(rect, RENDER_GUI, "BG", false);
+                let bg = systems
+                    .gfx
+                    .add_rect(rect, RENDER_GUI, "BG", false, CameraView::SubView1);
                 textbox_bg.push(bg);
             }
 

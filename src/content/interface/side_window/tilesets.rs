@@ -49,7 +49,9 @@ impl TilesetWindow {
             Color::rgb(80, 80, 80),
             0,
         );
-        let bg = systems.gfx.add_rect(rect, RENDER_GUI, "Tileset BG", true);
+        let bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI, "Tileset BG", true, CameraView::SubView1);
 
         let content_y_size = tileset_size.y + (54.0 * systems.scale as f32).floor();
         let scroll_value = (content_y_size - area_size.y).max(0.0) as usize;
@@ -99,7 +101,10 @@ impl TilesetWindow {
             Vec4::new(0.0, 0.0, tileset_size.x, tileset_size.y),
             1,
         );
-        let tileset = systems.gfx.add_image(img, RENDER_GUI2, "Tileset", true);
+        let tileset =
+            systems
+                .gfx
+                .add_image(img, RENDER_GUI2, "Tileset", true, CameraView::SubView1);
 
         let tileset_name_list: Vec<String> = systems
             .resource
@@ -161,7 +166,9 @@ impl TilesetWindow {
             Color::rgb(130, 130, 130),
             0,
         );
-        let lower_bg = systems.gfx.add_rect(rect, RENDER_GUI2, "BG", true);
+        let lower_bg = systems
+            .gfx
+            .add_rect(rect, RENDER_GUI2, "BG", true, CameraView::SubView1);
 
         let mut gfx = [GfxType::None; 4];
         for (i, gfx_slot) in gfx.iter_mut().enumerate() {
@@ -198,9 +205,13 @@ impl TilesetWindow {
                 ),
                 2,
             );
-            *gfx_slot = systems
-                .gfx
-                .add_image(img, RENDER_GUI2, "Tileset Selection", true);
+            *gfx_slot = systems.gfx.add_image(
+                img,
+                RENDER_GUI2,
+                "Tileset Selection",
+                true,
+                CameraView::SubView1,
+            );
         }
 
         let selection = TileSelection {
@@ -316,9 +327,13 @@ impl TilesetWindow {
             Vec4::new(0.0, 0.0, tileset_size.x, tileset_size.y),
             1,
         );
-        self.tileset = systems
-            .gfx
-            .add_image(img, RENDER_GUI2, "Tileset", self.visible);
+        self.tileset = systems.gfx.add_image(
+            img,
+            RENDER_GUI2,
+            "Tileset",
+            self.visible,
+            CameraView::SubView1,
+        );
     }
 
     pub fn update_content(&mut self, systems: &mut SystemHolder) {

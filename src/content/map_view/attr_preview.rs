@@ -99,9 +99,13 @@ impl AttrPreview {
         );
         rect.set_border_color(Color::rgb(0, 0, 0))
             .set_border_width(1.0);
-        self.bg = systems
-            .gfx
-            .add_rect(rect, RENDER_GUI, "Preview Attr BG", false);
+        self.bg = systems.gfx.add_rect(
+            rect,
+            RENDER_GUI,
+            "Preview Attr BG",
+            false,
+            CameraView::SubView1,
+        );
 
         self.text.clear();
         for (i, msg) in msgs.iter().enumerate() {
@@ -126,9 +130,13 @@ impl AttrPreview {
                 16.0,
                 true,
             );
-            let lbl = systems
-                .gfx
-                .add_text(label, RENDER_GUI_TEXT, "Preview Attr Label", false);
+            let lbl = systems.gfx.add_text(
+                label,
+                RENDER_GUI_TEXT,
+                "Preview Attr Label",
+                false,
+                CameraView::SubView1,
+            );
 
             systems.gfx.set_text(&mut systems.renderer, &lbl, msg);
             systems.gfx.center_text(&lbl);
