@@ -97,12 +97,8 @@ pub fn apply_link_map(content: &mut Content, map_pos: MapPosition) {
 }
 
 pub fn apply_map_data(content: &mut Content, systems: &mut SystemHolder, mapdata: &MapData) {
-    let tile_size =
-        (Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32) * systems.config.zoom).floor();
-    let attr_zoom_pos = Vec2::new(
-        (content.map_view.map.pos.x * systems.config.zoom).floor(),
-        (content.map_view.map.pos.y * systems.config.zoom).floor(),
-    );
+    let tile_size = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
+    let attr_zoom_pos = Vec2::new(content.map_view.map.pos.x, content.map_view.map.pos.y);
 
     (0..32).for_each(|x| {
         (0..32).for_each(|y| {
@@ -251,12 +247,8 @@ pub fn apply_map_data(content: &mut Content, systems: &mut SystemHolder, mapdata
 }
 
 pub fn update_zone_visible(content: &mut Content, systems: &mut SystemHolder) {
-    let tile_size =
-        (Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32) * systems.config.zoom).floor();
-    let attr_zoom_pos = Vec2::new(
-        (content.map_view.map.pos.x * systems.config.zoom).floor(),
-        (content.map_view.map.pos.y * systems.config.zoom).floor(),
-    );
+    let tile_size = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
+    let attr_zoom_pos = Vec2::new(content.map_view.map.pos.x, content.map_view.map.pos.y);
 
     let cur_zone = content.interface.side_window.zone.cur_zone;
 
@@ -465,12 +457,8 @@ pub fn update_map_zone(content: &mut Content, systems: &mut SystemHolder, set: b
         return;
     }
 
-    let tile_size =
-        (Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32) * systems.config.zoom).floor();
-    let attr_zoom_pos = Vec2::new(
-        (content.map_view.map.pos.x * systems.config.zoom).floor(),
-        (content.map_view.map.pos.y * systems.config.zoom).floor(),
-    );
+    let tile_size = Vec2::new(TEXTURE_SIZE as f32, TEXTURE_SIZE as f32);
+    let attr_zoom_pos = Vec2::new(content.map_view.map.pos.x, content.map_view.map.pos.y);
 
     let pos = Vec2::new((tile_num % 32) as f32, (tile_num / 32) as f32);
     let tile_pos = Vec2::new(

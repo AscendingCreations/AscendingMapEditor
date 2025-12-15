@@ -189,6 +189,15 @@ impl AttrPreview {
         self.show_timer = seconds + 0.5;
     }
 
+    pub fn unload(&mut self, systems: &mut SystemHolder) {
+        systems.gfx.remove_gfx(&mut systems.renderer, &self.bg);
+        for gfx in self.text.iter() {
+            systems.gfx.remove_gfx(&mut systems.renderer, gfx);
+        }
+        self.visible = false;
+        self.loaded = false;
+    }
+
     pub fn update_visible(&mut self, systems: &mut SystemHolder, seconds: f32) {
         if !self.loaded || self.in_drag || self.visible || self.show_timer > seconds {
             return;

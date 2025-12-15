@@ -111,7 +111,9 @@ pub fn drawingtool_hold_move_scrollbar(
 
     let set_zoom = zoom_level as f32 * 0.01;
     let rounded_value = (set_zoom * 10.0).round() / 10.0;
-    content.map_view.adjust_map_by_zoom(systems, rounded_value);
+    content
+        .map_view
+        .adjust_map_by_zoom(systems, graphics, rounded_value);
     graphics.system.controls_mut().settings_mut().zoom = rounded_value;
     systems.config.zoom = rounded_value;
 }

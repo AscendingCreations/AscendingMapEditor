@@ -54,8 +54,8 @@ pub fn handle_input(
                     content.map_view.attr_preview.in_drag = true;
                 }
                 MouseInputType::Move => {
-                    let start_pos =
-                        content.map_view.tile.start_zoom_pos + content.map_view.camera_pos;
+                    let start_pos = (content.map_view.map.pos * systems.config.zoom).round()
+                        + content.map_view.camera_pos;
                     let selecting_pos = mouse_pos - start_pos;
                     let tile_size = (TEXTURE_SIZE as f32 * systems.config.zoom).round();
                     let map_pos = Vec2::new(
@@ -82,7 +82,7 @@ pub fn handle_input(
         match inputtype {
             MouseInputType::LeftDown => {
                 if cur_tool == ToolType::Move {
-                    content.map_view.set_map_drag(systems, mouse_pos)
+                    content.map_view.set_map_drag(mouse_pos)
                 }
             }
             MouseInputType::LeftDownMove => {
@@ -149,7 +149,7 @@ pub fn handle_input(
                     return Ok(());
                 }
             }
-            MouseInputType::MiddleDown => content.map_view.set_map_drag(systems, mouse_pos),
+            MouseInputType::MiddleDown => content.map_view.set_map_drag(mouse_pos),
             MouseInputType::MiddleDownMove => {
                 content.map_view.last_camera_pos =
                     content.map_view.update_map_drag(graphics, mouse_pos);
@@ -268,7 +268,7 @@ pub fn handle_input(
     }
 
     if let MouseInputType::Release = inputtype {
-        content.map_view.clear_map_drag(systems);
+        content.map_view.clear_map_drag();
         content.data.record_placeholder();
 
         content.map_view.camera_pos = content.map_view.last_camera_pos;
@@ -451,7 +451,9 @@ pub fn handle_mouse_wheel(
 
         let set_zoom = zoom_level as f32 * 0.01;
         let rounded_value = (set_zoom * 10.0).round() / 10.0;
-        content.map_view.adjust_map_by_zoom(systems, rounded_value);
+        content
+            .map_view
+            .adjust_map_by_zoom(systems, graphics, rounded_value);
         graphics.system.controls_mut().settings_mut().zoom = rounded_value;
         systems.config.zoom = rounded_value;
     }

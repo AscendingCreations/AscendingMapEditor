@@ -162,6 +162,8 @@ pub fn side_clickdrag_widget(
 }
 
 pub fn switch_tab(content: &mut Content, systems: &mut SystemHolder, tool: TabButton) {
+    content.map_view.attr_preview.unload(systems);
+
     let gui = &mut content.interface.side_window;
 
     if tool != gui.cur_tab {
