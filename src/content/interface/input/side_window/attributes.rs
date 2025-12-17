@@ -116,7 +116,9 @@ impl AttributeWindow {
 
             checkbox.change_content_text(systems, mapattr_text);
             checkbox.set_value(systems, self.cur_attribute == mapattr);
-            self.cur_attr_display = Some(index);
+            if self.cur_attribute == mapattr {
+                self.cur_attr_display = Some(index);
+            }
         }
     }
 }
