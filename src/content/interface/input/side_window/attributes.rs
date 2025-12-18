@@ -141,7 +141,7 @@ pub fn side_attribute_click_widget(
     if let Some(index) = gui.click_attribute(systems, mouse_pos) {
         let attr_index = index + gui.attribute_scroll.value + 1;
         let mapattr = EditorMapAttribute::convert_to_plain_enum(attr_index as u32);
-        switch_attributes(content, systems, mapattr, index);
+        switch_attributes(content, systems, mapattr, Some(index));
         return true;
     }
 
@@ -160,16 +160,27 @@ pub fn switch_attributes(
     content: &mut Content,
     systems: &mut SystemHolder,
     mapattr: EditorMapAttribute,
-    attr_index: usize,
+    attr_index: Option<usize>,
 ) {
     let gui = &mut content.interface.side_window.attributes;
 
     if let Some(index) = gui.cur_attr_display {
         gui.attribute[index].set_value(systems, false);
     }
-    gui.attribute[attr_index].set_value(systems, true);
-    gui.cur_attr_display = Some(attr_index);
     gui.cur_attribute = mapattr;
+
+    if let Some(index) = attr_index {
+        gui.attribute[index].set_value(systems, true);
+        gui.cur_attr_display = Some(index);
+    } else if let Some(index) = gui.attribute.iter().enumerate().position(|(index, _)| {
+        let attr_index = index + gui.attribute_scroll.value + 1;
+        let check_mapattr = EditorMapAttribute::convert_to_plain_enum(attr_index as u32);
+
+        check_mapattr == mapattr
+    }) {
+        gui.attribute[index].set_value(systems, true);
+        gui.cur_attr_display = Some(index);
+    }
 
     gui.attr_position
         .set_visible(systems, mapattr == EditorMapAttribute::Warp);

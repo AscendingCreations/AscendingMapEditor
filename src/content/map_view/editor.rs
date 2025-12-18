@@ -917,12 +917,7 @@ pub fn picker_attribute_update(content: &mut Content, systems: &mut SystemHolder
 
     switch_tab(content, systems, TabButton::Attributes);
     let mapattr = attribute.to_editor();
-    switch_attributes(
-        content,
-        systems,
-        mapattr,
-        (mapattr as usize).saturating_sub(1),
-    );
+    switch_attributes(content, systems, mapattr, None);
 
     let gui = &mut content.interface.side_window.attributes;
 
