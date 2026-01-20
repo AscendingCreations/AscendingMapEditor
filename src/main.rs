@@ -12,7 +12,7 @@ use graphics::{
     },
     *,
 };
-use input::{Bindings, FrameTime, InputHandler, Key, MouseAxis};
+use input::{Bindings, InputHandler, Key, MouseAxis};
 use log::{Level, LevelFilter, Metadata, Record, error, info, warn};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -23,6 +23,7 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
+use time::FrameTime;
 use wgpu::{Backends, Dx12Compiler, InstanceDescriptor, InstanceFlags};
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},

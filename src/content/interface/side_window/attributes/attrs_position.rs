@@ -219,12 +219,12 @@ impl AttrPosition {
             systems.gfx.set_pos(&inputbox.label, text_pos);
             systems.gfx.set_bound(
                 &inputbox.label,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
 
             let textbox_pos = Vec3::new(
@@ -280,12 +280,12 @@ impl AttrPosition {
             systems.gfx.set_pos(&inputbox.label, text_pos);
             systems.gfx.set_bound(
                 &inputbox.label,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
 
             let textbox_pos = Vec3::new(

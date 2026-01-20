@@ -306,12 +306,12 @@ impl MapPosInput {
             systems.gfx.set_pos(&self.label[i], text_pos);
             systems.gfx.set_bound(
                 &self.label[i],
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
             systems.gfx.center_text(&self.label[i]);
 

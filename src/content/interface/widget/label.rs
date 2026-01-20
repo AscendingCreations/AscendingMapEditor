@@ -31,7 +31,7 @@ pub fn create_label(
         Some(systems.size.width),
         Some(systems.size.height),
     )
-    .set_bounds(bounds)
+    .set_bounds(Some(bounds))
     .set_default_color(color);
     text.changed = true;
     text
@@ -56,7 +56,7 @@ pub fn create_empty_label(
         Some(systems.size.width),
         Some(systems.size.height),
     )
-    .set_bounds(Bounds::new(0.0, 0.0, 0.0, 0.0))
+    .set_bounds(None)
     .set_default_color(color);
     text.changed = true;
     text

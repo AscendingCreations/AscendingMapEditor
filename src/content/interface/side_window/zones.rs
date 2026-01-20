@@ -335,12 +335,12 @@ impl ZoneWindow {
             systems.gfx.set_pos(label, text_pos);
             systems.gfx.set_bound(
                 label,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
 
             if matches!(i, 0 | 2) {
@@ -428,12 +428,12 @@ impl ZoneWindow {
             systems.gfx.set_pos(label, text_pos);
             systems.gfx.set_bound(
                 label,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
 
             if matches!(i, 0 | 2) {

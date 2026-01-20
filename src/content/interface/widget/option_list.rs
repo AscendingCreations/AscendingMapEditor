@@ -271,12 +271,12 @@ impl OptionList {
         );
         systems.gfx.set_bound(
             &self.text,
-            Bounds::new(
+            Some(Bounds::new(
                 widget_pos.x + (4.0 * systems.scale as f32).floor(),
                 widget_pos.y + (y_adjust * systems.scale as f32).floor(),
                 widget_pos.x + ((4.0 + self.size.x) * systems.scale as f32).floor(),
                 widget_pos.y + ((self.size.y + y_adjust) * systems.scale as f32).floor(),
-            ),
+            )),
         );
 
         self.button.set_pos(systems, widget_pos);

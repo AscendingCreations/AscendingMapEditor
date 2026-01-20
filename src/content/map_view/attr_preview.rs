@@ -169,12 +169,12 @@ impl AttrPreview {
                 .set_pos(gfx, Vec3::new(label_pos.x, label_pos.y, ORDER_ATTR_PREVIEW));
             systems.gfx.set_bound(
                 gfx,
-                Bounds::new(
+                Some(Bounds::new(
                     label_pos.x,
                     label_pos.y,
                     label_pos.x + label_size.x,
                     label_pos.y + label_size.y,
-                ),
+                )),
             );
             systems.gfx.center_text(gfx);
         }

@@ -119,101 +119,59 @@ pub fn add_image_to_buffer<Controls>(
 ) where
     Controls: camera::controls::Controls,
 {
-    systems.gfx.image_storage.iter_mut().for_each(|(_, gfx)| {
-        let visible = if let Some(visible) = gfx.data.override_visible {
+    systems.gfx.storage.iter_mut().for_each(|(_, data)| {
+        let visible = if let Some(visible) = data.data.override_visible {
             visible
         } else {
-            gfx.data.visible
+            data.data.visible
         };
 
         if visible {
-            if gfx.data.debug_track {
+            if data.data.debug_track {
                 // Add Breakpoint to proceed with debug here
-                gfx.data.debug_track = false;
+                data.data.debug_track = false;
             }
-            graphics.image_renderer.update(
-                &mut gfx.gfx,
-                &mut systems.renderer,
-                &mut graphics.image_atlas,
-                gfx.data.layer,
-            );
-        }
-    });
-    systems.gfx.text_storage.iter_mut().for_each(|(_, gfx)| {
-        let visible = if let Some(visible) = gfx.data.override_visible {
-            visible
-        } else {
-            gfx.data.visible
-        };
-
-        if visible {
-            if gfx.data.debug_track {
-                // Add Breakpoint to proceed with debug here
-                gfx.data.debug_track = false;
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => {
+                    graphics.image_renderer.update(
+                        gfx,
+                        &mut systems.renderer,
+                        &mut graphics.image_atlas,
+                        data.data.layer,
+                    );
+                }
+                GfxEnum::Rect(gfx) => {
+                    graphics.ui_renderer.update(
+                        gfx,
+                        &mut systems.renderer,
+                        &mut graphics.ui_atlas,
+                        data.data.layer,
+                    );
+                }
+                GfxEnum::Text(gfx) => {
+                    graphics
+                        .text_renderer
+                        .update(
+                            gfx,
+                            &mut graphics.text_atlas,
+                            &mut systems.renderer,
+                            data.data.layer,
+                        )
+                        .unwrap();
+                }
+                GfxEnum::Light(gfx) => {
+                    graphics.light_renderer.update(
+                        &mut gfx.light,
+                        &mut systems.renderer,
+                        data.data.layer,
+                    );
+                }
+                GfxEnum::Mesh(gfx) => {
+                    graphics
+                        .mesh_renderer
+                        .update(gfx, &mut systems.renderer, data.data.layer);
+                }
             }
-            graphics
-                .text_renderer
-                .update(
-                    &mut gfx.gfx,
-                    &mut graphics.text_atlas,
-                    &mut systems.renderer,
-                    gfx.data.layer,
-                )
-                .unwrap();
-        }
-    });
-    systems.gfx.rect_storage.iter_mut().for_each(|(_, gfx)| {
-        let visible = if let Some(visible) = gfx.data.override_visible {
-            visible
-        } else {
-            gfx.data.visible
-        };
-
-        if visible {
-            if gfx.data.debug_track {
-                // Add Breakpoint to proceed with debug here
-                gfx.data.debug_track = false;
-            }
-            graphics.ui_renderer.update(
-                &mut gfx.gfx,
-                &mut systems.renderer,
-                &mut graphics.ui_atlas,
-                gfx.data.layer,
-            );
-        }
-    });
-    systems.gfx.mesh_storage.iter_mut().for_each(|(_, gfx)| {
-        let visible = if let Some(visible) = gfx.data.override_visible {
-            visible
-        } else {
-            gfx.data.visible
-        };
-
-        if visible {
-            if gfx.data.debug_track {
-                // Add Breakpoint to proceed with debug here
-                gfx.data.debug_track = false;
-            }
-            graphics
-                .mesh_renderer
-                .update(&mut gfx.gfx, &mut systems.renderer, gfx.data.layer);
-        }
-    });
-    systems.gfx.light_storage.iter_mut().for_each(|(_, gfx)| {
-        let visible = if let Some(visible) = gfx.data.override_visible {
-            visible
-        } else {
-            gfx.data.visible
-        };
-
-        if visible {
-            if gfx.data.debug_track {
-                // Add Breakpoint to proceed with debug here
-                gfx.data.debug_track = false;
-            }
-            graphics
-                .light_renderer
-                .update(&mut gfx.gfx, &mut systems.renderer, gfx.data.layer);
         }
     });
 

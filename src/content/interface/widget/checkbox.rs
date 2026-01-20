@@ -173,7 +173,7 @@ impl Checkbox {
                     CameraView::SubView1,
                 )
             }
-            _ => GfxType::None,
+            _ => GfxType::default(),
         };
 
         let check_image = match checktype {
@@ -224,7 +224,7 @@ impl Checkbox {
                     CameraView::SubView1,
                 )
             }
-            _ => GfxType::None,
+            _ => GfxType::default(),
         };
 
         let mut adjust_x = 0.0;
@@ -371,12 +371,12 @@ impl Checkbox {
             systems.gfx.set_pos(&data.0, pos);
             systems.gfx.set_bound(
                 &data.0,
-                Bounds::new(
+                Some(Bounds::new(
                     pos.x,
                     pos.y,
                     pos.x + (data.1.label_size.x * systems.scale as f32),
                     pos.y + (data.1.label_size.y * systems.scale as f32),
-                ),
+                )),
             );
         }
     }

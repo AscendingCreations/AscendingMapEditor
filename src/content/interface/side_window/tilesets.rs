@@ -170,7 +170,7 @@ impl TilesetWindow {
             .gfx
             .add_rect(rect, RENDER_GUI2, "BG", true, CameraView::SubView1);
 
-        let mut gfx = [GfxType::None; 4];
+        let mut gfx = [GfxType::default(); 4];
         for (i, gfx_slot) in gfx.iter_mut().enumerate() {
             let img = Image::new(
                 Some(systems.resource.interface[GuiTexture::TilesheetSelect as usize]),

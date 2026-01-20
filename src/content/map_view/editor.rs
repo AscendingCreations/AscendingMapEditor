@@ -151,12 +151,12 @@ pub fn apply_map_data(content: &mut Content, systems: &mut SystemHolder, mapdata
             );
             systems.gfx.set_bound(
                 &view_attr.text,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
             systems.gfx.center_text(&view_attr.text);
 

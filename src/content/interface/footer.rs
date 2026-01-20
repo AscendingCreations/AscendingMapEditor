@@ -124,12 +124,12 @@ impl Footer {
         systems.gfx.set_pos(&self.map_pos, text_pos);
         systems.gfx.set_bound(
             &self.map_pos,
-            Bounds::new(
+            Some(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + text_size.x,
                 text_pos.y + text_size.y,
-            ),
+            )),
         );
 
         let message = "Tile Pos [X: 00 Y: 00]".to_string();
@@ -145,12 +145,12 @@ impl Footer {
         systems.gfx.set_pos(&self.tile_pos, text_pos);
         systems.gfx.set_bound(
             &self.tile_pos,
-            Bounds::new(
+            Some(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + text_size.x,
                 text_pos.y + text_size.y,
-            ),
+            )),
         );
     }
 

@@ -298,7 +298,7 @@ impl Textbox {
         );
         systems.gfx.set_bound(
             &self.text_index,
-            Bounds::new(
+            Some(Bounds::new(
                 b_pos.x,
                 b_pos.y,
                 b_pos.x
@@ -317,7 +317,7 @@ impl Textbox {
                             1.0
                         })
                     .floor(),
-            ),
+            )),
         );
         systems.gfx.set_pos(
             &self.caret,

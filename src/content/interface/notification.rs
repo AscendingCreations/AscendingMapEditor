@@ -120,12 +120,12 @@ impl Notification {
             );
             systems.gfx.set_bound(
                 &data.text,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
             systems.gfx.center_text(&data.text);
         }
@@ -165,12 +165,12 @@ impl Notification {
                 );
                 systems.gfx.set_bound(
                     &data.text,
-                    Bounds::new(
+                    Some(Bounds::new(
                         text_pos.x,
                         text_pos.y,
                         text_pos.x + text_size.x,
                         text_pos.y + text_size.y,
-                    ),
+                    )),
                 );
                 systems.gfx.center_text(&data.text);
             }

@@ -153,7 +153,7 @@ impl TextList {
                     CameraView::SubView1,
                 )
             }
-            TextListBG::None => GfxType::None,
+            TextListBG::None => GfxType::default(),
         };
 
         let scrollbar_value = list_text.len().saturating_sub(text_data.max_list);
@@ -344,12 +344,12 @@ impl TextList {
                 .set_pos(&data.data, Vec3::new(text_pos.x, text_pos.y, self.z_order));
             systems.gfx.set_bound(
                 &data.data,
-                Bounds::new(
+                Some(Bounds::new(
                     text_pos.x,
                     text_pos.y,
                     text_pos.x + text_size.x,
                     text_pos.y + text_size.y,
-                ),
+                )),
             );
         }
     }

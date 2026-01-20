@@ -377,7 +377,7 @@ impl Button {
                     systems.gfx.set_pos(&content_index, pos);
                     systems.gfx.set_bound(
                         &content_index,
-                        Bounds::new(
+                        Some(Bounds::new(
                             pos.x,
                             pos.y,
                             pos.x
@@ -396,7 +396,7 @@ impl Button {
                                         systems.scale as f32
                                     })
                                 .floor(),
-                        ),
+                        )),
                     );
                     systems.gfx.center_text(&content_index);
                 }
@@ -477,7 +477,7 @@ impl Button {
                     systems.gfx.set_pos(&content_index, pos);
                     systems.gfx.set_bound(
                         &content_index,
-                        Bounds::new(
+                        Some(Bounds::new(
                             pos.x,
                             pos.y,
                             pos.x
@@ -496,7 +496,7 @@ impl Button {
                                         systems.scale as f32
                                     })
                                 .floor(),
-                        ),
+                        )),
                     );
                     systems.gfx.center_text(&content_index);
                 }

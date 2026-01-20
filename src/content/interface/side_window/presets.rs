@@ -296,7 +296,7 @@ impl PresetWindow {
             preview_info,
             preview_bg,
             preset_list,
-            preview: [GfxType::None; 4],
+            preview: [GfxType::default(); 4],
             preset_type: PresetTypeList::Normal,
             frames: [PresetFrames::default(); 4],
             cur_frame: 0,
@@ -503,7 +503,7 @@ impl PresetWindow {
             .gfx
             .add_rect(rect, RENDER_GUI2, "BG", false, CameraView::SubView1);
 
-        let mut gfx = [GfxType::None; 4];
+        let mut gfx = [GfxType::default(); 4];
         for (i, gfx_slot) in gfx.iter_mut().enumerate() {
             let img = Image::new(
                 Some(systems.resource.interface[GuiTexture::TilesheetSelect as usize]),
@@ -643,7 +643,7 @@ impl PresetWindow {
             false,
         );
 
-        let mut gfx = [GfxType::None; 4];
+        let mut gfx = [GfxType::default(); 4];
         for (i, gfx_slot) in gfx.iter_mut().enumerate() {
             let img = Image::new(
                 Some(systems.resource.interface[GuiTexture::TilesheetSelect as usize]),
@@ -774,12 +774,12 @@ impl PresetWindow {
         systems.gfx.set_pos(&self.base.preview_name, text_pos);
         systems.gfx.set_bound(
             &self.base.preview_name,
-            Bounds::new(
+            Some(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + text_size.x,
                 text_pos.y + text_size.y,
-            ),
+            )),
         );
         systems.gfx.center_text(&self.base.preview_name);
 
@@ -792,12 +792,12 @@ impl PresetWindow {
         systems.gfx.set_pos(&self.base.preview_info, text_pos);
         systems.gfx.set_bound(
             &self.base.preview_info,
-            Bounds::new(
+            Some(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + text_size.x,
                 text_pos.y + text_size.y,
-            ),
+            )),
         );
         systems.gfx.center_text(&self.base.preview_info);
 
@@ -936,12 +936,12 @@ impl PresetWindow {
             .set_pos(&self.editor.frame_label, frame_text_pos);
         systems.gfx.set_bound(
             &self.editor.frame_label,
-            Bounds::new(
+            Some(Bounds::new(
                 frame_text_pos.x,
                 frame_text_pos.y,
                 frame_text_pos.x + frame_text_size.x,
                 frame_text_pos.y + frame_text_size.y,
-            ),
+            )),
         );
 
         systems.gfx.set_pos(&self.editor.tileset, tileset_pos);
@@ -1160,12 +1160,12 @@ impl PresetWindow {
             .set_pos(&self.editor.frame_label, frame_text_pos);
         systems.gfx.set_bound(
             &self.editor.frame_label,
-            Bounds::new(
+            Some(Bounds::new(
                 frame_text_pos.x,
                 frame_text_pos.y,
                 frame_text_pos.x + frame_text_size.x,
                 frame_text_pos.y + frame_text_size.y,
-            ),
+            )),
         );
 
         let end_pos = if matches!(

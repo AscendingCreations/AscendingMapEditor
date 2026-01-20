@@ -266,7 +266,7 @@ impl MapView {
             }
         }
 
-        let mut map_border = [GfxType::None; 4];
+        let mut map_border = [GfxType::default(); 4];
         for (i, gfx) in map_border.iter_mut().enumerate() {
             let set_pos = match i {
                 1 => Vec2::new(map_pos.x - 2.0, map_pos.y - 2.0), // Bottom

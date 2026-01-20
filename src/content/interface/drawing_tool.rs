@@ -291,12 +291,12 @@ impl DrawingTool {
         systems.gfx.set_pos(&self.zoom_label, label_pos);
         systems.gfx.set_bound(
             &self.zoom_label,
-            Bounds::new(
+            Some(Bounds::new(
                 label_pos.x,
                 label_pos.y,
                 label_pos.x + label_size.x,
                 label_pos.y + label_size.y,
-            ),
+            )),
         );
         systems.gfx.center_text(&self.zoom_label);
     }

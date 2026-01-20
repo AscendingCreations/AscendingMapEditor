@@ -206,12 +206,12 @@ impl AttrSign {
         systems.gfx.set_pos(&self.input_box.label, text_pos);
         systems.gfx.set_bound(
             &self.input_box.label,
-            Bounds::new(
+            Some(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + text_size.x,
                 text_pos.y + text_size.y,
-            ),
+            )),
         );
 
         let textbox_pos = Vec3::new(
@@ -256,12 +256,12 @@ impl AttrSign {
         systems.gfx.set_pos(&self.input_box.label, text_pos);
         systems.gfx.set_bound(
             &self.input_box.label,
-            Bounds::new(
+            Some(Bounds::new(
                 text_pos.x,
                 text_pos.y,
                 text_pos.x + text_size.x,
                 text_pos.y + text_size.y,
-            ),
+            )),
         );
 
         let textbox_pos = Vec3::new(

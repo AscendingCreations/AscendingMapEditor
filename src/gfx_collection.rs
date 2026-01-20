@@ -1,21 +1,12 @@
-use crate::info;
-use cosmic_text::{Attrs, Weight};
+use std::borrow::Cow;
+
+use cosmic_text::Attrs;
 use graphics::*;
 use indexmap::IndexSet;
-use slab::Slab;
 use slotmap::SlotMap;
-use std::{borrow::Cow, default};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Default)]
-pub enum GfxType {
-    #[default]
-    None,
-    Image(Index),
-    Rect(Index),
-    Text(Index),
-    Light(Index),
-    Mesh(Index),
-}
+pub struct GfxType(Index);
 
 pub struct GfxData {
     pub layer: usize,
@@ -37,52 +28,32 @@ impl LightIndex {
     }
 }
 
-pub struct GfxImage {
-    pub data: GfxData,
-    pub gfx: Image,
-}
-
-pub struct GfxRect {
-    pub data: GfxData,
-    pub gfx: Rect,
-}
-
-pub struct GfxText {
-    pub data: GfxData,
-    pub gfx: Text,
-}
-
-pub struct GfxLight {
-    pub data: GfxData,
-    pub gfx: Lights,
+pub struct LightGfx {
+    pub light: Lights,
     visible_lights: IndexSet<LightIndex>,
 }
 
-pub struct GfxMesh {
+pub enum GfxEnum {
+    Image(Image),
+    Rect(Rect),
+    Text(Text),
+    Light(LightGfx),
+    Mesh(Mesh2D),
+}
+
+pub struct Gfx {
     pub data: GfxData,
-    pub gfx: Mesh2D,
+    pub gfx: GfxEnum,
 }
 
 #[derive(Default)]
 pub struct GfxCollection {
-    pub image_storage: SlotMap<Index, GfxImage>,
-    pub rect_storage: SlotMap<Index, GfxRect>,
-    pub text_storage: SlotMap<Index, GfxText>,
-    pub light_storage: SlotMap<Index, GfxLight>,
-    pub mesh_storage: SlotMap<Index, GfxMesh>,
+    pub storage: SlotMap<Index, Gfx>,
 }
 
 impl GfxCollection {
     pub fn new() -> Self {
         Self::default()
-    }
-
-    pub fn count_collection(&self) {
-        info!("Image Size: {:?}", self.image_storage.len());
-        info!("Rect Size: {:?}", self.rect_storage.len());
-        info!("Text Size: {:?}", self.text_storage.len());
-        info!("Light Size: {:?}", self.light_storage.len());
-        info!("Mesh Size: {:?}", self.mesh_storage.len());
     }
 
     pub fn add_image(
@@ -103,7 +74,10 @@ impl GfxCollection {
             identifier: identifier.into(),
             debug_track: false,
         };
-        GfxType::Image(self.image_storage.insert(GfxImage { data, gfx }))
+        GfxType(self.storage.insert(Gfx {
+            data,
+            gfx: GfxEnum::Image(gfx),
+        }))
     }
 
     pub fn add_rect(
@@ -124,7 +98,10 @@ impl GfxCollection {
             identifier: identifier.into(),
             debug_track: false,
         };
-        GfxType::Rect(self.rect_storage.insert(GfxRect { data, gfx }))
+        GfxType(self.storage.insert(Gfx {
+            data,
+            gfx: GfxEnum::Rect(gfx),
+        }))
     }
 
     pub fn add_text(
@@ -145,7 +122,10 @@ impl GfxCollection {
             identifier: identifier.into(),
             debug_track: false,
         };
-        GfxType::Text(self.text_storage.insert(GfxText { data, gfx }))
+        GfxType(self.storage.insert(Gfx {
+            data,
+            gfx: GfxEnum::Text(gfx),
+        }))
     }
 
     pub fn add_light(
@@ -162,10 +142,12 @@ impl GfxCollection {
             identifier: identifier.into(),
             debug_track: false,
         };
-        GfxType::Light(self.light_storage.insert(GfxLight {
+        GfxType(self.storage.insert(Gfx {
             data,
-            gfx,
-            visible_lights: IndexSet::default(),
+            gfx: GfxEnum::Light(LightGfx {
+                light: gfx,
+                visible_lights: IndexSet::default(),
+            }),
         }))
     }
 
@@ -183,237 +165,122 @@ impl GfxCollection {
             identifier: identifier.into(),
             debug_track: false,
         };
-        GfxType::Mesh(self.mesh_storage.insert(GfxMesh { data, gfx }))
+        GfxType(self.storage.insert(Gfx {
+            data,
+            gfx: GfxEnum::Mesh(gfx),
+        }))
     }
 
     pub fn clear_mesh(&mut self, index: &GfxType) {
-        if let GfxType::Mesh(gfx_index) = index
-            && let Some(gfx) = self.mesh_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Mesh(gfx) = &mut data.gfx
         {
-            gfx.gfx.clear();
+            gfx.clear();
         }
     }
 
     pub fn update_mesh_builder(&mut self, index: &GfxType, builder: &Mesh2DBuilder) {
-        if let GfxType::Mesh(gfx_index) = index
-            && let Some(gfx) = self.mesh_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Mesh(gfx) = &mut data.gfx
         {
-            gfx.gfx.from_builder(builder);
+            gfx.from_builder(builder);
         }
     }
 
     pub fn remove_gfx(&mut self, renderer: &mut GpuRenderer, index: &GfxType) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.remove(*gfx_index) {
-                    gfx.gfx.unload(renderer);
-                }
-                self.image_storage.remove(*gfx_index);
+        if let Some(data) = self.storage.remove(index.0) {
+            match data.gfx {
+                GfxEnum::Image(gfx) => gfx.unload(renderer),
+                GfxEnum::Rect(gfx) => gfx.unload(renderer),
+                GfxEnum::Text(gfx) => gfx.unload(renderer),
+                GfxEnum::Light(gfx) => gfx.light.unload(renderer),
+                GfxEnum::Mesh(gfx) => gfx.unload(renderer),
             }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.remove(*gfx_index) {
-                    gfx.gfx.unload(renderer);
-                }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.remove(*gfx_index) {
-                    gfx.gfx.unload(renderer);
-                }
-            }
-            GfxType::Light(gfx_index) => {
-                if let Some(gfx) = self.light_storage.remove(*gfx_index) {
-                    gfx.gfx.unload(renderer);
-                }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.remove(*gfx_index) {
-                    gfx.gfx.unload(renderer);
-                }
-            }
-            GfxType::None => {}
         }
+        self.storage.remove(index.0);
     }
 
     pub fn get_visible(&mut self, index: &GfxType) -> bool {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    return gfx.data.visible;
-                }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    return gfx.data.visible;
-                }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    return gfx.data.visible;
-                }
-            }
-            GfxType::Light(gfx_index) => {
-                if let Some(gfx) = self.light_storage.get_mut(*gfx_index) {
-                    return gfx.data.visible;
-                }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    return gfx.data.visible;
-                }
-            }
-            GfxType::None => {}
+        if let Some(data) = self.storage.get(index.0) {
+            return data.data.visible;
         }
 
         false
     }
 
     pub fn set_visible(&mut self, index: &GfxType, visible: bool) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.data.visible = visible;
-                    gfx.gfx.changed = true;
-                }
+        if let Some(data) = self.storage.get_mut(index.0) {
+            data.data.visible = visible;
+
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => gfx.changed = true,
+                GfxEnum::Rect(gfx) => gfx.changed = true,
+                GfxEnum::Text(gfx) => gfx.changed = true,
+                GfxEnum::Light(gfx) => gfx.light.changed = true,
+                GfxEnum::Mesh(gfx) => gfx.changed = true,
             }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.data.visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.data.visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::Light(gfx_index) => {
-                if let Some(gfx) = self.light_storage.get_mut(*gfx_index) {
-                    gfx.data.visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    gfx.data.visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::None => {}
         }
     }
 
     pub fn set_override_visible(&mut self, index: &GfxType, visible: Option<bool>) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.data.override_visible = visible;
-                    gfx.gfx.changed = true;
-                }
+        if let Some(data) = self.storage.get_mut(index.0) {
+            data.data.override_visible = visible;
+
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => gfx.changed = true,
+                GfxEnum::Rect(gfx) => gfx.changed = true,
+                GfxEnum::Text(gfx) => gfx.changed = true,
+                GfxEnum::Light(gfx) => gfx.light.changed = true,
+                GfxEnum::Mesh(gfx) => gfx.changed = true,
             }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.data.override_visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.data.override_visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::Light(gfx_index) => {
-                if let Some(gfx) = self.light_storage.get_mut(*gfx_index) {
-                    gfx.data.override_visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    gfx.data.override_visible = visible;
-                    gfx.gfx.changed = true;
-                }
-            }
-            GfxType::None => {}
         }
     }
 
     pub fn set_debug(&mut self, index: &GfxType) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.data.debug_track = true;
-                }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.data.debug_track = true;
-                }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.data.debug_track = true;
-                }
-            }
-            GfxType::Light(gfx_index) => {
-                if let Some(gfx) = self.light_storage.get_mut(*gfx_index) {
-                    gfx.data.debug_track = true;
-                }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    gfx.data.debug_track = true;
-                }
-            }
-            GfxType::None => {}
+        if let Some(data) = self.storage.get_mut(index.0) {
+            data.data.debug_track = true;
         }
     }
 
     pub fn set_image(&mut self, index: &GfxType, texture: usize) {
-        if let GfxType::Image(gfx_index) = index
-            && let Some(gfx) = self.image_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Image(gfx) = &mut data.gfx
         {
-            gfx.gfx.texture = Some(texture);
-            gfx.gfx.changed = true;
+            gfx.texture = Some(texture);
+            gfx.changed = true;
         }
     }
 
     pub fn set_color(&mut self, index: &GfxType, color: Color) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.gfx.color = color;
-                    gfx.gfx.changed = true;
+        if let Some(data) = self.storage.get_mut(index.0) {
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => {
+                    gfx.set_color(color);
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_color(color);
+                GfxEnum::Rect(gfx) => {
+                    gfx.set_color(color);
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_default_color(color);
+                GfxEnum::Text(gfx) => {
+                    gfx.set_default_color(color);
                 }
+                _ => {}
             }
-            _ => {}
         }
     }
 
     pub fn set_border_color(&mut self, index: &GfxType, color: Color) {
-        if let GfxType::Rect(gfx_index) = index
-            && let Some(gfx) = self.rect_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Rect(gfx) = &mut data.gfx
         {
-            gfx.gfx.set_border_color(color);
+            gfx.set_border_color(color);
         }
     }
 
     pub fn set_border_width(&mut self, index: &GfxType, width: f32) {
-        if let GfxType::Rect(gfx_index) = index
-            && let Some(gfx) = self.rect_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Rect(gfx) = &mut data.gfx
         {
-            gfx.gfx.set_border_width(width);
+            gfx.set_border_width(width);
         }
     }
 
@@ -424,153 +291,130 @@ impl GfxCollection {
     }
 
     pub fn set_pos(&mut self, index: &GfxType, pos: Vec3) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    //let _ = gfx.gfx.set_pos(pos);
-                    gfx.gfx.pos = pos;
-                    gfx.gfx.changed = true;
+        if let Some(data) = self.storage.get_mut(index.0) {
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => {
+                    gfx.pos = pos;
+                    gfx.changed = true;
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    if gfx.gfx.pos == pos {
+                GfxEnum::Rect(gfx) => {
+                    if gfx.pos == pos {
                         return;
                     }
-                    gfx.gfx.set_pos(pos);
+                    gfx.set_pos(pos);
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    if gfx.gfx.pos == pos {
+                GfxEnum::Text(gfx) => {
+                    if gfx.pos == pos {
                         return;
                     }
-                    gfx.gfx.set_pos(pos);
+                    gfx.set_pos(pos);
                 }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    if gfx.gfx.pos == pos {
+                GfxEnum::Light(gfx) => {
+                    if gfx.light.pos == pos {
                         return;
                     }
-                    gfx.gfx.set_pos(pos);
+                    gfx.light.set_pos(pos);
+                }
+                GfxEnum::Mesh(gfx) => {
+                    if gfx.pos == pos {
+                        return;
+                    }
+                    gfx.set_pos(pos);
                 }
             }
-            _ => {}
         }
     }
 
     pub fn set_override_pos(&mut self, index: &GfxType, pos: Vec3) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_override(pos);
+        if let Some(data) = self.storage.get_mut(index.0) {
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => {
+                    gfx.set_order_override(pos);
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_pos(pos);
+                GfxEnum::Rect(gfx) => {
+                    gfx.set_order_pos(pos);
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_override(pos);
+                GfxEnum::Text(gfx) => {
+                    gfx.set_order_override(pos);
                 }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_pos(pos);
+                GfxEnum::Mesh(gfx) => {
+                    gfx.set_order_pos(pos);
                 }
+                _ => {}
             }
-            _ => {}
         }
     }
 
     pub fn set_render_layer(&mut self, index: &GfxType, render_layer: u32) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_layer(render_layer);
+        if let Some(data) = self.storage.get_mut(index.0) {
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => {
+                    gfx.set_order_layer(render_layer);
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_layer(render_layer);
+                GfxEnum::Rect(gfx) => {
+                    gfx.set_order_layer(render_layer);
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_layer(render_layer);
+                GfxEnum::Text(gfx) => {
+                    gfx.set_order_layer(render_layer);
                 }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_order_layer(render_layer);
+                GfxEnum::Mesh(gfx) => {
+                    gfx.set_order_layer(render_layer);
                 }
+                _ => {}
             }
-            _ => {}
         }
     }
 
-    pub fn set_bound(&mut self, index: &GfxType, bound: Bounds) {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+    pub fn set_bound(&mut self, index: &GfxType, bound: Option<Bounds>) {
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
         {
-            gfx.gfx.set_bounds(bound);
+            gfx.set_bounds(bound);
         }
     }
 
     pub fn set_size(&mut self, index: &GfxType, size: Vec2) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get_mut(*gfx_index) {
-                    gfx.gfx.size = size;
-                    gfx.gfx.changed = true;
+        if let Some(data) = self.storage.get_mut(index.0) {
+            match &mut data.gfx {
+                GfxEnum::Image(gfx) => {
+                    gfx.set_size(size);
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_size(size);
+                GfxEnum::Rect(gfx) => {
+                    gfx.set_size(size);
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get_mut(*gfx_index) {
-                    gfx.gfx.size = size;
-                    gfx.gfx.changed = true;
+                GfxEnum::Text(gfx) => {
+                    gfx.size = size;
+                    gfx.changed = true;
                 }
-            }
-            GfxType::Light(gfx_index) => {
-                if let Some(gfx) = self.light_storage.get_mut(*gfx_index) {
-                    gfx.gfx.set_size(size);
+                GfxEnum::Light(gfx) => {
+                    gfx.light.set_size(size);
                 }
+                _ => {}
             }
-            _ => {}
         }
     }
 
     pub fn set_buffer_size(&mut self, renderer: &mut GpuRenderer, index: &GfxType, size: Vec2) {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
         {
-            gfx.gfx
-                .set_buffer_size(renderer, Some(size.x), Some(size.y));
+            gfx.set_buffer_size(renderer, Some(size.x), Some(size.y));
         }
     }
 
     pub fn set_uv(&mut self, index: &GfxType, uv: Vec4) {
-        if let GfxType::Image(gfx_index) = index
-            && let Some(gfx) = self.image_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Image(gfx) = &mut data.gfx
         {
-            let _ = gfx.gfx.set_uv(uv);
+            let _ = gfx.set_uv(uv);
         }
     }
 
     pub fn set_text(&mut self, renderer: &mut GpuRenderer, index: &GfxType, msg: &str) {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
         {
-            gfx.gfx
-                .set_text(renderer, msg, &Attrs::new(), Shaping::Advanced, None);
+            gfx.set_text(renderer, msg, &Attrs::new(), Shaping::Advanced, None);
         }
     }
 
@@ -581,11 +425,10 @@ impl GfxCollection {
         msg: &str,
         attrs: Attrs,
     ) {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
         {
-            gfx.gfx
-                .set_text(renderer, msg, &attrs, Shaping::Advanced, None);
+            gfx.set_text(renderer, msg, &attrs, Shaping::Advanced, None);
         }
     }
 
@@ -593,215 +436,190 @@ impl GfxCollection {
     where
         I: IntoIterator<Item = (&'s str, Attrs<'r>)>,
     {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
         {
-            gfx.gfx
-                .set_rich_text(renderer, msg, &Attrs::new(), Shaping::Advanced, None);
+            gfx.set_rich_text(renderer, msg, &Attrs::new(), Shaping::Advanced, None);
         }
     }
 
     pub fn set_text_wrap(&mut self, renderer: &mut GpuRenderer, index: &GfxType, can_wrap: bool) {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
         {
-            if can_wrap {
-                gfx.gfx.set_wrap(renderer, cosmic_text::Wrap::Word);
-            } else {
-                gfx.gfx.set_wrap(renderer, cosmic_text::Wrap::None);
-            }
+            gfx.set_wrap(
+                renderer,
+                if can_wrap {
+                    cosmic_text::Wrap::Word
+                } else {
+                    cosmic_text::Wrap::None
+                },
+            );
         }
     }
 
     pub fn center_text(&mut self, index: &GfxType) {
-        if let GfxType::Text(gfx_index) = index
-            && let Some(gfx) = self.text_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Text(gfx) = &mut data.gfx
+            && let Some(bound) = gfx.bounds
         {
-            let size = gfx.gfx.measure();
-            let bound = gfx.gfx.bounds;
+            let size = gfx.measure();
             let textbox_size = bound.right - bound.left;
-            gfx.gfx.pos.x = bound.left + ((textbox_size * 0.5) - (size.x * 0.5));
-            gfx.gfx.changed = true;
+            gfx.pos.x = bound.left + ((textbox_size * 0.5) - (size.x * 0.5));
+            gfx.changed = true;
         }
     }
 
     pub fn get_pos_and_size(&self, index: &GfxType) -> (Vec2, Vec2) {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get(*gfx_index) {
-                    let pos = gfx.gfx.pos;
-                    return (Vec2::new(pos.x, pos.y), gfx.gfx.size);
+        if let Some(data) = self.storage.get(index.0) {
+            match &data.gfx {
+                GfxEnum::Image(gfx) => {
+                    return (Vec2::new(gfx.pos.x, gfx.pos.y), gfx.size);
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get(*gfx_index) {
-                    let pos = gfx.gfx.pos;
-                    return (Vec2::new(pos.x, pos.y), gfx.gfx.size);
+                GfxEnum::Rect(gfx) => {
+                    return (Vec2::new(gfx.pos.x, gfx.pos.y), gfx.size);
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get(*gfx_index) {
-                    let pos = gfx.gfx.pos;
-                    return (Vec2::new(pos.x, pos.y), gfx.gfx.size);
+                GfxEnum::Text(gfx) => {
+                    return (Vec2::new(gfx.pos.x, gfx.pos.y), gfx.size);
                 }
+                _ => {}
             }
-            _ => {}
         }
 
         (Vec2::new(0.0, 0.0), Vec2::new(0.0, 0.0))
     }
 
     pub fn get_pos(&mut self, index: &GfxType) -> Vec3 {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get(*gfx_index) {
-                    return gfx.gfx.pos;
+        if let Some(data) = self.storage.get(index.0) {
+            match &data.gfx {
+                GfxEnum::Image(gfx) => {
+                    return gfx.pos;
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get(*gfx_index) {
-                    return gfx.gfx.pos;
+                GfxEnum::Rect(gfx) => {
+                    return gfx.pos;
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get(*gfx_index) {
-                    return gfx.gfx.pos;
+                GfxEnum::Text(gfx) => {
+                    return gfx.pos;
                 }
+                _ => {}
             }
-            _ => {}
         }
 
         Vec3::new(0.0, 0.0, 0.0)
     }
 
     pub fn get_size(&self, index: &GfxType) -> Vec2 {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get(*gfx_index) {
-                    return gfx.gfx.size;
+        if let Some(data) = self.storage.get(index.0) {
+            match &data.gfx {
+                GfxEnum::Image(gfx) => {
+                    return gfx.size;
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get(*gfx_index) {
-                    return gfx.gfx.size;
+                GfxEnum::Rect(gfx) => {
+                    return gfx.size;
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get(*gfx_index) {
-                    return gfx.gfx.size;
+                GfxEnum::Text(gfx) => {
+                    return gfx.size;
                 }
+                _ => {}
             }
-            _ => return Vec2::new(0.0, 0.0),
         }
 
         Vec2::new(0.0, 0.0)
     }
 
     pub fn get_uv(&mut self, index: &GfxType) -> Vec4 {
-        if let GfxType::Image(gfx_index) = index
-            && let Some(gfx) = self.image_storage.get(*gfx_index)
+        if let Some(data) = self.storage.get(index.0)
+            && let GfxEnum::Image(gfx) = &data.gfx
         {
-            return gfx.gfx.uv;
+            return gfx.uv;
         }
 
         Vec4::new(0.0, 0.0, 0.0, 0.0)
     }
 
-    pub fn get_color(&mut self, index: &GfxType) -> Color {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get(*gfx_index) {
-                    return gfx.gfx.color;
+    pub fn get_color(&self, index: &GfxType) -> Color {
+        if let Some(data) = self.storage.get(index.0) {
+            match &data.gfx {
+                GfxEnum::Image(gfx) => {
+                    return gfx.color;
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get(*gfx_index) {
-                    return gfx.gfx.color;
+                GfxEnum::Rect(gfx) => {
+                    return gfx.color;
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get(*gfx_index) {
-                    return gfx.gfx.default_color;
+                GfxEnum::Text(gfx) => {
+                    return gfx.default_color;
                 }
+                _ => {}
             }
-            _ => return Color::rgba(0, 0, 0, 0),
         }
 
         Color::rgba(0, 0, 0, 0)
     }
 
-    pub fn get_measure(&mut self, index: &GfxType) -> Vec2 {
-        match index {
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get(*gfx_index) {
-                    return gfx.gfx.measure();
-                }
-            }
-            _ => return Vec2::new(0.0, 0.0),
+    pub fn get_measure(&self, index: &GfxType) -> Vec2 {
+        if let Some(data) = self.storage.get(index.0)
+            && let GfxEnum::Text(gfx) = &data.gfx
+        {
+            return gfx.measure();
         }
 
         Vec2::new(0.0, 0.0)
     }
 
     pub fn get_override_pos(&self, index: &GfxType) -> DrawOrder {
-        match index {
-            GfxType::Image(gfx_index) => {
-                if let Some(gfx) = self.image_storage.get(*gfx_index) {
-                    return gfx.gfx.order;
+        if let Some(data) = self.storage.get(index.0) {
+            match &data.gfx {
+                GfxEnum::Image(gfx) => {
+                    return gfx.order;
                 }
-            }
-            GfxType::Rect(gfx_index) => {
-                if let Some(gfx) = self.rect_storage.get(*gfx_index) {
-                    return gfx.gfx.order;
+                GfxEnum::Rect(gfx) => {
+                    return gfx.order;
                 }
-            }
-            GfxType::Text(gfx_index) => {
-                if let Some(gfx) = self.text_storage.get(*gfx_index) {
-                    return gfx.gfx.order;
+                GfxEnum::Text(gfx) => {
+                    return gfx.order;
                 }
-            }
-            GfxType::Mesh(gfx_index) => {
-                if let Some(gfx) = self.mesh_storage.get(*gfx_index) {
-                    return gfx.gfx.order;
+                GfxEnum::Mesh(gfx) => {
+                    return gfx.order;
                 }
+                _ => {}
             }
-            _ => {}
         }
+
         DrawOrder::default()
     }
 
     pub fn set_light_world_color(&mut self, index: &GfxType, color: Vec4) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
-            gfx.gfx.world_color = color;
-            gfx.gfx.changed = true;
+            gfx.light.world_color = color;
+            gfx.light.changed = true;
         }
     }
 
     pub fn count_area_light(&mut self, index: &GfxType) -> usize {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
-            gfx.gfx.area_lights.len()
+            gfx.light.area_lights.len()
         } else {
             0
         }
     }
 
     pub fn count_directional_light(&mut self, index: &GfxType) -> usize {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
-            gfx.gfx.directional_lights.len()
+            gfx.light.directional_lights.len()
         } else {
             0
         }
     }
 
     pub fn count_visible_light(&mut self, index: &GfxType) -> usize {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
             gfx.visible_lights.len()
         } else {
@@ -810,20 +628,20 @@ impl GfxCollection {
     }
 
     pub fn get_mut_area_light(&mut self, index: &GfxType, light: Index) -> Option<&mut AreaLight> {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
-            return gfx.gfx.get_mut_area_light(light);
+            return gfx.light.get_mut_area_light(light);
         }
 
         None
     }
 
     pub fn add_area_light(&mut self, index: &GfxType, light: AreaLight) -> Option<Index> {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
-            let index = gfx.gfx.insert_area_light(light);
+            let index = gfx.light.insert_area_light(light);
             if let Some(light_index) = index {
                 gfx.visible_lights.insert(LightIndex::new(0, light_index));
             }
@@ -838,10 +656,10 @@ impl GfxCollection {
         index: &GfxType,
         light: DirectionalLight,
     ) -> Option<Index> {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
-            let index = gfx.gfx.insert_directional_light(light);
+            let index = gfx.light.insert_directional_light(light);
             if let Some(light_index) = index {
                 gfx.visible_lights.insert(LightIndex::new(1, light_index));
             }
@@ -852,22 +670,22 @@ impl GfxCollection {
     }
 
     pub fn remove_area_light(&mut self, index: &GfxType, light_key: Index) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
             gfx.visible_lights
                 .swap_remove(&LightIndex::new(0, light_key));
-            gfx.gfx.remove_area_light(light_key);
+            gfx.light.remove_area_light(light_key);
         }
     }
 
     pub fn remove_directional_light(&mut self, index: &GfxType, light_key: Index) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
         {
             gfx.visible_lights
                 .swap_remove(&LightIndex::new(1, light_key));
-            gfx.gfx.remove_directional_light(light_key);
+            gfx.light.remove_directional_light(light_key);
         }
     }
 
@@ -878,9 +696,9 @@ impl GfxCollection {
         pos: Vec2,
         screen_size: Vec2,
     ) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
-            && let Some(light_data) = gfx.gfx.get_mut_area_light(light_key)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
+            && let Some(light_data) = gfx.light.get_mut_area_light(light_key)
         {
             light_data.pos = pos;
             let size = light_data.max_distance;
@@ -906,9 +724,9 @@ impl GfxCollection {
         pos: Vec2,
         screen_size: Vec2,
     ) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
-            && let Some(light_data) = gfx.gfx.get_mut_directional_light(light_key)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
+            && let Some(light_data) = gfx.light.get_mut_directional_light(light_key)
         {
             light_data.pos = pos;
             let size = light_data.max_distance;
@@ -928,27 +746,27 @@ impl GfxCollection {
     }
 
     pub fn set_area_light_color(&mut self, index: &GfxType, light_key: Index, color: Color) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
-            && let Some(light_data) = gfx.gfx.get_mut_area_light(light_key)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
+            && let Some(light_data) = gfx.light.get_mut_area_light(light_key)
         {
             light_data.color = color;
         }
     }
 
     pub fn set_directional_light_color(&mut self, index: &GfxType, light_key: Index, color: Color) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
-            && let Some(light_data) = gfx.gfx.get_mut_directional_light(light_key)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
+            && let Some(light_data) = gfx.light.get_mut_directional_light(light_key)
         {
             light_data.color = color;
         }
     }
 
     pub fn set_directional_light_dir(&mut self, index: &GfxType, light_key: Index, dir: u8) {
-        if let GfxType::Light(gfx_index) = index
-            && let Some(gfx) = self.light_storage.get_mut(*gfx_index)
-            && let Some(light_data) = gfx.gfx.get_mut_directional_light(light_key)
+        if let Some(data) = self.storage.get_mut(index.0)
+            && let GfxEnum::Light(gfx) = &mut data.gfx
+            && let Some(light_data) = gfx.light.get_mut_directional_light(light_key)
         {
             light_data.angle = match dir {
                 1 => 0.0,   // Right
