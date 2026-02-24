@@ -20,12 +20,18 @@ pub use interface::*;
 pub use map_view::*;
 use winit::event_loop::ActiveEventLoop;
 
+pub struct ContentInput {
+    pub ctrl_down: bool,
+    pub shift_down: bool,
+}
+
 pub struct Content {
     pub interface: Interface,
     pub map_view: MapView,
     pub audio_collection: AudioCollection,
     pub data: EditorData,
     pub preset: Presets,
+    pub input: ContentInput,
 }
 
 impl Content {
@@ -38,6 +44,10 @@ impl Content {
             audio_collection,
             data: EditorData::new(),
             preset: Presets::load_data()?,
+            input: ContentInput {
+                ctrl_down: false,
+                shift_down: false,
+            },
         })
     }
 

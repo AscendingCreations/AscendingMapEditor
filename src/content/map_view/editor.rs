@@ -888,16 +888,35 @@ pub fn picker_layer_update(content: &mut Content, systems: &mut SystemHolder) {
         return;
     };
 
+    let tileset = tilesheet_pos.file as usize;
+
     content
         .interface
         .side_window
         .tilesets
-        .change_tileset(systems, tilesheet_pos.file as usize);
+        .change_tileset(systems, tileset);
+
+    content
+        .interface
+        .side_window
+        .tilesets
+        .tile_list
+        .list
+        .set_select(systems, Some(tileset), true);
+    content
+        .interface
+        .side_window
+        .tilesets
+        .tile_list
+        .update_label(systems, tileset);
 
     let pos = Vec2::new(
         (tilesheet_pos.x / TEXTURE_SIZE) as f32,
         TILESET_COUNT_Y.saturating_sub(1) as f32 - (tilesheet_pos.y / TEXTURE_SIZE) as f32,
     );
+
+    content.interface.side_window.tilesets.selection.start_pos = pos;
+    content.interface.side_window.tilesets.selection.end_pos = pos;
 
     content
         .interface

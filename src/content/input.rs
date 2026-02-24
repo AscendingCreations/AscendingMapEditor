@@ -1,12 +1,13 @@
 use camera::controls::{FlatControls, FlatSettings};
 use graphics::*;
-use input::Key;
+use input::{Key, Named};
 use winit::event_loop::ActiveEventLoop;
 
 use crate::{
     content::{
-        Content, get_link_map_pos, get_tile_pos, interface_input, load_and_apply_map, map_view,
-        picker_attribute_update, picker_layer_update, set_preset, update_attribute_fill,
+        Content, MapPosInputType, apply_redo, apply_undo, get_link_map_pos, get_tile_pos,
+        interface_input, load_and_apply_map, map_view, picker_attribute_update,
+        picker_layer_update, save_map_change, set_preset, update_attribute_fill,
         update_map_attribute, update_map_dirblock, update_map_tile, update_map_zone,
         update_tile_fill,
         widget::{
@@ -399,7 +400,57 @@ pub fn handle_key_input(
                     .enter_text(systems, key, pressed, true);
             }
         }
-        SelectedTextbox::None => {}
+        SelectedTextbox::None => match key {
+            Key::Named(Named::Control) => content.input.ctrl_down = pressed,
+            Key::Named(Named::Shift) => content.input.shift_down = pressed,
+            Key::Character('o') | Key::Character('O') => {
+                if pressed && content.input.ctrl_down {
+                    content
+                        .interface
+                        .mappos_input
+                        .open(systems, MapPosInputType::LoadMap);
+                }
+            }
+            Key::Character('s') | Key::Character('S') => {
+                if pressed && content.input.ctrl_down {
+                    if !content.input.shift_down
+                        && let Some(mappos) = content.data.pos
+                    {
+                        if save_map_change(content, mappos)? {
+                            content.interface.notification.add_msg(
+                                systems,
+                                format!(
+                                    "Map [X: {} Y: {} Group: {}] Saved!",
+                                    mappos.x, mappos.y, mappos.group
+                                ),
+                                seconds,
+                            );
+                        } else {
+                            alert.show_alert(
+                                systems,
+                                &AlertBuilder::new_info("Error", "Failed to save map"),
+                            );
+                        }
+                    } else {
+                        content
+                            .interface
+                            .mappos_input
+                            .open(systems, MapPosInputType::SaveMap);
+                    }
+                }
+            }
+            Key::Character('z') => {
+                if pressed && content.input.ctrl_down {
+                    apply_undo(content, systems);
+                }
+            }
+            Key::Character('y') => {
+                if pressed && content.input.ctrl_down {
+                    apply_redo(content, systems);
+                }
+            }
+            _ => {}
+        },
     }
 
     Ok(())
