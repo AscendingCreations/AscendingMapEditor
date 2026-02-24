@@ -37,6 +37,7 @@ pub fn handle_input(
     if interface_input(
         systems, graphics, inputtype, mouse_pos, content, tooltip, alert, elwt, seconds,
     )? {
+        content.map_view.last_camera_pos = content.map_view.camera_pos;
         return Ok(());
     }
 
@@ -159,36 +160,39 @@ pub fn handle_input(
 
         if in_drawing_area(content, systems, mouse_pos) {
             match inputtype {
-                MouseInputType::LeftDown => match cur_tool {
-                    ToolType::Paint => match cur_tab {
-                        TabButton::Tileset => update_map_tile(content, systems, true),
-                        TabButton::Attributes => update_map_attribute(content, systems, true),
-                        TabButton::CustomTiles => set_preset(content, systems),
-                        TabButton::DirBlock => update_map_dirblock(content, systems, true),
-                        TabButton::Zones => update_map_zone(content, systems, true),
+                MouseInputType::LeftDown => {
+                    content.map_view.last_camera_pos = content.map_view.camera_pos;
+                    match cur_tool {
+                        ToolType::Paint => match cur_tab {
+                            TabButton::Tileset => update_map_tile(content, systems, true),
+                            TabButton::Attributes => update_map_attribute(content, systems, true),
+                            TabButton::CustomTiles => set_preset(content, systems),
+                            TabButton::DirBlock => update_map_dirblock(content, systems, true),
+                            TabButton::Zones => update_map_zone(content, systems, true),
+                            _ => {}
+                        },
+                        ToolType::Eraser => match cur_tab {
+                            TabButton::Tileset | TabButton::CustomTiles => {
+                                update_map_tile(content, systems, false)
+                            }
+                            TabButton::Attributes => update_map_attribute(content, systems, false),
+                            TabButton::DirBlock => update_map_dirblock(content, systems, false),
+                            TabButton::Zones => update_map_zone(content, systems, false),
+                            _ => {}
+                        },
+                        ToolType::Fill => match cur_tab {
+                            TabButton::Tileset => update_tile_fill(content, systems, true),
+                            TabButton::Attributes => update_attribute_fill(content, systems, true),
+                            _ => {}
+                        },
+                        ToolType::Picker => match cur_tab {
+                            TabButton::Tileset => picker_layer_update(content, systems),
+                            TabButton::Attributes => picker_attribute_update(content, systems),
+                            _ => {}
+                        },
                         _ => {}
-                    },
-                    ToolType::Eraser => match cur_tab {
-                        TabButton::Tileset | TabButton::CustomTiles => {
-                            update_map_tile(content, systems, false)
-                        }
-                        TabButton::Attributes => update_map_attribute(content, systems, false),
-                        TabButton::DirBlock => update_map_dirblock(content, systems, false),
-                        TabButton::Zones => update_map_zone(content, systems, false),
-                        _ => {}
-                    },
-                    ToolType::Fill => match cur_tab {
-                        TabButton::Tileset => update_tile_fill(content, systems, true),
-                        TabButton::Attributes => update_attribute_fill(content, systems, true),
-                        _ => {}
-                    },
-                    ToolType::Picker => match cur_tab {
-                        TabButton::Tileset => picker_layer_update(content, systems),
-                        TabButton::Attributes => picker_attribute_update(content, systems),
-                        _ => {}
-                    },
-                    _ => {}
-                },
+                    }
+                }
                 MouseInputType::LeftDownMove => {
                     content.map_view.hover_tile(systems, mouse_pos);
                     match cur_tool {
@@ -227,23 +231,26 @@ pub fn handle_input(
                         _ => {}
                     }
                 }
-                MouseInputType::RightDown => match cur_tool {
-                    ToolType::Paint | ToolType::Eraser => match cur_tab {
-                        TabButton::CustomTiles | TabButton::Tileset => {
-                            update_map_tile(content, systems, false)
-                        }
-                        TabButton::Attributes => update_map_attribute(content, systems, false),
-                        TabButton::DirBlock => update_map_dirblock(content, systems, false),
-                        TabButton::Zones => update_map_zone(content, systems, false),
+                MouseInputType::RightDown => {
+                    content.map_view.last_camera_pos = content.map_view.camera_pos;
+                    match cur_tool {
+                        ToolType::Paint | ToolType::Eraser => match cur_tab {
+                            TabButton::CustomTiles | TabButton::Tileset => {
+                                update_map_tile(content, systems, false)
+                            }
+                            TabButton::Attributes => update_map_attribute(content, systems, false),
+                            TabButton::DirBlock => update_map_dirblock(content, systems, false),
+                            TabButton::Zones => update_map_zone(content, systems, false),
+                            _ => {}
+                        },
+                        ToolType::Fill => match cur_tab {
+                            TabButton::Tileset => update_tile_fill(content, systems, false),
+                            TabButton::Attributes => update_attribute_fill(content, systems, false),
+                            _ => {}
+                        },
                         _ => {}
-                    },
-                    ToolType::Fill => match cur_tab {
-                        TabButton::Tileset => update_tile_fill(content, systems, false),
-                        TabButton::Attributes => update_attribute_fill(content, systems, false),
-                        _ => {}
-                    },
-                    _ => {}
-                },
+                    }
+                }
                 MouseInputType::Move => match cur_tool {
                     ToolType::Paint | ToolType::Eraser | ToolType::Fill | ToolType::Picker => {
                         content.map_view.hover_tile(systems, mouse_pos);
