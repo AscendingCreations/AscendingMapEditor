@@ -5,7 +5,7 @@ use crate::{
     database::{MapPosition, Presets, save_and_clear_map, save_temp_file},
     renderer::SystemHolder,
 };
-use graphics::MapRenderer;
+use ascending_graphics::MapRenderer;
 
 mod data;
 mod editor_loop;

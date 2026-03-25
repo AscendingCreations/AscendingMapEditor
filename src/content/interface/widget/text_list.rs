@@ -5,7 +5,7 @@ use crate::{
     },
 };
 use cosmic_text::{Attrs, Metrics};
-use graphics::*;
+use ascending_graphics::*;
 
 #[derive(Clone, Copy)]
 pub struct TextListBGRect {

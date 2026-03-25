@@ -1,4 +1,4 @@
-use graphics::OtherError;
+use ascending_graphics::OtherError;
 use serde::{Deserialize, Serialize};
 use snafu::Backtrace;
 use speedy::{Endianness, Readable, Writable};

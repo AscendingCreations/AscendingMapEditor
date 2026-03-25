@@ -3,7 +3,7 @@ use crate::{
     content::interface::widget::{create_label, is_within_area},
 };
 use cosmic_text::{Attrs, Metrics};
-use graphics::*;
+use ascending_graphics::*;
 use std::default;
 
 #[derive(Clone, Copy)]

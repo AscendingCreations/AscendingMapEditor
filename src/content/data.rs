@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use graphics::*;
+use ascending_graphics::*;
 use indexmap::IndexSet;
 
 use crate::{

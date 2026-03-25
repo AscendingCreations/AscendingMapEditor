@@ -1,6 +1,6 @@
-use camera::controls::{FlatControls, FlatSettings};
-use graphics::*;
-use input::{Key, Named};
+use ascending_camera::controls::{FlatControls, FlatSettings};
+use ascending_graphics::*;
+use ascending_input::{Key, Named};
 use winit::event_loop::ActiveEventLoop;
 
 use crate::{

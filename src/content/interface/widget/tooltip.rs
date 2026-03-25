@@ -2,7 +2,7 @@ use crate::{
     SystemHolder, content::interface::widget::create_label, data_types::*, gfx_collection::GfxType,
 };
 use cosmic_text::{Attrs, Metrics};
-use graphics::*;
+use ascending_graphics::*;
 
 pub struct Tooltip {
     window: GfxType,

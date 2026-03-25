@@ -4,8 +4,8 @@ use crate::{
 };
 use arboard::Clipboard;
 use cosmic_text::{Attrs, Metrics};
-use graphics::*;
-use input::Key;
+use ascending_graphics::*;
+use ascending_input::Key;
 use log::warn;
 use std::cmp;
 use winit::keyboard::NamedKey;

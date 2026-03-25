@@ -19,8 +19,8 @@ use crate::{
     gfx_collection::GfxType,
 };
 pub use alert_builder::*;
-use graphics::{cosmic_text::Attrs, *};
-use input::{Key, Named};
+use ascending_graphics::{cosmic_text::Attrs, *};
+use ascending_input::{Key, Named};
 use winit::event_loop::ActiveEventLoop;
 
 pub struct Alert {

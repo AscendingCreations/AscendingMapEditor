@@ -3,7 +3,7 @@ use std::fs;
 use std::io;
 use std::path::Path;
 
-use graphics::*;
+use ascending_graphics::*;
 
 use crate::data_types::Result;
 use crate::data_types::TEXTURE_SIZE;

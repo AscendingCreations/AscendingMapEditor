@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
+use ascending_graphics::*;
 use cosmic_text::Attrs;
-use graphics::*;
 use indexmap::IndexSet;
 use slotmap::SlotMap;
 

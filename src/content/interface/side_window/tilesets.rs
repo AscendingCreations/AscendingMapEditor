@@ -1,4 +1,4 @@
-use graphics::*;
+use ascending_graphics::*;
 
 use crate::{
     content::widget::{option_list::*, scrollbar::*},

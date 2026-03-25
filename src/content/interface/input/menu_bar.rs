@@ -1,4 +1,4 @@
-use graphics::Vec2;
+use ascending_graphics::Vec2;
 
 use crate::{
     content::{

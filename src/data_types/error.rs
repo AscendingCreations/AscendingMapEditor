@@ -1,4 +1,4 @@
-use graphics::*;
+use ascending_graphics::*;
 use snafu::{Backtrace, Whatever, prelude::*};
 
 pub type Result<T> = std::result::Result<T, EditorError>;
@@ -62,12 +62,6 @@ pub enum EditorError {
     #[snafu(transparent)]
     RodioDecoderError {
         source: rodio::decoder::DecoderError,
-        #[snafu(backtrace)]
-        backtrace: Backtrace,
-    },
-    #[snafu(transparent)]
-    Surface {
-        source: wgpu::SurfaceError,
         #[snafu(backtrace)]
         backtrace: Backtrace,
     },

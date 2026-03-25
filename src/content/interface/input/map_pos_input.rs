@@ -1,4 +1,4 @@
-use graphics::*;
+use ascending_graphics::*;
 
 use crate::{
     content::{
@@ -11,7 +11,7 @@ use crate::{
     database::{MapPosition, delete_temp_map_file, is_temp_map_exist, map},
     renderer::SystemHolder,
 };
-use input::{Key, Named};
+use ascending_input::{Key, Named};
 
 impl MapPosInput {
     pub fn hover_widgets(

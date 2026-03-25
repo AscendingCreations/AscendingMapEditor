@@ -1,4 +1,4 @@
-use graphics::*;
+use ascending_graphics::*;
 
 use serde::{Deserialize, Serialize};
 use snafu::Backtrace;

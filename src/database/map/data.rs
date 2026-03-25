@@ -1,4 +1,4 @@
-use graphics::MapLayers;
+use ascending_graphics::MapLayers;
 use serde::{Deserialize, Serialize};
 use speedy::{Endianness, Readable, Writable};
 

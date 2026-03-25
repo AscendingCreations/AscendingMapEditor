@@ -1,4 +1,4 @@
-use graphics::MapLayers;
+use ascending_graphics::MapLayers;
 
 #[derive(Clone, Copy)]
 pub enum MouseInputType {

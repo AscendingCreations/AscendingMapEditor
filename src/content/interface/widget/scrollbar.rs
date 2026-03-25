@@ -1,5 +1,5 @@
 use crate::{GfxType, SystemHolder, content::interface::widget::is_within_area};
-use graphics::*;
+use ascending_graphics::*;
 
 #[derive(Copy, Clone)]
 pub struct ScrollbarBackground {

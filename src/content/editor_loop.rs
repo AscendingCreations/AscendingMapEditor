@@ -1,4 +1,4 @@
-use graphics::MapRenderer;
+use ascending_graphics::MapRenderer;
 
 use crate::{
     content::Content,

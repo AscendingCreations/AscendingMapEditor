@@ -1,6 +1,6 @@
 use crate::SystemHolder;
 use cosmic_text::{Attrs, Metrics};
-use graphics::{cosmic_text::Wrap, *};
+use ascending_graphics::{cosmic_text::Wrap, *};
 
 #[allow(clippy::too_many_arguments)]
 pub fn create_label(

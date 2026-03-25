@@ -1,5 +1,5 @@
-use camera::controls::FlatControls;
-use graphics::Vec2;
+use ascending_camera::controls::FlatControls;
+use ascending_graphics::Vec2;
 
 use crate::{
     content::{Content, interface::drawing_tool::DrawingTool, widget::Tooltip},

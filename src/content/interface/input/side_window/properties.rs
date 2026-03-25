@@ -1,4 +1,4 @@
-use graphics::*;
+use ascending_graphics::*;
 
 use crate::{
     content::{Content, interface::side_window::PropertiesWindow, widget::Tooltip},

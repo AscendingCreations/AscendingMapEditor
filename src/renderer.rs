@@ -1,4 +1,4 @@
-use graphics::*;
+use ascending_graphics::*;
 use winit::dpi::PhysicalSize;
 
 use crate::{
@@ -89,22 +89,10 @@ where
 
         for layer in 0..=MAX_RENDER {
             pass.render_map(renderer, &self.map_renderer, &self.map_atlas, layer);
-            pass.render_image(
-                renderer,
-                &self.image_renderer,
-                &self.image_atlas,
-                &self.system,
-                layer,
-            );
-            pass.render_rects(
-                renderer,
-                &self.ui_renderer,
-                &self.ui_atlas,
-                &self.system,
-                layer,
-            );
+            pass.render_image(renderer, &self.image_renderer, &self.image_atlas, layer);
+            pass.render_rects(renderer, &self.ui_renderer, &self.ui_atlas, layer);
             pass.render_text(renderer, &self.text_renderer, &self.text_atlas, layer);
-            pass.render_2dmeshs(renderer, &self.mesh_renderer, &self.system, layer);
+            pass.render_2dmeshs(renderer, &self.mesh_renderer, layer);
             if layer == RENDER_LIGHT {
                 pass.render_lights(renderer, &self.light_renderer, RENDER_LIGHT);
             }

@@ -13,6 +13,10 @@ version = "0.2.0"
 [dependencies]
 ahash = "0.8.11"
 arboard = "3.4.1"
+ascending_camera = "0.8.1"
+ascending_graphics = {version = "0.38.0", features = ["static_dx", "rayon"]}
+ascending_input = "0.6.1"
+ascending_time = {version = "0.2.2", features = ["enable_serde", "enable_mmap_bytey", "enable_bytey"]}
 backtrace = "0.3.73"
 bit_op = "0.1.1"
 bytemuck = {version = "1.16.0", features = ["derive"]}
@@ -43,21 +47,3 @@ speedy = "0.8.7"
 thiserror = "1.0.61"
 tokio = {version = "1.38.0", features = ["full"]}
 winit = {version = "0.30.1", features = ["serde", "rwh_05"]}
-
-[dependencies.camera]
-package = "ascending_camera"
-version = "0.6.0"
-
-[dependencies.input]
-package = "ascending_input"
-version = "0.6.0"
-
-[dependencies.graphics]
-features = ["static_dx"]
-package = "ascending_graphics"
-version = "0.35.1"
-
-[dependencies.time]
-features = ["enable_serde", "enable_mmap_bytey", "enable_bytey"]
-package = "ascending_time"
-version = "0.1.2"

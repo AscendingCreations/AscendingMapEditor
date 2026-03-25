@@ -3,7 +3,7 @@ use crate::{
     content::interface::widget::{is_within_area, label::create_label},
 };
 use cosmic_text::{Attrs, Metrics};
-use graphics::{cosmic_text::Weight, *};
+use ascending_graphics::{cosmic_text::Weight, *};
 
 #[derive(Copy, Clone)]
 pub enum ButtonChangeType {

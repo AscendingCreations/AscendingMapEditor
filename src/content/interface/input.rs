@@ -1,5 +1,5 @@
-use camera::controls::FlatControls;
-use input::Key;
+use ascending_camera::controls::FlatControls;
+use ascending_input::Key;
 use winit::{event::KeyEvent, event_loop::ActiveEventLoop};
 
 use crate::{
@@ -11,7 +11,7 @@ use crate::{
     data_types::{MouseInputType, Result, SelectedTextbox},
     renderer::{Graphics, SystemHolder},
 };
-use graphics::Vec2;
+use ascending_graphics::Vec2;
 
 mod drawing_tool;
 mod menu_bar;
