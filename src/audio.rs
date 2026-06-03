@@ -1,5 +1,5 @@
 use crate::Result;
-use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, source::Source};
+use rodio::{Decoder, MixerDeviceSink, Player, Source};
 use slab::Slab;
 use std::{
     fs::{self, File},
@@ -36,25 +36,23 @@ impl AudioCollection {
 }
 
 pub struct Audio {
-    stream_handle: OutputStreamHandle,
-    _stream: OutputStream,
-    music: Sink,
-    weather: Sink,
-    effects: Slab<Sink>,
+    stream: MixerDeviceSink,
+    music: Player,
+    weather: Player,
+    effects: Slab<Player>,
 }
 
 impl Audio {
     pub fn new(volume: f32) -> Result<Self> {
-        let (stream, stream_handle) = OutputStream::try_default()?;
-        let music = Sink::try_new(&stream_handle)?;
+        let stream_handle = rodio::DeviceSinkBuilder::open_default_sink()?;
+        let music = rodio::Player::connect_new(stream_handle.mixer());
         music.set_volume(volume);
 
-        let weather = Sink::try_new(&stream_handle)?;
+        let weather = rodio::Player::connect_new(stream_handle.mixer());
         weather.set_volume(volume);
 
         Ok(Self {
-            stream_handle,
-            _stream: stream,
+            stream: stream_handle,
             music,
             weather,
             effects: Slab::new(),
@@ -114,7 +112,7 @@ impl Audio {
 
     pub fn play_effect(&mut self, source: impl AsRef<Path>, volume: f32) -> Result<()> {
         let s_volume = volume * 0.01;
-        let sink = Sink::try_new(&self.stream_handle)?;
+        let sink = rodio::Player::connect_new(self.stream.mixer());
         let file = BufReader::new(File::open(source)?);
         let source = Decoder::new(file)?;
         sink.set_volume(s_volume);

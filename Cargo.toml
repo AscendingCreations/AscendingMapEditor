@@ -19,31 +19,31 @@ ascending_input = "0.6.1"
 ascending_time = {version = "0.2.3", features = ["enable_serde", "enable_mmap_bytey", "enable_bytey"]}
 backtrace = "0.3.73"
 bit_op = "0.1.1"
-bytemuck = {version = "1.16.0", features = ["derive"]}
+bytemuck = {version = "1.25.0", features = ["derive"]}
 bytey = "0.4.0"
 chrono = {version = "0.4.38", disable-defaults = true, features = [
   "clock",
   "serde",
   "std",
 ]}
-futures = "0.3.30"
-glam = {version = "0.28.0", features = ["bytemuck", "mint"]}
-guillotiere = "0.6.2"
-hecs = "0.10.5"
+futures = "0.3.32"
+glam = {version = "0.33.0", features = ["bytemuck", "mint"]}
+guillotiere = "0.7.0"
+hecs = "0.11.0"
 image = "0.25.1"
 indexmap = "2.2.6"
-log = "0.4.21"
+log = "0.4.31"
 mint = "0.5.9"
-rodio = "0.20.1"
+rodio = "0.22.2"
 serde = {version = "1.0.203", features = ["derive"]}
-serde_json = "1.0.117"
+serde_json = "1.0.150"
 slab = "0.4.9"
 slotmap = "1.0.7"
-snafu = {version = "0.8.8", features = [
+snafu = {version = "0.9.1", features = [
   "backtraces-impl-backtrace-crate",
   "rust_1_81",
 ]}
 speedy = "0.8.7"
-thiserror = "1.0.61"
-tokio = {version = "1.38.0", features = ["full"]}
+thiserror = "2.0.18"
+tokio = {version = "1.52.3", features = ["full"]}
 winit = {version = "0.30.1", features = ["serde", "rwh_05"]}
