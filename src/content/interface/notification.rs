@@ -82,8 +82,8 @@ impl Notification {
             true,
             CameraView::SubView1,
         );
-        systems.gfx.set_text(&mut systems.renderer, &text, &msg);
-        systems.gfx.center_text(&text);
+        systems.gfx.set_text(&text, &msg);
+        systems.gfx.center_text(&mut systems.renderer, &text);
 
         self.data.push(NotificationData {
             bg,
@@ -127,7 +127,7 @@ impl Notification {
                     text_pos.y + text_size.y,
                 )),
             );
-            systems.gfx.center_text(&data.text);
+            systems.gfx.center_text(&mut systems.renderer, &data.text);
         }
     }
 
@@ -172,7 +172,7 @@ impl Notification {
                         text_pos.y + text_size.y,
                     )),
                 );
-                systems.gfx.center_text(&data.text);
+                systems.gfx.center_text(&mut systems.renderer, &data.text);
             }
         }
 

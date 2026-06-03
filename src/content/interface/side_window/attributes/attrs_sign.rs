@@ -62,7 +62,7 @@ impl AttrSign {
             visible,
             CameraView::SubView1,
         );
-        systems.gfx.set_text(&mut systems.renderer, &gfx, "Text");
+        systems.gfx.set_text(&gfx, "Text");
 
         let textbox_pos = Vec3::new(
             start_pos.x + (10.0 * systems.scale as f32).floor(),

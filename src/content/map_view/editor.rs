@@ -1,5 +1,5 @@
-use bit_op::{BitOp, bit_u8::*};
 use ascending_graphics::*;
+use bit_op::{BitOp, bit_u8::*};
 
 use crate::{
     content::{
@@ -130,9 +130,7 @@ pub fn apply_map_data(content: &mut Content, systems: &mut SystemHolder, mapdata
             );
 
             let view_attr = content.map_view.attribute[tile_num];
-            systems
-                .gfx
-                .set_text(&mut systems.renderer, &view_attr.text, &text);
+            systems.gfx.set_text(&view_attr.text, &text);
             systems.gfx.set_color(&view_attr.bg, color);
 
             systems.gfx.set_pos(
@@ -158,7 +156,9 @@ pub fn apply_map_data(content: &mut Content, systems: &mut SystemHolder, mapdata
                     text_pos.y + text_size.y,
                 )),
             );
-            systems.gfx.center_text(&view_attr.text);
+            systems
+                .gfx
+                .center_text(&mut systems.renderer, &view_attr.text);
 
             let dirblock = mapdata.dir_block[tile_num];
             let dirblock_uv = get_dirblock_uv(dirblock);
@@ -420,10 +420,10 @@ pub fn update_map_attribute(content: &mut Content, systems: &mut SystemHolder, s
 
     {
         let view_attr = content.map_view.attribute[tile_pos];
+        systems.gfx.set_text(&view_attr.text, &text);
         systems
             .gfx
-            .set_text(&mut systems.renderer, &view_attr.text, &text);
-        systems.gfx.center_text(&view_attr.text);
+            .center_text(&mut systems.renderer, &view_attr.text);
         systems.gfx.set_color(&view_attr.bg, color);
     }
 
@@ -824,10 +824,10 @@ pub fn update_attribute_fill(content: &mut Content, systems: &mut SystemHolder, 
         let (color, text) = get_attribute_visual(&attribute);
         {
             let view_attr = content.map_view.attribute[new_pos];
+            systems.gfx.set_text(&view_attr.text, &text);
             systems
                 .gfx
-                .set_text(&mut systems.renderer, &view_attr.text, &text);
-            systems.gfx.center_text(&view_attr.text);
+                .center_text(&mut systems.renderer, &view_attr.text);
             systems.gfx.set_color(&view_attr.bg, color);
         }
 

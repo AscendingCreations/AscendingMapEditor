@@ -137,11 +137,9 @@ impl PresetWindow {
                 self.editor.frame_scroll.set_move_scroll(systems, mouse_pos);
                 if self.editor.frame_scroll.in_hold {
                     let id = self.editor.frame_scroll.value;
-                    systems.gfx.set_text(
-                        &mut systems.renderer,
-                        &self.editor.frame_label,
-                        &format!("Frm: {}", id + 1),
-                    );
+                    systems
+                        .gfx
+                        .set_text(&self.editor.frame_label, &format!("Frm: {}", id + 1));
                     self.editor.selection.start_pos = Vec2::new(
                         self.editor.frames[id].start.x as f32,
                         self.editor.frames[id].start.y as f32,
@@ -520,14 +518,14 @@ pub fn preset_update_preview(content: &mut Content, systems: &mut SystemHolder) 
     let gui = &mut content.interface.side_window.presets;
 
     systems.gfx.set_text(
-        &mut systems.renderer,
         &gui.base.preview_name,
         &content.preset.data[selected_index].name,
     );
-    systems.gfx.center_text(&gui.base.preview_name);
+    systems
+        .gfx
+        .center_text(&mut systems.renderer, &gui.base.preview_name);
 
     systems.gfx.set_text(
-        &mut systems.renderer,
         &gui.base.preview_info,
         match content.preset.data[selected_index].draw_type {
             PresetTypeList::Normal => "Normal",
@@ -536,7 +534,9 @@ pub fn preset_update_preview(content: &mut Content, systems: &mut SystemHolder) 
             PresetTypeList::AutotileAnimated => "Animated AutoTile",
         },
     );
-    systems.gfx.center_text(&gui.base.preview_info);
+    systems
+        .gfx
+        .center_text(&mut systems.renderer, &gui.base.preview_info);
 
     gui.base.frames = content.preset.data[selected_index].frames;
     gui.base.preset_type = content.preset.data[selected_index].draw_type;
@@ -666,9 +666,7 @@ pub fn preset_update_editor(content: &mut Content, systems: &mut SystemHolder) {
             3
         },
     );
-    systems
-        .gfx
-        .set_text(&mut systems.renderer, &gui.editor.frame_label, "Frm: 1");
+    systems.gfx.set_text(&gui.editor.frame_label, "Frm: 1");
     gui.editor
         .type_list
         .list

@@ -118,7 +118,6 @@ impl MapPosInput {
                 CameraView::SubView1,
             );
             systems.gfx.set_text(
-                &mut systems.renderer,
                 &lbl,
                 match i {
                     0 => "X:",
@@ -127,7 +126,7 @@ impl MapPosInput {
                     _ => "Input Map Position",
                 },
             );
-            systems.gfx.center_text(&lbl);
+            systems.gfx.center_text(&mut systems.renderer, &lbl);
             label.push(lbl);
 
             match i {
@@ -313,7 +312,9 @@ impl MapPosInput {
                     text_pos.y + text_size.y,
                 )),
             );
-            systems.gfx.center_text(&self.label[i]);
+            systems
+                .gfx
+                .center_text(&mut systems.renderer, &self.label[i]);
 
             match i {
                 0 => add_x += (40.0 * systems.scale as f32).floor(),

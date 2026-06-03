@@ -58,9 +58,7 @@ impl Footer {
             true,
             CameraView::SubView1,
         );
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &map_pos, "Unsaved");
+        systems.gfx.set_text(&map_pos, "Unsaved");
 
         let message = "Tile Pos [X: 00 Y: 00]".to_string();
         let text_width = measure_string(systems, &message, true, 16.0, 16.0).x;
@@ -95,9 +93,7 @@ impl Footer {
             true,
             CameraView::SubView1,
         );
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &tile_pos, &message);
+        systems.gfx.set_text(&tile_pos, &message);
 
         Footer {
             bg,
@@ -156,7 +152,6 @@ impl Footer {
 
     pub fn set_map_pos(&mut self, systems: &mut SystemHolder, map_pos: MapPosition, saved: bool) {
         systems.gfx.set_text(
-            &mut systems.renderer,
             &self.map_pos,
             &format!(
                 "Map [X: {} Y: {} Group: {}]{}",
@@ -170,15 +165,12 @@ impl Footer {
 
     pub fn set_tile_pos(&mut self, systems: &mut SystemHolder, tile_pos: (u32, u32)) {
         systems.gfx.set_text(
-            &mut systems.renderer,
             &self.tile_pos,
             &format!("Tile Pos [X: {:02} Y: {:02}]", tile_pos.0, tile_pos.1),
         );
     }
 
     pub fn remove_map_pos(&mut self, systems: &mut SystemHolder) {
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &self.map_pos, "Unsaved");
+        systems.gfx.set_text(&self.map_pos, "Unsaved");
     }
 }

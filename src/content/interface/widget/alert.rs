@@ -100,29 +100,16 @@ impl Alert {
 
         let mut text = create_empty_label(systems, 0, Color::rgb(210, 210, 210), true);
         text.set_buffer_size(
-            &mut systems.renderer,
             Some((builder.width as f32 * systems.scale as f32).floor()),
             Some(128.0),
         )
-        .set_wrap(&mut systems.renderer, cosmic_text::Wrap::Word);
-        text.set_text(
-            &mut systems.renderer,
-            &builder.msg,
-            &Attrs::new(),
-            Shaping::Advanced,
-            None,
-        );
-        let text_size = text.measure().floor();
+        .set_wrap(cosmic_text::Wrap::Word);
+        text.set_text(&builder.msg, &Attrs::new(), Shaping::Advanced, None);
+        let text_size = text.measure(&mut systems.renderer.font_sys).floor();
 
         let mut header_text = create_empty_label(systems, 0, Color::rgb(255, 255, 255), true);
-        header_text.set_text(
-            &mut systems.renderer,
-            &builder.header,
-            &Attrs::new(),
-            Shaping::Advanced,
-            None,
-        );
-        let header_text_size = header_text.measure().floor();
+        header_text.set_text(&builder.header, &Attrs::new(), Shaping::Advanced, None);
+        let header_text_size = header_text.measure(&mut systems.renderer.font_sys).floor();
 
         let text_width = header_text_size.x.max(text_size.x);
 
@@ -195,7 +182,9 @@ impl Alert {
             CameraView::SubView1,
         );
         if builder.alert_type == AlertType::Input {
-            systems.gfx.center_text(&header_text_index);
+            systems
+                .gfx
+                .center_text(&mut systems.renderer, &header_text_index);
         }
         self.text.push(header_text_index);
 

@@ -1,6 +1,6 @@
 use crate::SystemHolder;
-use cosmic_text::{Attrs, Metrics};
 use ascending_graphics::{cosmic_text::Wrap, *};
+use cosmic_text::{Attrs, Metrics};
 
 #[allow(clippy::too_many_arguments)]
 pub fn create_label(
@@ -26,13 +26,9 @@ pub fn create_label(
         1.0,
         render_layer,
     );
-    text.set_buffer_size(
-        &mut systems.renderer,
-        Some(systems.size.width),
-        Some(systems.size.height),
-    )
-    .set_bounds(Some(bounds))
-    .set_default_color(color);
+    text.set_buffer_size(Some(systems.size.width), Some(systems.size.height))
+        .set_bounds(Some(bounds))
+        .set_default_color(color);
     text.changed = true;
     text
 }
@@ -51,13 +47,9 @@ pub fn create_empty_label(
         1.0,
         render_layer,
     );
-    text.set_buffer_size(
-        &mut systems.renderer,
-        Some(systems.size.width),
-        Some(systems.size.height),
-    )
-    .set_bounds(None)
-    .set_default_color(color);
+    text.set_buffer_size(Some(systems.size.width), Some(systems.size.height))
+        .set_bounds(None)
+        .set_default_color(color);
     text.changed = true;
     text
 }
@@ -86,6 +78,7 @@ pub fn measure_string(
             wrap: Wrap::None,
         },
         None,
+        TextShape::default(),
     )
 }
 

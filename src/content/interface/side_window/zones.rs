@@ -197,7 +197,6 @@ impl ZoneWindow {
                 CameraView::SubView1,
             );
             systems.gfx.set_text(
-                &mut systems.renderer,
                 &text_gfx,
                 &match i {
                     0 => "Properties".to_string(),
@@ -208,7 +207,7 @@ impl ZoneWindow {
             );
 
             if matches!(i, 0 | 2) {
-                systems.gfx.center_text(&text_gfx);
+                systems.gfx.center_text(&mut systems.renderer, &text_gfx);
             } else {
                 let textbox_pos = Vec3::new(
                     text_pos.x + (85.0 * systems.scale as f32).floor(),
@@ -344,7 +343,7 @@ impl ZoneWindow {
             );
 
             if matches!(i, 0 | 2) {
-                systems.gfx.center_text(label);
+                systems.gfx.center_text(&mut systems.renderer, label);
             } else {
                 let textbox_pos = Vec2::new(
                     text_pos.x + (85.0 * systems.scale as f32).floor(),
@@ -437,7 +436,7 @@ impl ZoneWindow {
             );
 
             if matches!(i, 0 | 2) {
-                systems.gfx.center_text(label);
+                systems.gfx.center_text(&mut systems.renderer, label);
             } else {
                 let textbox_pos = Vec2::new(
                     text_pos.x + (85.0 * systems.scale as f32).floor(),

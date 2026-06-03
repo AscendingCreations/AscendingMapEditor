@@ -502,7 +502,6 @@ pub fn handle_mouse_wheel(
         let new_zoom_value = content.interface.tool.zoom_scroll.value;
         let zoom_level = 100 + (10 * new_zoom_value);
         systems.gfx.set_text(
-            &mut systems.renderer,
             &content.interface.tool.zoom_label,
             &format!("{zoom_level}%"),
         );

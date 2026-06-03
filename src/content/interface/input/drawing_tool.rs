@@ -104,7 +104,6 @@ pub fn drawingtool_hold_move_scrollbar(
 
     let zoom_level = 100 + (10 * content.interface.tool.zoom_scroll.value);
     systems.gfx.set_text(
-        &mut systems.renderer,
         &content.interface.tool.zoom_label,
         &format!("{zoom_level}%"),
     );

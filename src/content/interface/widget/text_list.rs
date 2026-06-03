@@ -4,8 +4,8 @@ use crate::{
         ContentArea, Scrollbar, ScrollbarBackground, ScrollbarRect, create_label, is_within_area,
     },
 };
-use cosmic_text::{Attrs, Metrics};
 use ascending_graphics::*;
+use cosmic_text::{Attrs, Metrics};
 
 #[derive(Clone, Copy)]
 pub struct TextListBGRect {
@@ -220,7 +220,7 @@ impl TextList {
                     visible,
                     CameraView::SubView1,
                 );
-                systems.gfx.set_text(&mut systems.renderer, &text_gfx, data);
+                systems.gfx.set_text(&text_gfx, data);
                 list.push(ListData {
                     data: text_gfx,
                     selection: systems.gfx.add_rect(
@@ -425,7 +425,7 @@ impl TextList {
                     self.visible,
                     CameraView::SubView1,
                 );
-                systems.gfx.set_text(&mut systems.renderer, &text_gfx, data);
+                systems.gfx.set_text(&text_gfx, data);
                 self.list.push(ListData {
                     data: text_gfx,
                     selection: systems.gfx.add_rect(
@@ -503,11 +503,7 @@ impl TextList {
         for (index, list) in self.list.iter_mut().enumerate() {
             let itemindex = self.scrollbar.value + index;
             if itemindex < self.max_data {
-                systems.gfx.set_text(
-                    &mut systems.renderer,
-                    &list.data,
-                    &self.list_text[itemindex],
-                );
+                systems.gfx.set_text(&list.data, &self.list_text[itemindex]);
             }
         }
 
@@ -676,7 +672,7 @@ impl TextList {
                     self.visible,
                     CameraView::SubView1,
                 );
-                systems.gfx.set_text(&mut systems.renderer, &text_gfx, data);
+                systems.gfx.set_text(&text_gfx, data);
                 self.list.push(ListData {
                     data: text_gfx,
                     selection: systems.gfx.add_rect(

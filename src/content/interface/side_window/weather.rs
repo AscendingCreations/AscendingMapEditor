@@ -47,9 +47,7 @@ impl WeatherWindow {
             false,
             CameraView::SubView1,
         );
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &label, "Weather");
+        systems.gfx.set_text(&label, "Weather");
 
         let weather_list_name = vec![
             "None".to_string(),

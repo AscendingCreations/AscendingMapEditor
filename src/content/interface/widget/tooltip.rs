@@ -1,8 +1,8 @@
 use crate::{
     SystemHolder, content::interface::widget::create_label, data_types::*, gfx_collection::GfxType,
 };
-use cosmic_text::{Attrs, Metrics};
 use ascending_graphics::*;
+use cosmic_text::{Attrs, Metrics};
 
 pub struct Tooltip {
     window: GfxType,
@@ -48,11 +48,7 @@ impl Tooltip {
             16.0,
             true,
         );
-        text_label.set_buffer_size(
-            &mut systems.renderer,
-            Some(300.0),
-            Some(systems.size.height),
-        );
+        text_label.set_buffer_size(Some(300.0), Some(systems.size.height));
         let text = systems.gfx.add_text(
             text_label,
             RENDER_TOOLTIP_TEXT,
@@ -86,10 +82,9 @@ impl Tooltip {
         self.init = true;
         self.hide_tooltip(systems);
 
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &self.text, &msg);
-        let text_size = systems.gfx.get_measure(&self.text) + Vec2::new(0.0, 4.0);
+        systems.gfx.set_text(&self.text, &msg);
+        let text_size =
+            systems.gfx.get_measure(&mut systems.renderer, &self.text) + Vec2::new(0.0, 4.0);
         let w_size = text_size + Vec2::new(16.0, 16.0);
         let w_pos = screen_pos;
 

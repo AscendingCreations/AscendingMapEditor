@@ -66,7 +66,6 @@ impl AttrPosition {
                 CameraView::SubView1,
             );
             systems.gfx.set_text(
-                &mut systems.renderer,
                 &gfx,
                 match i {
                     1 => "Tile Pos Y:",

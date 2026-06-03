@@ -3,9 +3,9 @@ use crate::{
     content::interface::widget::{create_label, is_within_area, measure_character, measure_string},
 };
 use arboard::Clipboard;
-use cosmic_text::{Attrs, Metrics};
 use ascending_graphics::*;
 use ascending_input::Key;
+use cosmic_text::{Attrs, Metrics};
 use log::warn;
 use std::cmp;
 use winit::keyboard::NamedKey;
@@ -126,7 +126,7 @@ impl Textbox {
             16.0,
             can_scale,
         );
-        text_data.set_wrap(&mut systems.renderer, cosmic_text::Wrap::None);
+        text_data.set_wrap(cosmic_text::Wrap::None);
         let text_index = systems.gfx.add_text(
             text_data,
             text_layer,
@@ -347,9 +347,7 @@ impl Textbox {
             .floor();
 
         if text.is_empty() {
-            systems
-                .gfx
-                .set_text(&mut systems.renderer, &self.text_index, "");
+            systems.gfx.set_text(&self.text_index, "");
             let pos = systems.gfx.get_pos(&self.caret);
             systems
                 .gfx
@@ -385,9 +383,7 @@ impl Textbox {
         self.char_size.extend_from_slice(&char_size);
         self.char_size.append(&mut v);
 
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &self.text_index, &msg);
+        systems.gfx.set_text(&self.text_index, &msg);
 
         self.move_caret_pos(systems, false, self.data_text.chars().count(), false);
     }
@@ -613,9 +609,7 @@ impl Textbox {
         }
 
         if did_edit {
-            systems
-                .gfx
-                .set_text(&mut systems.renderer, &self.text_index, &self.data_text);
+            systems.gfx.set_text(&self.text_index, &self.data_text);
 
             self.hold_final_index = self.caret_pos;
             self.hold_initial_index = self.caret_pos;

@@ -165,10 +165,10 @@ pub fn apply_undo(content: &mut Content, systems: &mut SystemHolder) {
                     content.data.mapdata.attribute[tile_pos] = changes.from.clone();
 
                     let view_attr = content.map_view.attribute[tile_pos];
+                    systems.gfx.set_text(&view_attr.text, &text);
                     systems
                         .gfx
-                        .set_text(&mut systems.renderer, &view_attr.text, &text);
-                    systems.gfx.center_text(&view_attr.text);
+                        .center_text(&mut systems.renderer, &view_attr.text);
                     systems.gfx.set_color(&view_attr.bg, color);
                 }
             }
@@ -216,10 +216,10 @@ pub fn apply_redo(content: &mut Content, systems: &mut SystemHolder) {
                     content.data.mapdata.attribute[tile_pos] = changes.to.clone();
 
                     let view_attr = content.map_view.attribute[tile_pos];
+                    systems.gfx.set_text(&view_attr.text, &text);
                     systems
                         .gfx
-                        .set_text(&mut systems.renderer, &view_attr.text, &text);
-                    systems.gfx.center_text(&view_attr.text);
+                        .center_text(&mut systems.renderer, &view_attr.text);
                     systems.gfx.set_color(&view_attr.bg, color);
                 }
             }

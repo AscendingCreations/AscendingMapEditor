@@ -2,8 +2,8 @@ use crate::{
     GfxType, SystemHolder,
     content::interface::widget::{is_within_area, label::create_label},
 };
-use cosmic_text::{Attrs, Metrics};
 use ascending_graphics::{cosmic_text::Weight, *};
+use cosmic_text::{Attrs, Metrics};
 
 #[derive(Copy, Clone)]
 pub enum ButtonChangeType {
@@ -232,11 +232,9 @@ impl Button {
                     visible,
                     CameraView::SubView1,
                 );
-                systems
-                    .gfx
-                    .set_text(&mut systems.renderer, &index, &data.text);
+                systems.gfx.set_text(&index, &data.text);
 
-                systems.gfx.center_text(&index);
+                systems.gfx.center_text(&mut systems.renderer, &index);
                 Some(index)
             }
         };
@@ -398,7 +396,9 @@ impl Button {
                                 .floor(),
                         )),
                     );
-                    systems.gfx.center_text(&content_index);
+                    systems
+                        .gfx
+                        .center_text(&mut systems.renderer, &content_index);
                 }
                 _ => {}
             };
@@ -498,7 +498,9 @@ impl Button {
                                 .floor(),
                         )),
                     );
-                    systems.gfx.center_text(&content_index);
+                    systems
+                        .gfx
+                        .center_text(&mut systems.renderer, &content_index);
                 }
                 _ => {}
             };
@@ -716,11 +718,9 @@ impl Button {
                     self.visible,
                     CameraView::SubView1,
                 );
-                systems
-                    .gfx
-                    .set_text(&mut systems.renderer, &index, &data.text);
+                systems.gfx.set_text(&index, &data.text);
 
-                systems.gfx.center_text(&index);
+                systems.gfx.center_text(&mut systems.renderer, &index);
                 Some(index)
             }
         };
@@ -799,11 +799,11 @@ impl Button {
         if let Some(content_data) = self.content
             && let ButtonContentType::Text(data) = &mut self.content_type
         {
+            systems.gfx.set_text(&content_data, &msg);
+            data.text = msg;
             systems
                 .gfx
-                .set_text(&mut systems.renderer, &content_data, &msg);
-            data.text = msg;
-            systems.gfx.center_text(&content_data);
+                .center_text(&mut systems.renderer, &content_data);
         }
     }
 
@@ -921,7 +921,9 @@ impl Button {
                                 self.z_order,
                             ),
                         );
-                        systems.gfx.center_text(&content_data);
+                        systems
+                            .gfx
+                            .center_text(&mut systems.renderer, &content_data);
                     }
                     ButtonChangeType::ColorChange(color) => {
                         systems.gfx.set_color(&content_data, color);
@@ -1065,7 +1067,9 @@ impl Button {
                                 self.z_order,
                             ),
                         );
-                        systems.gfx.center_text(&content_data);
+                        systems
+                            .gfx
+                            .center_text(&mut systems.renderer, &content_data);
                     }
                     ButtonChangeType::ColorChange(color) => {
                         systems.gfx.set_color(&content_data, color);
@@ -1169,7 +1173,9 @@ impl Button {
                             self.z_order,
                         ),
                     );
-                    systems.gfx.center_text(&content_data);
+                    systems
+                        .gfx
+                        .center_text(&mut systems.renderer, &content_data);
                 }
                 ButtonContentType::Image(data) => {
                     systems.gfx.set_pos(
@@ -1297,7 +1303,9 @@ impl Button {
                                 self.z_order,
                             ),
                         );
-                        systems.gfx.center_text(&content_data);
+                        systems
+                            .gfx
+                            .center_text(&mut systems.renderer, &content_data);
                     }
                     ButtonChangeType::ColorChange(color) => {
                         systems.gfx.set_color(&content_data, color);
@@ -1441,7 +1449,9 @@ impl Button {
                                 self.z_order,
                             ),
                         );
-                        systems.gfx.center_text(&content_data);
+                        systems
+                            .gfx
+                            .center_text(&mut systems.renderer, &content_data);
                     }
                     ButtonChangeType::ColorChange(color) => {
                         systems.gfx.set_color(&content_data, color);

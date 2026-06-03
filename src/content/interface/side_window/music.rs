@@ -54,9 +54,7 @@ impl MusicWindow {
             false,
             CameraView::SubView1,
         );
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &label, "Map Music");
+        systems.gfx.set_text(&label, "Map Music");
 
         let buttonrect = ButtonRect {
             rect_color: Color::rgb(80, 80, 80),

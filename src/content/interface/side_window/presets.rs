@@ -104,10 +104,10 @@ impl PresetWindow {
             false,
             CameraView::SubView1,
         );
+        systems.gfx.set_text(&preview_name, "Name");
         systems
             .gfx
-            .set_text(&mut systems.renderer, &preview_name, "Name");
-        systems.gfx.center_text(&preview_name);
+            .center_text(&mut systems.renderer, &preview_name);
 
         let text_pos = Vec3::new(
             start_pos.x,
@@ -138,10 +138,10 @@ impl PresetWindow {
             false,
             CameraView::SubView1,
         );
+        systems.gfx.set_text(&preview_info, "Info Text");
         systems
             .gfx
-            .set_text(&mut systems.renderer, &preview_info, "Info Text");
-        systems.gfx.center_text(&preview_info);
+            .center_text(&mut systems.renderer, &preview_info);
 
         let preview_pos = Vec2::new(
             bg_pos.x + ((preset_preview_size.x - 104.0) * 0.5).floor(),
@@ -420,9 +420,7 @@ impl PresetWindow {
             false,
             CameraView::SubView1,
         );
-        systems
-            .gfx
-            .set_text(&mut systems.renderer, &frame_label, "Frm: 1");
+        systems.gfx.set_text(&frame_label, "Frm: 1");
 
         let img = Image::new(
             Some(systems.resource.tilesheet[0].img),
@@ -781,7 +779,9 @@ impl PresetWindow {
                 text_pos.y + text_size.y,
             )),
         );
-        systems.gfx.center_text(&self.base.preview_name);
+        systems
+            .gfx
+            .center_text(&mut systems.renderer, &self.base.preview_name);
 
         let text_pos = Vec3::new(
             start_pos.x,
@@ -799,7 +799,9 @@ impl PresetWindow {
                 text_pos.y + text_size.y,
             )),
         );
-        systems.gfx.center_text(&self.base.preview_info);
+        systems
+            .gfx
+            .center_text(&mut systems.renderer, &self.base.preview_info);
 
         let preview_pos = Vec2::new(
             bg_pos.x + ((preset_preview_size.x - 104.0) * 0.5).floor(),

@@ -138,8 +138,8 @@ impl AttrPreview {
                 CameraView::SubView1,
             );
 
-            systems.gfx.set_text(&mut systems.renderer, &lbl, msg);
-            systems.gfx.center_text(&lbl);
+            systems.gfx.set_text(&lbl, msg);
+            systems.gfx.center_text(&mut systems.renderer, &lbl);
             self.text.push(lbl);
         }
 
@@ -176,7 +176,7 @@ impl AttrPreview {
                     label_pos.y + label_size.y,
                 )),
             );
-            systems.gfx.center_text(gfx);
+            systems.gfx.center_text(&mut systems.renderer, gfx);
         }
     }
 

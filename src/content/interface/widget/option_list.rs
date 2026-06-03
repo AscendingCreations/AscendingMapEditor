@@ -133,7 +133,6 @@ impl OptionList {
             CameraView::SubView1,
         );
         systems.gfx.set_text(
-            &mut systems.renderer,
             &data_text,
             if let Some(text_index) = selected_index {
                 &list[text_index]
@@ -288,7 +287,6 @@ impl OptionList {
 
     pub fn update_label(&mut self, systems: &mut SystemHolder, index: usize) {
         systems.gfx.set_text(
-            &mut systems.renderer,
             &self.text,
             if let Some(text) = self.list.list_text.get(index) {
                 text

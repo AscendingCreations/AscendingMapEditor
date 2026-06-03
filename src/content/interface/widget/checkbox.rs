@@ -2,8 +2,8 @@ use crate::{
     GfxType, SystemHolder,
     content::interface::widget::{create_label, is_within_area},
 };
-use cosmic_text::{Attrs, Metrics};
 use ascending_graphics::*;
+use cosmic_text::{Attrs, Metrics};
 use std::default;
 
 #[derive(Clone, Copy)]
@@ -258,9 +258,7 @@ impl Checkbox {
                 visible,
                 CameraView::SubView1,
             );
-            systems
-                .gfx
-                .set_text(&mut systems.renderer, &txt_index, &data.text);
+            systems.gfx.set_text(&txt_index, &data.text);
             adjust_x = data.offset_pos.x + data.label_size.x;
             Some((txt_index, data_copy))
         } else {
@@ -450,9 +448,7 @@ impl Checkbox {
 
     pub fn change_content_text(&mut self, systems: &mut SystemHolder, text: String) {
         if let Some(text_type) = &mut self.text_type {
-            systems
-                .gfx
-                .set_text(&mut systems.renderer, &text_type.0, &text);
+            systems.gfx.set_text(&text_type.0, &text);
             text_type.1.text.clone_from(&text);
         }
     }

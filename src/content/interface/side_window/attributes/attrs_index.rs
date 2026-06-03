@@ -61,7 +61,7 @@ impl AttrIndex {
             visible,
             CameraView::SubView1,
         );
-        systems.gfx.set_text(&mut systems.renderer, &gfx, "Index");
+        systems.gfx.set_text(&gfx, "Index");
 
         let textbox_pos = Vec3::new(
             (116.0 * systems.scale as f32).floor(),

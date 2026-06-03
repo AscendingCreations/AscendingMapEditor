@@ -183,12 +183,10 @@ impl DrawingTool {
             true,
             CameraView::SubView1,
         );
-        systems.gfx.set_text(
-            &mut systems.renderer,
-            &zoom_label,
-            &format!("{}%", 100 + (10 * zoom_scroll.value)),
-        );
-        systems.gfx.center_text(&zoom_label);
+        systems
+            .gfx
+            .set_text(&zoom_label, &format!("{}%", 100 + (10 * zoom_scroll.value)));
+        systems.gfx.center_text(&mut systems.renderer, &zoom_label);
 
         let mut layer_button = Vec::with_capacity(MapLayers::Count as usize);
         for layer in 0..MapLayers::Count as usize {
@@ -298,6 +296,8 @@ impl DrawingTool {
                 label_pos.y + label_size.y,
             )),
         );
-        systems.gfx.center_text(&self.zoom_label);
+        systems
+            .gfx
+            .center_text(&mut systems.renderer, &self.zoom_label);
     }
 }
