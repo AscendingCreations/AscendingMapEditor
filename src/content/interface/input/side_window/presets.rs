@@ -495,7 +495,7 @@ pub fn side_preset_clickdrag_widget(
 pub fn preset_update_list(content: &mut Content, systems: &mut SystemHolder) {
     let mut list = Vec::with_capacity(MAX_PRESETS);
     for (i, data) in content.preset.data.iter().enumerate() {
-        list.push(format!("{}: {}", i + 1, &data.name));
+        list.push(format!("{}: {}", i + 1, data.name));
     }
     content
         .interface

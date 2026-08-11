@@ -92,7 +92,7 @@ impl log::Log for MyLogger {
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
             let msg = format!("{} - {}\n", record.level(), record.args());
-            println!("{}", &msg);
+            println!("{msg}");
 
             let mut file = match File::options()
                 .append(true)
@@ -178,7 +178,7 @@ impl winit::application::ApplicationHandler for Runner {
             let compatible_surface = instance.create_surface(window.clone()).unwrap();
 
             info!("after compatible initiation");
-            print!("{:?}", &compatible_surface);
+            print!("{compatible_surface:?}");
             // This creates the Window Struct and Device struct that holds all the rendering information
             // we need to render to the screen. Window holds most of the window information including
             // the surface type. device includes the queue and GPU device for rendering.
