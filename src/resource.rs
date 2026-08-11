@@ -70,7 +70,7 @@ impl TextureAllocation {
         for path in paths {
             interface.push(
                 Texture::from_file(path)?
-                    .upload(img_atlases, renderer)
+                    .upload(path, img_atlases, renderer)
                     .ok_or_else(|| OtherError::new("failed to upload image"))?,
             )
         }
@@ -85,11 +85,11 @@ impl TextureAllocation {
             if Path::new(&path).exists() {
                 let res = TilesheetData {
                     name: format!("t{count}.png"),
-                    img: Texture::from_file(path)?
-                        .upload(img_atlases, renderer)
+                    img: Texture::from_file(&path)?
+                        .upload(&path, img_atlases, renderer)
                         .ok_or_else(|| OtherError::new("failed to upload image"))?,
-                    tile: Texture::from_file(format!("images/tiles/t{count}.png"))?
-                        .new_tilesheet(map_atlases, renderer, TEXTURE_SIZE)
+                    tile: Texture::from_file(&path)?
+                        .new_tilesheet(&path, map_atlases, renderer, TEXTURE_SIZE)
                         .ok_or_else(|| OtherError::new("failed to upload tiles"))?,
                 };
 
